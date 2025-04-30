@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useChatHistoryStore } from "../../stores/chatHistoryStore";
+import { useModalStore } from "../../stores/modalStore";
 import Button from "../ui/Button";
-import Image from 'next/image';
-import logo from '../../assets/icons/logo.png';
+import Image from "next/image";
+import logo from "../../assets/icons/logo.png";
 
 const Header: React.FC = () => {
   const exportChat = useChatHistoryStore((state) => state.exportChat);
+  const setModalType = useModalStore((state) => state.setModalType);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   const handleProfileClick = () => {
@@ -39,15 +41,33 @@ const Header: React.FC = () => {
                 <FontAwesomeIcon icon="user-circle" className="mr-2" />
                 Профиль
               </button>
-              <button className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 flex items-center">
+              <button
+                onClick={() => {
+                  setIsProfileMenuOpen(false);
+                  setModalType("settings");
+                }}
+                className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 flex items-center"
+              >
                 <FontAwesomeIcon icon="cog" className="mr-2" />
                 Настройки
               </button>
-              <button className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 flex items-center">
+              <button
+                onClick={() => {
+                  setIsProfileMenuOpen(false);
+                  setModalType("theme");
+                }}
+                className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 flex items-center"
+              >
                 <FontAwesomeIcon icon="palette" className="mr-2" />
                 Тема
               </button>
-              <button className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 flex items-center">
+              <button
+                onClick={() => {
+                  setIsProfileMenuOpen(false);
+                  setModalType("help");
+                }}
+                className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 flex items-center"
+              >
                 <FontAwesomeIcon icon="question-circle" className="mr-2" />
                 Помощь
               </button>

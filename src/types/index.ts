@@ -4,7 +4,12 @@ export interface Chat {
   lastMessage: string;
   isActive: boolean;
   hidden: boolean;
-  isFavorite: boolean;
+  folderId?: number;
+}
+
+export interface Folder {
+  id: number;
+  name: string;
 }
 
 export interface Message {
@@ -15,8 +20,5 @@ export interface Message {
 
 export interface ChatGroups {
   today: Chat[];
-  yesterday: Chat[];
-  lastWeek: Chat[];
-  lastMonth: Chat[];
   older: Chat[];
 }

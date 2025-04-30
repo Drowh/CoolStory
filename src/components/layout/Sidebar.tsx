@@ -1,25 +1,31 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useChatHistoryStore } from "../../stores/chatHistoryStore";
 import { useUIStore } from "../../stores/uiStore";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect, useState } from "react"; // Добавляем useState
 import SearchBar from "../chat/SearchBar";
 import ChatGroup from "../chat/ChatGroup";
 import Button from "../ui/Button";
+import DeleteFolderButton from "../ui/DeleteFolderButton";
 
 const Sidebar: React.FC = () => {
-  const showFavorites = useChatHistoryStore((state) => state.showFavorites);
-  const setShowFavorites = useChatHistoryStore(
-    (state) => state.setShowFavorites
-  );
+  const showFolders = useChatHistoryStore((state) => state.showFolders);
+  const setShowFolders = useChatHistoryStore((state) => state.setShowFolders);
+  const folders = useChatHistoryStore((state) => state.folders);
+  const chatHistory = useChatHistoryStore((state) => state.chatHistory);
   const groupChatsByDate = useChatHistoryStore(
     (state) => state.groupChatsByDate
   );
   const createNewChat = useChatHistoryStore((state) => state.createNewChat);
-  const chatHistory = useChatHistoryStore((state) => state.chatHistory);
-
   const isSidebarCollapsed = useUIStore((state) => state.isSidebarCollapsed);
   const setIsSidebarCollapsed = useUIStore(
     (state) => state.setIsSidebarCollapsed
+  );
+  const setIsAddToFolderDialogOpen = useUIStore(
+    (state) => state.setIsAddToFolderDialogOpen
+  );
+  const expandedFolderIds = useUIStore((state) => state.expandedFolderIds);
+  const toggleFolderExpansion = useUIStore(
+    (state) => state.toggleFolderExpansion
   );
 
   const [isMobile, setIsMobile] = useState(false);
@@ -33,30 +39,18 @@ const Sidebar: React.FC = () => {
       }
     };
 
-    checkMobile(); // при монтировании
-
+    checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, [isSidebarCollapsed, setIsSidebarCollapsed]);
 
   const groupedChats = useMemo(
     () => groupChatsByDate(),
-    [chatHistory, groupChatsByDate]
+    [groupChatsByDate] // Убрали chatHistory из зависимостей
   );
 
-  const favoriteChats = useMemo(() => {
-    const allChats = [
-      ...groupedChats.today,
-      ...groupedChats.yesterday,
-      ...groupedChats.lastWeek,
-      ...groupedChats.lastMonth,
-      ...groupedChats.older,
-    ];
-    return allChats.filter((chat) => chat.isFavorite);
-  }, [groupedChats]);
-
   const sidebarBaseClasses = `
-    sticky top-0 left-0 h-full z-40
+    top-0 left-0 sticky h-screen z-40
     bg-gray-800 border-r border-gray-700 
     transition-all duration-300 flex flex-col
     custom-scrollbar overflow-y-auto
@@ -131,31 +125,79 @@ const Sidebar: React.FC = () => {
         {!isSidebarCollapsed && (
           <>
             <div className="px-4 py-3">
-              <button
-                onClick={() => setShowFavorites(!showFavorites)}
-                className="w-full flex items-center justify-between px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors duration-200 shadow-sm"
-              >
-                <div className="flex items-center">
-                  <FontAwesomeIcon
-                    icon="star"
-                    className="text-yellow-500 mr-2"
-                  />
-                  <span className="text-gray-200">Избранное</span>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setShowFolders(!showFolders)}
+                  className="flex items-center px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors duration-200 shadow-sm"
+                >
+                  <FontAwesomeIcon icon="tags" className="text-pink-500 mr-2" />
+                  <span className="text-gray-200">Темки</span>
+                </button>
+                {showFolders && (
+                  <Button
+                    onClick={() => setIsAddToFolderDialogOpen(true)}
+                    className="text-gray-400 hover:text-gray-200 bg-gray-700 hover:bg-gray-600 p-2 rounded-lg"
+                  >
+                    <FontAwesomeIcon icon="plus" />
+                  </Button>
+                )}
+              </div>
+              {showFolders && (
+                <div className="mt-2">
+                  {folders.map((folder) => {
+                    const folderChats = chatHistory.filter(
+                      (chat) => chat.folderId === folder.id
+                    );
+                    const isExpanded = expandedFolderIds.includes(folder.id);
+                    return (
+                      <div key={folder.id}>
+                        <div className="flex items-center justify-between py-1">
+                          <button
+                            onClick={() => toggleFolderExpansion(folder.id)}
+                            className="flex items-center text-gray-200 hover:text-gray-100 w-full text-left"
+                          >
+                            <FontAwesomeIcon
+                              icon={
+                                isExpanded ? "chevron-down" : "chevron-right"
+                              }
+                              className="mr-2 text-gray-400"
+                            />
+                            {folder.name}
+                          </button>
+                          <DeleteFolderButton folderId={folder.id} />
+                        </div>
+                        {isExpanded && folderChats.length > 0 && (
+                          <ul className="pl-6 space-y-1">
+                            {folderChats.map((chat) => (
+                              <li
+                                key={chat.id}
+                                className={`p-2 rounded-md cursor-pointer ${
+                                  chat.isActive
+                                    ? "bg-gray-700 text-gray-100"
+                                    : "text-gray-300 hover:bg-gray-700"
+                                }`}
+                                onClick={() => {
+                                  useChatHistoryStore
+                                    .getState()
+                                    .selectChat(chat.id);
+                                  if (window.innerWidth < 768) {
+                                    setIsSidebarCollapsed(true);
+                                  }
+                                }}
+                              >
+                                {chat.title}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                <FontAwesomeIcon
-                  icon={showFavorites ? "chevron-up" : "chevron-down"}
-                  className="text-gray-400"
-                />
-              </button>
+              )}
             </div>
             <div className="flex-1 px-4 overflow-y-auto pb-4">
-              {showFavorites && favoriteChats.length > 0 && (
-                <ChatGroup title="Избранное" chats={favoriteChats} />
-              )}
               <ChatGroup title="Сегодня" chats={groupedChats.today} />
-              <ChatGroup title="Вчера" chats={groupedChats.yesterday} />
-              <ChatGroup title="Прошлая неделя" chats={groupedChats.lastWeek} />
-              <ChatGroup title="Прошлый месяц" chats={groupedChats.lastMonth} />
               <ChatGroup title="Ранее" chats={groupedChats.older} />
             </div>
           </>

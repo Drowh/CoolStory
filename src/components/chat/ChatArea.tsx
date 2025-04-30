@@ -113,7 +113,8 @@ const ChatArea: React.FC = () => {
         }`}
         ref={chatContainerRef}
       >
-        <div className="max-w-full mx-auto">
+        {/* Центрирование контента с фиксированной шириной */}
+        <div className="max-w-5xl mx-auto w-full px-4">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-gray-500 transition-all duration-500 transform hover:scale-105">
               <div className="p-6 rounded-lg bg-gray-800 bg-opacity-40 shadow-lg transform hover:shadow-pink-500/10 transition-all duration-300">
@@ -130,15 +131,22 @@ const ChatArea: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="max-w-full mx-auto">
+            <div className="flex flex-col w-full space-y-4">
               {messages.map((message) => (
-                <ChatMessage key={message.id} message={message} />
+                <div
+                  key={message.id}
+                  className={`${
+                    message.sender === "user" ? "max-w-2xl ml-auto" : "w-full"
+                  }`}
+                >
+                  <ChatMessage message={message} />
+                </div>
               ))}
             </div>
           )}
 
           {isTyping && (
-            <div className="flex items-start mt-4 ml-12 md:ml-16">
+            <div className="flex items-start mt-4 w-full">
               <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-800 border border-gray-700 mr-3 flex items-center justify-center shadow-md overflow-hidden">
                 <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                   <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gray-700 relative overflow-hidden">

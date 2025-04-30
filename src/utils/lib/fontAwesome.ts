@@ -27,6 +27,9 @@ import {
   faFile,
   faTimes,
   faBars,
+  faFolder,
+  faFolderPlus,
+  faTags,
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -57,6 +60,9 @@ library.add(
   faFile,
   faTimes,
   faBars,
+  faFolder,
+  faFolderPlus,
+  faTags,
 
 
 );

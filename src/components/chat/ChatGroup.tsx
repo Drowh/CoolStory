@@ -21,12 +21,15 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
   const setIsSidebarCollapsed = useUIStore(
     (state) => state.setIsSidebarCollapsed
   );
+  const setIsAddToFolderDialogOpen = useUIStore(
+    (state) => state.setIsAddToFolderDialogOpen
+  );
+  const setSelectedChatId = useUIStore((state) => state.setSelectedChatId);
 
   if (!chats.length) return null;
 
   const handleChatClick = (chatId: string) => {
     selectChat(parseInt(chatId, 10));
-    // На мобильных устройствах сворачиваем сайдбар после выбора чата
     if (window.innerWidth < 768) {
       setIsSidebarCollapsed(true);
     }
@@ -66,47 +69,27 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
                   </div>
                 </div>
                 <div className="flex items-center space-x-1.5">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setChatHistory((prev) =>
-                        prev.map((c) =>
-                          c.id === chat.id
-                            ? { ...c, isFavorite: !c.isFavorite }
-                            : c
-                        )
-                      );
-                    }}
-                    className={`text-gray-400 hover:text-yellow-500 transition-colors duration-200 p-1 rounded-full hover:bg-gray-600 opacity-0 group-hover:opacity-100 ${
-                      chat.isFavorite ? "text-yellow-500 opacity-100" : ""
-                    }`}
-                    aria-label={
-                      chat.isFavorite
-                        ? "Удалить из избранного"
-                        : "Добавить в избранное"
-                    }
-                  >
-                    <FontAwesomeIcon
-                      icon={chat.isFavorite ? "star" : ["far", "star"]}
-                    />
-                  </button>
                   <div className="relative">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setOpenMenuId(openMenuId === chat.id ? null : chat.id);
+                        setOpenMenuId(
+                          openMenuId === String(chat.id)
+                            ? null
+                            : String(chat.id)
+                        );
                       }}
                       className="text-gray-400 hover:text-gray-200 p-1 rounded-full hover:bg-gray-600 transition-colors duration-200 opacity-0 group-hover:opacity-100"
                       aria-label="Открыть меню"
                     >
                       <FontAwesomeIcon icon="ellipsis-h" />
                     </button>
-                    {openMenuId === chat.id && (
+                    {openMenuId === String(chat.id) && (
                       <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-50 py-1 overflow-hidden">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedTabId(chat.id);
+                            setSelectedTabId(String(chat.id));
                             setIsRenameDialogOpen(true);
                             setOpenMenuId(null);
                           }}
@@ -117,6 +100,21 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
                             className="mr-2 text-gray-400"
                           />
                           Переименовать
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedChatId(chat.id);
+                            setIsAddToFolderDialogOpen(true);
+                            setOpenMenuId(null);
+                          }}
+                          className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                        >
+                          <FontAwesomeIcon
+                            icon="folder-plus"
+                            className="mr-2 text-gray-400"
+                          />
+                          Добавить в папку
                         </button>
                         <div className="border-t border-gray-700 my-1"></div>
                         <button
@@ -147,7 +145,6 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
                 {chat.lastMessage}
               </p>
             </div>
-            {/* Индикатор активного чата */}
             {chat.isActive && (
               <div className="absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-pink-500 to-purple-600"></div>
             )}

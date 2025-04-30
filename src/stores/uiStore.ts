@@ -1,68 +1,55 @@
 import { create } from "zustand";
+import { useSettingsStore } from "./settingsStore"; // Добавляем импорт
 
 interface UIState {
-  selectedTabId: number | null;
-  setSelectedTabId: (id: number | null) => void;
-  isRenameDialogOpen: boolean;
-  setIsRenameDialogOpen: (isOpen: boolean) => void;
-  newChatName: string;
-  setNewChatName: (name: string) => void;
-  openMenuId: number | null;
-  setOpenMenuId: (id: number | null) => void;
   isSidebarCollapsed: boolean;
-  setIsSidebarCollapsed: (isCollapsed: boolean) => void;
-  isDarkMode: boolean;
-  setIsDarkMode: (isDark: boolean) => void;
+  setIsSidebarCollapsed: (value: boolean) => void;
+  openMenuId: string | null;
+  setOpenMenuId: (id: string | null) => void;
+  isRenameDialogOpen: boolean;
+  setIsRenameDialogOpen: (value: boolean) => void;
+  selectedTabId: string | null;
+  setSelectedTabId: (id: string | null) => void;
+  isAddToFolderDialogOpen: boolean;
+  setIsAddToFolderDialogOpen: (value: boolean) => void;
+  selectedChatId: number | null;
+  setSelectedChatId: (id: number | null) => void;
+  newChatName: string;
+  setNewChatName: (value: string) => void;
+  expandedFolderIds: number[];
+  setExpandedFolderIds: (ids: number[]) => void;
+  toggleFolderExpansion: (id: number) => void;
 }
 
-export const useUIStore = create<UIState>((set) => ({
-  selectedTabId: null,
-  setSelectedTabId: (id) => {
-    console.log("setSelectedTabId вызван, id:", id);
-    set({ selectedTabId: id });
-  },
-
-  isRenameDialogOpen: false,
-  setIsRenameDialogOpen: (isOpen) => {
-    console.log("setIsRenameDialogOpen вызван, isOpen:", isOpen);
-    set({ isRenameDialogOpen: isOpen });
-  },
-
-  newChatName: "",
-  setNewChatName: (name) => {
-    console.log("setNewChatName вызван, name:", name);
-    set({ newChatName: name });
-  },
-
+export const useUIStore = create<UIState>((set, get) => ({
+  isSidebarCollapsed: true,
+  setIsSidebarCollapsed: (value) => set({ isSidebarCollapsed: value }),
   openMenuId: null,
-  setOpenMenuId: (id) => {
-    console.log("setOpenMenuId вызван, id:", id);
-    set({ openMenuId: id });
-  },
-
-  isSidebarCollapsed: false,
-  setIsSidebarCollapsed: (isCollapsed) => {
-    console.log("setIsSidebarCollapsed вызван, isCollapsed:", isCollapsed);
-    set((state) => {
-      console.log(
-        "Текущее состояние isSidebarCollapsed:",
-        state.isSidebarCollapsed
-      );
-      console.log("Новое состояние isSidebarCollapsed:", isCollapsed);
-      return { isSidebarCollapsed: isCollapsed };
-    });
-  },
-
-  isDarkMode: true,
-  setIsDarkMode: (isDark) => {
-    console.log("setIsDarkMode вызван, isDark:", isDark);
-    if (typeof window !== "undefined") {
-      if (isDark) {
-        document.documentElement.classList.add("dark");
+  setOpenMenuId: (id) => set({ openMenuId: id }),
+  isRenameDialogOpen: false,
+  setIsRenameDialogOpen: (value) => set({ isRenameDialogOpen: value }),
+  selectedTabId: null,
+  setSelectedTabId: (id) => set({ selectedTabId: id }),
+  isAddToFolderDialogOpen: false,
+  setIsAddToFolderDialogOpen: (value) =>
+    set({ isAddToFolderDialogOpen: value }),
+  selectedChatId: null,
+  setSelectedChatId: (id) => set({ selectedChatId: id }),
+  newChatName: "",
+  setNewChatName: (value) => set({ newChatName: value }),
+  expandedFolderIds: [],
+  setExpandedFolderIds: (ids) => set({ expandedFolderIds: ids }),
+  toggleFolderExpansion: (id) => {
+    const { expandedFolderIds } = get();
+    const autoCollapse = useSettingsStore.getState().autoCollapseFolders;
+    if (expandedFolderIds.includes(id)) {
+      set({ expandedFolderIds: expandedFolderIds.filter((fid) => fid !== id) });
+    } else {
+      if (autoCollapse) {
+        set({ expandedFolderIds: [id] });
       } else {
-        document.documentElement.classList.remove("dark");
+        set({ expandedFolderIds: [...expandedFolderIds, id] });
       }
     }
-    set({ isDarkMode: isDark });
   },
 }));
