@@ -17,20 +17,22 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     console.log("useEffect вызван, устанавливаем messagesEndRef");
     setMessagesEndRef(messagesEndRef);
-  }, []); 
+  }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900 text-gray-100 font-sans md:flex-row">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800 text-gray-100 md:flex-row w-full">
       <Sidebar />
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 w-full">
         <Header />
-        <main className="flex-1 flex flex-col bg-gray-900">
-          <ChatArea />
+        <main className="flex-1 flex flex-col w-full">
+          <div className="flex-1 overflow-hidden w-full">
+            <ChatArea />
+          </div>
           <ChatInput />
         </main>
       </div>
       <RenameDialog />
-      <div ref={messagesEndRef} />
+      <div ref={messagesEndRef} className="hidden" />
     </div>
   );
 };

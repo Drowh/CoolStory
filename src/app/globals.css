@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Comic Relief';
+  src: url('/fonts/ComicRelief-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Comic Relief';
+  src: url('/fonts/ComicRelief-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+    font-family: 'Comic Relief', system-ui, sans-serif;
+}
 .btn {
   padding: 0.5rem;
   border-radius: 0.375rem;
