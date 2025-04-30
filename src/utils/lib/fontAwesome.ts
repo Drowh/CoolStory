@@ -1,4 +1,5 @@
 import { library } from "@fortawesome/fontawesome-svg-core";
+import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 import {
   faRobot,
   faUser,
@@ -25,6 +26,10 @@ import {
   faImage,
   faFile,
   faTimes,
+  faBars,
+  faFolder,
+  faFolderPlus,
+  faTags,
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -41,6 +46,7 @@ library.add(
   faStar,
   faEllipsisH,
   faEdit,
+  faStarRegular, 
   faTrashAlt,
   faChevronDown,
   faChevronUp,
@@ -53,6 +59,11 @@ library.add(
   faImage,
   faFile,
   faTimes,
+  faBars,
+  faFolder,
+  faFolderPlus,
+  faTags,
+
 
 );
 

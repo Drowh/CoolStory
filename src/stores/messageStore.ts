@@ -21,7 +21,11 @@ interface MessageState {
 }
 
 const createMessageStore: StateCreator<MessageState> = (set, get) => ({
-  messages: initialMessages,
+  messages: initialMessages.map((msg) => ({
+    id: msg.id,
+    text: msg.text,
+    sender: msg.sender,
+  })), // Убираем timestamp из initialMessages
   setMessages: (messages) =>
     set((state) => ({
       messages:
@@ -66,7 +70,6 @@ const createMessageStore: StateCreator<MessageState> = (set, get) => ({
       id: Date.now(),
       text: inputMessage,
       sender: "user",
-      timestamp: new Date(),
     };
 
     setMessages([...messages, newUserMessage]);
@@ -84,7 +87,6 @@ const createMessageStore: StateCreator<MessageState> = (set, get) => ({
         id: Date.now() + 1,
         text: reply,
         sender: "assistant",
-        timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantReply]);
 

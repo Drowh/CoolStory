@@ -2,23 +2,23 @@ export interface Chat {
   id: number;
   title: string;
   lastMessage: string;
-  timestamp: Date;
   isActive: boolean;
   hidden: boolean;
-  isFavorite: boolean;
+  folderId?: number;
+}
+
+export interface Folder {
+  id: number;
+  name: string;
 }
 
 export interface Message {
   id: number;
   text: string;
   sender: "user" | "assistant";
-  timestamp: Date;
 }
 
 export interface ChatGroups {
   today: Chat[];
-  yesterday: Chat[];
-  lastWeek: Chat[];
-  lastMonth: Chat[];
   older: Chat[];
 }

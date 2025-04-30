@@ -22,11 +22,11 @@ const RenameDialog: React.FC = () => {
 
   const handleRename = () => {
     if (selectedTabId !== null && newChatName.trim() !== "") {
+      const chatId = parseInt(selectedTabId);
+      if (isNaN(chatId)) return; // Проверка на случай, если selectedTabId не является числом
       setChatHistory(
         chatHistory.map((chat) =>
-          chat.id === selectedTabId
-            ? { ...chat, title: newChatName.trim() }
-            : chat
+          chat.id === chatId ? { ...chat, title: newChatName.trim() } : chat
         )
       );
       setIsRenameDialogOpen(false);
