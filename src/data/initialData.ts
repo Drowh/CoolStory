@@ -15,6 +15,7 @@ export const initialChats: Chat[] = [
     lastMessage: "Привет! Чем я могу помочь вам сегодня?",
     isActive: true,
     hidden: false,
+    createdAt: new Date(),
   },
   {
     id: 2,
@@ -22,6 +23,7 @@ export const initialChats: Chat[] = [
     lastMessage: "Я могу помочь с оптимизацией вашего кода",
     isActive: false,
     hidden: false,
+    createdAt: new Date(),
   },
   {
     id: 3,
@@ -29,6 +31,7 @@ export const initialChats: Chat[] = [
     lastMessage: "Вот несколько идей для вашего проекта",
     isActive: false,
     hidden: false,
+    createdAt: new Date(),
   },
   {
     id: 4,
@@ -36,6 +39,7 @@ export const initialChats: Chat[] = [
     lastMessage: "Результаты анализа готовы",
     isActive: false,
     hidden: false,
+    createdAt: new Date(),
   },
   {
     id: 5,
@@ -43,5 +47,6 @@ export const initialChats: Chat[] = [
     lastMessage: "План проекта составлен",
     isActive: false,
     hidden: false,
+    createdAt: new Date(),
   },
 ];

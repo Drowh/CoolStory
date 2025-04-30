@@ -40,7 +40,7 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
       <h3 className="text-xs uppercase text-gray-400 font-semibold px-3 py-2 tracking-wider">
         {title}
       </h3>
-      <ul className="space-y-1.5">
+      <ul className="space-y-1.5 cursor-pointer">
         {chats.map((chat) => (
           <li
             key={chat.id}

@@ -72,7 +72,7 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     );
 
     filteredChats.forEach((chat) => {
-      const chatDate = new Date(chat.id);
+      const chatDate = chat.createdAt ? new Date(chat.createdAt) : new Date(); // Используем createdAt
       if (chatDate >= today) {
         groups.today.push(chat);
       } else {
@@ -83,7 +83,7 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     return groups;
   },
   createNewChat: () => {
-    const { chatHistory, setChatHistory } = get();
+    const { chatHistory, setChatHistory, selectChat } = get();
     const newChatId = Math.max(...chatHistory.map((chat) => chat.id), 0) + 1;
     const newChat: Chat = {
       id: newChatId,
@@ -91,6 +91,7 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       lastMessage: "Начните новый разговор",
       isActive: true,
       hidden: false,
+      createdAt: new Date(),
     };
 
     setChatHistory((prevChats) => [
@@ -101,7 +102,7 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       })),
     ]);
 
-    useMessageStore.getState().setMessages([]);
+    selectChat(newChatId);
   },
   selectChat: (chatId: number) => {
     const { chatHistory, setChatHistory } = get();
@@ -157,7 +158,7 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     });
   },
   deleteFolder: (folderId: number) => {
-    const { folders, setFolders, setChatHistory } = get();
+    const { setFolders, setChatHistory } = get();
     setFolders((prev) => prev.filter((folder) => folder.id !== folderId));
     setChatHistory((prevChats) =>
       prevChats.map((chat) =>

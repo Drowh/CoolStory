@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useChatHistoryStore } from "../../stores/chatHistoryStore";
 import { useUIStore } from "../../stores/uiStore";
-import { useMemo, useEffect, useState } from "react"; // Добавляем useState
+import { useMemo, useEffect, useState } from "react";
 import SearchBar from "../chat/SearchBar";
 import ChatGroup from "../chat/ChatGroup";
 import Button from "../ui/Button";
@@ -16,6 +16,7 @@ const Sidebar: React.FC = () => {
     (state) => state.groupChatsByDate
   );
   const createNewChat = useChatHistoryStore((state) => state.createNewChat);
+  const selectChat = useChatHistoryStore((state) => state.selectChat);
   const isSidebarCollapsed = useUIStore((state) => state.isSidebarCollapsed);
   const setIsSidebarCollapsed = useUIStore(
     (state) => state.setIsSidebarCollapsed
@@ -46,7 +47,7 @@ const Sidebar: React.FC = () => {
 
   const groupedChats = useMemo(
     () => groupChatsByDate(),
-    [groupChatsByDate] // Убрали chatHistory из зависимостей
+    [groupChatsByDate, chatHistory]
   );
 
   const sidebarBaseClasses = `
@@ -177,9 +178,7 @@ const Sidebar: React.FC = () => {
                                     : "text-gray-300 hover:bg-gray-700"
                                 }`}
                                 onClick={() => {
-                                  useChatHistoryStore
-                                    .getState()
-                                    .selectChat(chat.id);
+                                  selectChat(chat.id);
                                   if (window.innerWidth < 768) {
                                     setIsSidebarCollapsed(true);
                                   }

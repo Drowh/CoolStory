@@ -60,7 +60,7 @@ const AddToFolderDialog: React.FC = () => {
             folders.map((folder) => (
               <div
                 key={folder.id}
-                className="flex items-center justify-between p-2 border-gray-700 border-2 rounded-md mb-2"
+                className="flex items-center justify-between p-2 border-gray-700 hover:bg-gray-700 border-2 rounded-md mb-2"
               >
                 <button
                   onClick={() => handleAddToFolder(folder.id)}

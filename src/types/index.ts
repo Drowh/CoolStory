@@ -5,6 +5,7 @@ export interface Chat {
   isActive: boolean;
   hidden: boolean;
   folderId?: number;
+  createdAt?: Date;
 }
 
 export interface Folder {
