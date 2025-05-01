@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { useSettingsStore } from "./settingsStore"; // Добавляем импорт
+import { useSettingsStore } from "./settingsStore";
 
-interface UIState {
+export interface UIState {
   isSidebarCollapsed: boolean;
   setIsSidebarCollapsed: (value: boolean) => void;
   openMenuId: string | null;
