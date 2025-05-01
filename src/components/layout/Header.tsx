@@ -18,12 +18,12 @@ const Header: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between">
       <Image src={logo} alt="logo" width={150} height={40} className="ml-9" />
-      <div className="flex items-center space-x-2 relative">
+      <div className="flex items-center space-x-3 relative">
         <Button
           onClick={() => {
             exportChat();
           }}
-          className="text-gray-400 hover:text-gray-200"
+          className="text-gray-400 py-3 hover:bg-gray-700 hover:text-gray-200"
         >
           <FontAwesomeIcon icon="download" />
         </Button>

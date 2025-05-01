@@ -66,6 +66,23 @@ body {
   }
 }
 
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.ripple-circle {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(0);
+  animation: ripple 600ms linear;
+  pointer-events: none;
+}
+
+
 /* Стили для сообщений нейросети */
 .chat-message-assistant h3 {
   font-size: 1.125rem; /* 18px */

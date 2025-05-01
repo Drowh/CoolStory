@@ -17,6 +17,7 @@ const Sidebar: React.FC = () => {
   );
   const createNewChat = useChatHistoryStore((state) => state.createNewChat);
   const selectChat = useChatHistoryStore((state) => state.selectChat);
+
   const isSidebarCollapsed = useUIStore((state) => state.isSidebarCollapsed);
   const setIsSidebarCollapsed = useUIStore(
     (state) => state.setIsSidebarCollapsed
@@ -35,8 +36,6 @@ const Sidebar: React.FC = () => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      // Только автоматически сворачиваем при начальной загрузке на мобильном,
-      // но не при каждом изменении размера
       if (mobile && !isSidebarCollapsed && !window.initialMobileCheck) {
         setIsSidebarCollapsed(true);
         window.initialMobileCheck = true;
@@ -54,16 +53,15 @@ const Sidebar: React.FC = () => {
   );
 
   const sidebarBaseClasses = `
-    top-0 left-0 z-40
+    top-0 left-0 z-[51]
     bg-gray-800 border-r border-gray-700 
     transition-all duration-300 flex flex-col
     custom-scrollbar overflow-y-auto
   `;
 
-  // Изменяем классы видимости для мобильных устройств
   const sidebarVisibilityClasses = isMobile
     ? isSidebarCollapsed
-      ? "fixed -translate-x-full" // Полностью скрываем за пределами экрана
+      ? "fixed -translate-x-full"
       : "fixed w-64 translate-x-0 h-screen"
     : isSidebarCollapsed
     ? "sticky w-16 translate-x-0 h-screen"
@@ -81,13 +79,15 @@ const Sidebar: React.FC = () => {
       )}
 
       {isSidebarCollapsed && isMobile && (
-        <button
-          onClick={() => setIsSidebarCollapsed(false)}
-          className="fixed top-1 left-2 z-30 md:hidden bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-200 p-3 rounded-full shadow-lg transition-transform duration-300 hover:scale-105"
-          aria-label="Открыть меню"
-        >
-          <FontAwesomeIcon icon="bars" />
-        </button>
+        <div className="fixed top-3 left-2 z-[52] animate-fade-in-scale">
+          <button
+            onClick={() => setIsSidebarCollapsed(false)}
+            className="bg-[#111827] border border-gray-600 text-gray-200 px-3 py-1 rounded-full shadow-lg transition-transform duration-300 hover:scale-105"
+            aria-label="Открыть меню"
+          >
+            <FontAwesomeIcon icon="bars" />
+          </button>
+        </div>
       )}
 
       <aside className={`${sidebarBaseClasses} ${sidebarVisibilityClasses}`}>
@@ -96,20 +96,18 @@ const Sidebar: React.FC = () => {
             <>
               <div className="flex items-center justify-between gap-2">
                 <SearchBar />
-                <Button
+                <button
                   onClick={() => setIsSidebarCollapsed(true)}
-                  className="text-gray-400 hover:text-gray-200 bg-gray-700 hover:bg-gray-600 p-2 rounded-lg"
+                  className="text-gray-400 px-4 hover:text-gray-200 bg-[#111827] border border-gray-600 hover:bg-gray-600 p-2 rounded-lg"
                   aria-label="Свернуть боковую панель"
                 >
                   <FontAwesomeIcon icon="chevron-left" />
-                </Button>
+                </button>
               </div>
               <Button
                 onClick={() => {
                   createNewChat();
-                  if (isMobile) {
-                    setIsSidebarCollapsed(true);
-                  }
+                  if (isMobile) setIsSidebarCollapsed(true);
                 }}
                 className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 w-full mt-4 flex items-center justify-center space-x-2 py-2 rounded-lg transform transition-transform duration-200 hover:scale-102 shadow-md"
               >
@@ -117,22 +115,24 @@ const Sidebar: React.FC = () => {
               </Button>
             </>
           ) : (
-            <div className="flex flex-col items-center space-y-4">
-              <Button
-                onClick={() => setIsSidebarCollapsed(false)}
-                className="text-gray-400 hover:text-gray-200 bg-gray-700 hover:bg-gray-600 p-2 rounded-lg w-full"
-                aria-label="Развернуть боковую панель"
-              >
-                <FontAwesomeIcon icon="chevron-right" />
-              </Button>
-              <Button
-                onClick={() => createNewChat()}
-                className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 p-2 rounded-lg transform transition-transform duration-200 hover:scale-105 shadow-md"
-                aria-label="Новый чат"
-              >
-                <FontAwesomeIcon icon="plus" />
-              </Button>
-            </div>
+            !isMobile && (
+              <div className="flex flex-col items-center space-y-4">
+                <button
+                  onClick={() => setIsSidebarCollapsed(false)}
+                  className="text-gray-400  hover:text-gray-200 bg-[#111827] border border-gray-600 hover:bg-gray-700 p-2 rounded-lg w-12"
+                  aria-label="Развернуть боковую панель"
+                >
+                  <FontAwesomeIcon icon="chevron-right" />
+                </button>
+                <Button
+                  onClick={() => createNewChat()}
+                  className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 p-2 rounded-lg transform transition-transform duration-200 hover:scale-105 shadow-md"
+                  aria-label="Новый чат"
+                >
+                  <FontAwesomeIcon icon="plus" />
+                </Button>
+              </div>
+            )
           )}
         </div>
 
@@ -192,9 +192,7 @@ const Sidebar: React.FC = () => {
                                 }`}
                                 onClick={() => {
                                   selectChat(chat.id);
-                                  if (isMobile) {
-                                    setIsSidebarCollapsed(true);
-                                  }
+                                  if (isMobile) setIsSidebarCollapsed(true);
                                 }}
                               >
                                 {chat.title}
