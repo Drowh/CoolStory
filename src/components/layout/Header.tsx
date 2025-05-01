@@ -16,8 +16,8 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between">
-      <Image src={logo} alt="logo" width={150} height={40} />
+    <header className="sticky top-0 z-50 bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between">
+      <Image src={logo} alt="logo" width={150} height={40} className="ml-9" />
       <div className="flex items-center space-x-2 relative">
         <Button
           onClick={() => {

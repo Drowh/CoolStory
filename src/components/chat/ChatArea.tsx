@@ -5,8 +5,13 @@ import ChatMessage from "./ChatMessage";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const ChatArea: React.FC = () => {
-  const { messages, isTyping, setMessagesEndRef, scrollToBottom } =
-    useMessageStore();
+  const {
+    messages,
+    isTyping,
+    setMessagesEndRef,
+    scrollToBottom,
+    focusInputField,
+  } = useMessageStore();
   const { chatHistory } = useChatHistoryStore();
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -72,6 +77,12 @@ const ChatArea: React.FC = () => {
 
   const activeChat = chatHistory.find((chat) => chat.isActive);
 
+  useEffect(() => {
+    if (activeChat) {
+      focusInputField();
+    }
+  }, [activeChat, focusInputField]);
+
   if (!activeChat) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center text-gray-400 transition-all duration-500 opacity-90 hover:opacity-100">
@@ -113,15 +124,13 @@ const ChatArea: React.FC = () => {
         }`}
         ref={chatContainerRef}
       >
-        {/* Центрирование контента с фиксированной шириной */}
-        <div className="max-w-5xl mx-auto w-full px-4">
+        <div className="max-w-5xl mx-auto w-full px-8">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-gray-500 transition-all duration-500 transform hover:scale-105">
+            <div
+              onClick={focusInputField}
+              className="flex flex-col cursor-pointer items-center justify-center h-64 text-gray-500 transition-all duration-500 transform hover:scale-105"
+            >
               <div className="p-6 rounded-lg bg-gray-800 bg-opacity-40 shadow-lg transform hover:shadow-pink-500/10 transition-all duration-300">
-                <FontAwesomeIcon
-                  icon="comments"
-                  className="text-5xl mb-4 text-gradient-to-r from-pink-500 to-purple-600 opacity-70"
-                />
                 <p className="mb-2 text-xl bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent font-medium">
                   Начните ваш диалог
                 </p>
@@ -173,7 +182,6 @@ const ChatArea: React.FC = () => {
         </div>
       </div>
 
-      {/* Кнопка прокрутки вниз */}
       {showScrollButton && (
         <button
           onClick={scrollToBottom}

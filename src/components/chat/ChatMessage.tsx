@@ -40,10 +40,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       )}
 
       <div
-        className={`relative px-5 py-4 rounded-lg leading-relaxed break-words whitespace-pre-wrap transition-all duration-200
+        className={`relative  py-3 rounded-lg leading-relaxed break-words whitespace-pre-wrap transition-all duration-200
           ${
             isUser
-              ? "text-base font-normal max-w-2xl bg-gradient-to-r from-gray-800 to-gray-700 text-gray-100 shadow-md"
+              ? "text-base px-3 font-normal max-w-2xl bg-gradient-to-r from-gray-800 to-gray-700 text-gray-100 shadow-md"
               : "text-base font-normal w-full text-gray-100 chat-message-assistant"
           }`}
       >

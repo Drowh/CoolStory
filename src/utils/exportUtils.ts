@@ -6,12 +6,10 @@ export const exportChat = (chat: Chat, messages: Message[]): void => {
       chatInfo: {
         id: chat.id,
         title: chat.title,
-        timestamp: chat.timestamp,
       },
       messages: messages.map((msg) => ({
         text: msg.text,
         sender: msg.sender,
-        timestamp: msg.timestamp,
       })),
     };
 

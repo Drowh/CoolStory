@@ -11,11 +11,16 @@ const ChatInput: React.FC = () => {
     handleSendMessage,
     handleKeyPress,
     isTyping,
+    setInputFieldRef,
   } = useMessageStore();
   const { isListening, toggleListening, transcript } = useVoiceInput();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [charCount, setCharCount] = useState(0);
+
+  useEffect(() => {
+    setInputFieldRef(textareaRef);
+  }, [setInputFieldRef]);
 
   useEffect(() => {
     if (transcript) setInputMessage(transcript);
@@ -52,8 +57,8 @@ const ChatInput: React.FC = () => {
           onKeyDown={handleKeyPress}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          placeholder="Введите ваше сообщение..."
-          className={`w-full bg-gray-800 text-gray-100 rounded-lg border ${
+          placeholder="Нажмите Enter для отправки, Shift+Enter для новой строки."
+          className={`w-full py-4 bg-gray-800 text-gray-100 rounded-lg border ${
             isFocused
               ? "border-pink-500 shadow-md shadow-pink-500/20"
               : "border-gray-500"
@@ -63,7 +68,6 @@ const ChatInput: React.FC = () => {
           maxLength={2000}
         />
 
-        {/* Счетчик символов */}
         {showCharCounter && (
           <div
             className={`absolute right-16 bottom-3 text-xs ${
@@ -74,7 +78,7 @@ const ChatInput: React.FC = () => {
           </div>
         )}
 
-        <div className="absolute right-3 bottom-3 flex space-x-2">
+        <div className="absolute right-3 bottom-[11px] flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 ">
           <Button
             onClick={toggleListening}
             className={`p-2 rounded-full transition-colors duration-200 ${
@@ -106,7 +110,7 @@ const ChatInput: React.FC = () => {
         </div>
       </div>
       <div className="max-w-3xl mx-auto mt-2 text-sm text-gray-500 text-center transition-opacity duration-200 hover:text-gray-400">
-        Нажмите Enter для отправки, Shift+Enter для новой строки
+        CoolStory может допускать ошибки. Проверьте важную информацию.
       </div>
     </div>
   );

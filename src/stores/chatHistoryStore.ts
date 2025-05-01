@@ -72,7 +72,7 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     );
 
     filteredChats.forEach((chat) => {
-      const chatDate = chat.createdAt ? new Date(chat.createdAt) : new Date(); // Используем createdAt
+      const chatDate = chat.createdAt ? new Date(chat.createdAt) : new Date();
       if (chatDate >= today) {
         groups.today.push(chat);
       } else {
@@ -113,13 +113,8 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       }))
     );
 
-    useMessageStore.getState().setMessages([
-      {
-        id: 1,
-        text: "Чат загружен",
-        sender: "assistant",
-      },
-    ]);
+    // Очищаем сообщения при переключении чата
+    useMessageStore.getState().setMessages([]);
   },
   updateLastMessage: (chatId: number, message: string) => {
     const { setChatHistory } = get();

@@ -12,6 +12,9 @@ interface MessageState {
   isTyping: boolean;
   setIsTyping: (value: boolean | ((prev: boolean) => boolean)) => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null> | null;
+  inputFieldRef: React.RefObject<HTMLTextAreaElement | null> | null,
+  setInputFieldRef: (ref: React.RefObject<HTMLTextAreaElement | null>) => void
+  focusInputField: () => void;
   setMessagesEndRef: (
     ref: React.RefObject<HTMLDivElement | null> | null
   ) => void;
@@ -57,7 +60,6 @@ const createMessageStore: StateCreator<MessageState> = (set, get) => ({
     } = get();
     if (inputMessage.trim() === "") return;
 
-    // Находим активный чат
     const activeChat = useChatHistoryStore
       .getState()
       .chatHistory.find((chat) => chat.isActive);
@@ -76,7 +78,6 @@ const createMessageStore: StateCreator<MessageState> = (set, get) => ({
     setInputMessage("");
     setIsTyping(true);
 
-    // Обновляем последнее сообщение в чате
     useChatHistoryStore
       .getState()
       .updateLastMessage(activeChat.id, inputMessage);
@@ -90,7 +91,6 @@ const createMessageStore: StateCreator<MessageState> = (set, get) => ({
       };
       setMessages((prev) => [...prev, assistantReply]);
 
-      // Обновляем последнее сообщение в чате ответом ассистента
       useChatHistoryStore.getState().updateLastMessage(activeChat.id, reply);
     } catch (error) {
       console.error("Ошибка API:", error);
@@ -108,6 +108,15 @@ const createMessageStore: StateCreator<MessageState> = (set, get) => ({
   scrollToBottom: () => {
     const { messagesEndRef } = get();
     messagesEndRef?.current?.scrollIntoView({ behavior: "smooth" });
+  },
+  inputFieldRef: null,
+  setInputFieldRef: (ref) => set({ inputFieldRef: ref }),
+
+  focusInputField: () => {
+    const { inputFieldRef } = get();
+    if (inputFieldRef?.current) {
+      inputFieldRef.current.focus();
+    }
   },
 });
 

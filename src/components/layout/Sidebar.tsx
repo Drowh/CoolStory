@@ -35,8 +35,11 @@ const Sidebar: React.FC = () => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      if (mobile && !isSidebarCollapsed) {
+      // Только автоматически сворачиваем при начальной загрузке на мобильном,
+      // но не при каждом изменении размера
+      if (mobile && !isSidebarCollapsed && !window.initialMobileCheck) {
         setIsSidebarCollapsed(true);
+        window.initialMobileCheck = true;
       }
     };
 
@@ -51,15 +54,20 @@ const Sidebar: React.FC = () => {
   );
 
   const sidebarBaseClasses = `
-    top-0 left-0 sticky h-screen z-40
+    top-0 left-0 z-40
     bg-gray-800 border-r border-gray-700 
     transition-all duration-300 flex flex-col
     custom-scrollbar overflow-y-auto
   `;
 
-  const sidebarVisibilityClasses = isSidebarCollapsed
-    ? "w-16 md:w-16 translate-x-0"
-    : "w-64 translate-x-0";
+  // Изменяем классы видимости для мобильных устройств
+  const sidebarVisibilityClasses = isMobile
+    ? isSidebarCollapsed
+      ? "fixed -translate-x-full" // Полностью скрываем за пределами экрана
+      : "fixed w-64 translate-x-0 h-screen"
+    : isSidebarCollapsed
+    ? "sticky w-16 translate-x-0 h-screen"
+    : "sticky w-64 translate-x-0 h-screen";
 
   const showOverlay = !isSidebarCollapsed && isMobile;
 
@@ -72,10 +80,10 @@ const Sidebar: React.FC = () => {
         />
       )}
 
-      {isSidebarCollapsed && (
+      {isSidebarCollapsed && isMobile && (
         <button
           onClick={() => setIsSidebarCollapsed(false)}
-          className="fixed top-4 left-4 z-30 md:hidden bg-gray-800 hover:bg-gray-700 text-gray-200 p-3 rounded-full shadow-lg transition-transform duration-300 hover:scale-105"
+          className="fixed top-1 left-2 z-30 md:hidden bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-200 p-3 rounded-full shadow-lg transition-transform duration-300 hover:scale-105"
           aria-label="Открыть меню"
         >
           <FontAwesomeIcon icon="bars" />
@@ -97,7 +105,12 @@ const Sidebar: React.FC = () => {
                 </Button>
               </div>
               <Button
-                onClick={() => createNewChat()}
+                onClick={() => {
+                  createNewChat();
+                  if (isMobile) {
+                    setIsSidebarCollapsed(true);
+                  }
+                }}
                 className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 w-full mt-4 flex items-center justify-center space-x-2 py-2 rounded-lg transform transition-transform duration-200 hover:scale-102 shadow-md"
               >
                 <span>Новый чат</span>
@@ -179,7 +192,7 @@ const Sidebar: React.FC = () => {
                                 }`}
                                 onClick={() => {
                                   selectChat(chat.id);
-                                  if (window.innerWidth < 768) {
+                                  if (isMobile) {
                                     setIsSidebarCollapsed(true);
                                   }
                                 }}
