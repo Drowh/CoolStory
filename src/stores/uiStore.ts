@@ -22,7 +22,7 @@ export interface UIState {
 }
 
 export const useUIStore = create<UIState>((set, get) => ({
-  isSidebarCollapsed: true,
+  isSidebarCollapsed: false,
   setIsSidebarCollapsed: (value) => set({ isSidebarCollapsed: value }),
   openMenuId: null,
   setOpenMenuId: (id) => set({ openMenuId: id }),

@@ -1,4 +1,4 @@
-import React, { ButtonHTMLAttributes, useState } from "react";
+import React, { ButtonHTMLAttributes, useRef } from "react";
 import classNames from "classnames";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -18,12 +18,7 @@ const Button: React.FC<ButtonProps> = ({
   ripple = true,
   ...props
 }) => {
-  const [rippleStyle, setRippleStyle] = useState({
-    left: "0px",
-    top: "0px",
-    opacity: 0,
-  });
-  const [isRippling, setIsRippling] = useState(false);
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   const variantStyles = {
     solid: "bg-gray-700 hover:bg-gray-600 text-gray-100 active:bg-gray-800",
@@ -42,23 +37,28 @@ const Button: React.FC<ButtonProps> = ({
 
   const handleRipple = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!ripple || props.disabled) return;
-
-    const btn = e.currentTarget;
+    const btn = btnRef.current!;
     const rect = btn.getBoundingClientRect();
-    const left = e.clientX - rect.left;
-    const top = e.clientY - rect.top;
+    const circle = document.createElement("span");
 
-    setRippleStyle({ left: `${left}px`, top: `${top}px`, opacity: 1 });
-    setIsRippling(true);
+    const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+    const radius = diameter / 2;
 
-    setTimeout(() => {
-      setIsRippling(false);
-    }, 600);
+    circle.style.width = circle.style.height = `${diameter}px`;
+    circle.style.left = `${e.clientX - rect.left - radius}px`;
+    circle.style.top = `${e.clientY - rect.top - radius}px`;
+    circle.classList.add("ripple-circle");
+
+    btn.appendChild(circle);
+    circle.addEventListener("animationend", () => {
+      circle.remove();
+    });
   };
 
   return (
     <button
       {...props}
+      ref={btnRef}
       onClick={(e) => {
         handleRipple(e);
         props.onClick?.(e);
@@ -75,22 +75,6 @@ const Button: React.FC<ButtonProps> = ({
         {icon && <span className="mr-2">{icon}</span>}
         {children}
       </div>
-
-      {/* Ripple effect */}
-      {isRippling && ripple && (
-        <span
-          className="absolute rounded-full bg-white/30 animate-ripple"
-          style={{
-            left: rippleStyle.left,
-            top: rippleStyle.top,
-            width: "120px",
-            height: "120px",
-            marginLeft: "-60px",
-            marginTop: "-60px",
-            opacity: rippleStyle.opacity,
-          }}
-        />
-      )}
     </button>
   );
 };
