@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import { Chat, Folder } from "../types";
-import { initialChats } from "../data/initialData";
 import { exportChat } from "../utils/exportUtils";
 import { useMessageStore } from "./messageStore";
+import { supabase } from "../utils/supabase";
+import { useEffect } from "react";
 
 interface ChatHistoryState {
   chatHistory: Chat[];
@@ -17,44 +18,49 @@ interface ChatHistoryState {
     today: Chat[];
     older: Chat[];
   };
-  createNewChat: () => void;
-  selectChat: (chatId: number) => void;
+  createNewChat: () => Promise<void>;
+  selectChat: (chatId: number) => Promise<void>;
   exportChat: () => void;
-  updateLastMessage: (chatId: number, message: string) => void;
-  addChatToFolder: (chatId: number, folderId: number) => void;
-  createFolder: (name: string) => void;
-  deleteFolder: (folderId: number) => void;
+  updateLastMessage: (chatId: number, message: string) => Promise<void>;
+  addChatToFolder: (chatId: number, folderId: number) => Promise<void>;
+  createFolder: (name: string) => Promise<void>;
+  deleteFolder: (folderId: number) => Promise<void>;
+  loadChats: () => Promise<void>;
+  loadFolders: () => Promise<void>;
+  renameChat: (chatId: number, newTitle: string) => Promise<void>;
+  deleteChat: (chatId: number) => Promise<void>;
+  removeChatFromFolder: (chatId: number) => Promise<void>; // Новый метод
 }
 
 export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
-  chatHistory: initialChats,
+  chatHistory: [],
   setChatHistory: (chatHistory) => {
-    set((state) => ({
+    set({
       chatHistory:
         typeof chatHistory === "function"
-          ? chatHistory(state.chatHistory)
+          ? chatHistory(get().chatHistory)
           : chatHistory,
-    }));
+    });
   },
   folders: [],
   setFolders: (folders) => {
-    set((state) => ({
-      folders: typeof folders === "function" ? folders(state.folders) : folders,
-    }));
+    set({
+      folders: typeof folders === "function" ? folders(get().folders) : folders,
+    });
   },
   searchQuery: "",
   setSearchQuery: (value) => {
-    set((state) => ({
+    set({
       searchQuery:
-        typeof value === "function" ? value(state.searchQuery) : value,
-    }));
+        typeof value === "function" ? value(get().searchQuery) : value,
+    });
   },
   showFolders: false,
   setShowFolders: (value) => {
-    set((state) => ({
+    set({
       showFolders:
-        typeof value === "function" ? value(state.showFolders) : value,
-    }));
+        typeof value === "function" ? value(get().showFolders) : value,
+    });
   },
   groupChatsByDate: () => {
     const groups = {
@@ -82,29 +88,51 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
 
     return groups;
   },
-  createNewChat: () => {
-    const { chatHistory, setChatHistory, selectChat } = get();
-    const newChatId = Math.max(...chatHistory.map((chat) => chat.id), 0) + 1;
-    const newChat: Chat = {
-      id: newChatId,
-      title: `Новый чат ${newChatId}`,
+  createNewChat: async () => {
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) {
+      console.error("Пользователь не авторизован");
+      return;
+    }
+
+    const newChat: Omit<Chat, "id"> = {
+      title: "Новый чат",
       lastMessage: "Начните новый разговор",
       isActive: true,
       hidden: false,
       createdAt: new Date(),
     };
 
+    const { data, error } = await supabase
+      .from("chats")
+      .insert({
+        title: newChat.title,
+        last_message: newChat.lastMessage,
+        is_active: newChat.isActive,
+        hidden: newChat.hidden,
+        user_id: user.data.user.id,
+        created_at: newChat.createdAt,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Ошибка создания чата:", error);
+      return;
+    }
+
+    const { setChatHistory, selectChat } = get();
     setChatHistory((prevChats) => [
-      newChat,
+      { ...data, folderId: undefined, createdAt: new Date(data.created_at) },
       ...prevChats.map((chat) => ({
         ...chat,
         isActive: false,
       })),
     ]);
 
-    selectChat(newChatId);
+    selectChat(data.id);
   },
-  selectChat: (chatId: number) => {
+  selectChat: async (chatId: number) => {
     const { chatHistory, setChatHistory } = get();
     setChatHistory(
       chatHistory.map((chat) => ({
@@ -113,10 +141,26 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       }))
     );
 
-    // Очищаем сообщения при переключении чата
-    useMessageStore.getState().setMessages([]);
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("chat_id", chatId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Ошибка загрузки сообщений:", error);
+      return;
+    }
+
+    useMessageStore.getState().setMessages(
+      data.map((msg) => ({
+        id: msg.id,
+        text: msg.text,
+        sender: msg.sender,
+      }))
+    );
   },
-  updateLastMessage: (chatId: number, message: string) => {
+  updateLastMessage: async (chatId: number, message: string) => {
     const { setChatHistory } = get();
     setChatHistory((prevChats) =>
       prevChats.map((chat) =>
@@ -128,6 +172,13 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
           : chat
       )
     );
+
+    const { error } = await supabase
+      .from("chats")
+      .update({ last_message: message })
+      .eq("id", chatId);
+
+    if (error) console.error("Ошибка обновления последнего сообщения:", error);
   },
   exportChat: () => {
     const { chatHistory } = get();
@@ -136,24 +187,64 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     if (!activeChat) return;
     exportChat(activeChat, messages);
   },
-  addChatToFolder: (chatId: number, folderId: number) => {
+  addChatToFolder: async (chatId: number, folderId: number) => {
     const { setChatHistory } = get();
     setChatHistory((prevChats) =>
       prevChats.map((chat) =>
         chat.id === chatId ? { ...chat, folderId } : chat
       )
     );
+
+    const { error } = await supabase
+      .from("chats")
+      .update({ folder_id: folderId })
+      .eq("id", chatId);
+
+    if (error) console.error("Ошибка добавления чата в папку:", error);
   },
-  createFolder: (name: string) => {
+  createFolder: async (name: string) => {
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) {
+      console.error("Пользователь не авторизован");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("folders")
+      .insert({ name, user_id: user.data.user.id })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Ошибка создания папки:", error);
+      return;
+    }
+
     const { setFolders } = get();
-    setFolders((prev) => {
-      const newFolderId = Math.max(...prev.map((f) => f.id), 0) + 1;
-      const newFolder: Folder = { id: newFolderId, name };
-      return [...prev, newFolder];
-    });
+    setFolders((prev) => [...prev, { id: data.id, name: data.name }]);
   },
-  deleteFolder: (folderId: number) => {
+  deleteFolder: async (folderId: number) => {
     const { setFolders, setChatHistory } = get();
+    const { error: folderError } = await supabase
+      .from("folders")
+      .delete()
+      .eq("id", folderId);
+
+    if (folderError) {
+      console.error("Ошибка удаления папки:", folderError);
+      return;
+    }
+
+    const { error: chatError } = await supabase
+      .from("chats")
+      .update({ folder_id: null })
+      .eq("folder_id", folderId);
+
+    if (chatError) {
+      console.error("Ошибка обновления чатов при удалении папки:", chatError);
+      return;
+    }
+
     setFolders((prev) => prev.filter((folder) => folder.id !== folderId));
     setChatHistory((prevChats) =>
       prevChats.map((chat) =>
@@ -161,4 +252,137 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       )
     );
   },
+  loadChats: async () => {
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) {
+      console.error("Пользователь не авторизован");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("chats")
+      .select("*")
+      .eq("user_id", user.data.user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Ошибка загрузки чатов:", error);
+      return;
+    }
+
+    set({
+      chatHistory: data.map((chat) => ({
+        id: chat.id,
+        title: chat.title,
+        lastMessage: chat.last_message,
+        isActive: chat.is_active,
+        hidden: chat.hidden,
+        folderId: chat.folder_id,
+        createdAt: new Date(chat.created_at),
+      })),
+    });
+  },
+  loadFolders: async () => {
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) {
+      console.error("Пользователь не авторизован");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("folders")
+      .select("*")
+      .eq("user_id", user.data.user.id);
+
+    if (error) {
+      console.error("Ошибка загрузки папок:", error);
+      return;
+    }
+
+    set({
+      folders: data.map((folder) => ({
+        id: folder.id,
+        name: folder.name,
+      })),
+    });
+  },
+  renameChat: async (chatId: number, newTitle: string) => {
+    const { setChatHistory } = get();
+    setChatHistory((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === chatId ? { ...chat, title: newTitle } : chat
+      )
+    );
+
+    const { error } = await supabase
+      .from("chats")
+      .update({ title: newTitle })
+      .eq("id", chatId);
+
+    if (error) {
+      console.error("Ошибка переименования чата:", error);
+      setChatHistory((prevChats) =>
+        prevChats.map((chat) =>
+          chat.id === chatId ? { ...chat, title: "Новый чат" } : chat
+        )
+      );
+    }
+  },
+  deleteChat: async (chatId: number) => {
+    const { setChatHistory, selectChat } = get();
+    const chatHistory = get().chatHistory;
+
+    setChatHistory((prev) => prev.filter((chat) => chat.id !== chatId));
+
+    const { error } = await supabase.from("chats").delete().eq("id", chatId);
+
+    if (error) {
+      console.error("Ошибка удаления чата:", error);
+      setChatHistory([...chatHistory]);
+      return;
+    }
+
+    const deletedChat = chatHistory.find((chat) => chat.id === chatId);
+    if (deletedChat?.isActive && chatHistory.length > 1) {
+      const nextChat = chatHistory.find((chat) => chat.id !== chatId);
+      if (nextChat) selectChat(nextChat.id);
+    }
+  },
+  removeChatFromFolder: async (chatId: number) => {
+    const { setChatHistory } = get();
+    setChatHistory((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === chatId ? { ...chat, folderId: undefined } : chat
+      )
+    );
+
+    const { error } = await supabase
+      .from("chats")
+      .update({ folder_id: null })
+      .eq("id", chatId);
+
+    if (error) {
+      console.error("Ошибка удаления чата из папки:", error);
+      setChatHistory((prevChats) =>
+        prevChats.map((chat) =>
+          chat.id === chatId
+            ? {
+                ...chat,
+                folderId: prevChats.find((c) => c.id === chatId)?.folderId,
+              }
+            : chat
+        )
+      );
+    }
+  },
 }));
+
+export const useChatHistory = () => {
+  const loadChats = useChatHistoryStore((state) => state.loadChats);
+  const loadFolders = useChatHistoryStore((state) => state.loadFolders);
+
+  useEffect(() => {
+    loadChats();
+    loadFolders();
+  }, [loadChats, loadFolders]);
+};

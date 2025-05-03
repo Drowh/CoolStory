@@ -5,7 +5,7 @@ import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 
 const RenameDialog: React.FC = () => {
-  const { chatHistory, setChatHistory } = useChatHistoryStore();
+  const { renameChat } = useChatHistoryStore();
   const {
     isRenameDialogOpen,
     setIsRenameDialogOpen,
@@ -20,17 +20,18 @@ const RenameDialog: React.FC = () => {
     }
   }, [isRenameDialogOpen, setNewChatName]);
 
-  const handleRename = () => {
+  const handleRename = async () => {
     if (selectedTabId !== null && newChatName.trim() !== "") {
       const chatId = parseInt(selectedTabId);
-      if (isNaN(chatId)) return; // Проверка на случай, если selectedTabId не является числом
-      setChatHistory(
-        chatHistory.map((chat) =>
-          chat.id === chatId ? { ...chat, title: newChatName.trim() } : chat
-        )
-      );
-      setIsRenameDialogOpen(false);
-      setNewChatName("");
+      if (isNaN(chatId)) return;
+
+      try {
+        await renameChat(chatId, newChatName.trim());
+        setIsRenameDialogOpen(false);
+        setNewChatName("");
+      } catch (error) {
+        console.error("Ошибка переименования чата:", error);
+      }
     }
   };
 

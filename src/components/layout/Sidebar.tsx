@@ -5,7 +5,7 @@ import { useMemo, useEffect, useState } from "react";
 import SearchBar from "../chat/SearchBar";
 import ChatGroup from "../chat/ChatGroup";
 import Button from "../ui/Button";
-import DeleteFolderButton from "../ui/DeleteFolderButton";
+import DeleteConfirmButton from "../ui/DeleteConfirmButton";
 
 const Sidebar: React.FC = () => {
   const showFolders = useChatHistoryStore((state) => state.showFolders);
@@ -82,7 +82,7 @@ const Sidebar: React.FC = () => {
         <div className="fixed top-3 left-2 z-[52] animate-fade-in-scale">
           <button
             onClick={() => setIsSidebarCollapsed(false)}
-            className="bg-[#111827] border border-gray-600 text-gray-200 px-3 py-1 rounded-full shadow-lg transition-transform duration-300 hover:scale-105"
+            className="bg-[#111827] border border-gray-600 text-gray-200 px-3 py-1 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
             aria-label="Открыть меню"
           >
             <FontAwesomeIcon icon="bars" />
@@ -119,7 +119,7 @@ const Sidebar: React.FC = () => {
               <div className="flex flex-col items-center space-y-4">
                 <button
                   onClick={() => setIsSidebarCollapsed(false)}
-                  className="text-gray-400  hover:text-gray-200 bg-[#111827] border border-gray-600 hover:bg-gray-700 p-2 rounded-lg w-12"
+                  className="text-gray-400 hover:text-gray-200 bg-[#111827] border border-gray-600 hover:bg-gray-700 p-2 rounded-lg w-12"
                   aria-label="Развернуть боковую панель"
                 >
                   <FontAwesomeIcon icon="chevron-right" />
@@ -178,16 +178,20 @@ const Sidebar: React.FC = () => {
                             />
                             {folder.name}
                           </button>
-                          <DeleteFolderButton folderId={folder.id} />
+                          <DeleteConfirmButton
+                            itemId={folder.id}
+                            itemType="folder"
+                            label=""
+                          />
                         </div>
                         {isExpanded && folderChats.length > 0 && (
                           <ul className="pl-6 space-y-1">
                             {folderChats.map((chat) => (
                               <li
                                 key={chat.id}
-                                className={`p-2 rounded-md cursor-pointer ${
+                                className={`flex items-center justify-between p-2 rounded-md cursor-pointer  ${
                                   chat.isActive
-                                    ? "bg-gray-700 text-gray-100"
+                                    ? "bg-gray-700 text-gray-100 border-l-2 border-pink-500"
                                     : "text-gray-300 hover:bg-gray-700"
                                 }`}
                                 onClick={() => {
@@ -195,7 +199,15 @@ const Sidebar: React.FC = () => {
                                   if (isMobile) setIsSidebarCollapsed(true);
                                 }}
                               >
-                                {chat.title}
+                                <span className="flex-1 truncate">
+                                  {chat.title}
+                                </span>
+                                <DeleteConfirmButton
+                                  itemId={chat.id}
+                                  itemType="chat-from-folder"
+                                  label=""
+                                  onDelete={() => {}} 
+                                />
                               </li>
                             ))}
                           </ul>

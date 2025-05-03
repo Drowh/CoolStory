@@ -10,10 +10,12 @@ import ChatInput from "../components/ChatInput";
 import RenameDialog from "../components/dialogs/RenameDialog";
 import AddToFolderDialog from "../components/dialogs/AddToFolderDialog";
 import ModalManager from "@/components/modals/ModalManager";
+import { useChatHistory } from "../stores/chatHistoryStore";
 
 const HomePage: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const setMessagesEndRef = useMessageStore((state) => state.setMessagesEndRef);
+  useChatHistory();
 
   useEffect(() => {
     console.log("useEffect вызван, устанавливаем messagesEndRef");

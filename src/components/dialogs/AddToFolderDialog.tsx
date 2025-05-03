@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useChatHistoryStore } from "../../stores/chatHistoryStore";
 import { useUIStore } from "../../stores/uiStore";
 import Button from "../ui/Button";
-import DeleteFolderButton from "../ui/DeleteFolderButton";
+import DeleteFolderButton from "../ui/DeleteConfirmButton";
 
 const AddToFolderDialog: React.FC = () => {
   const isAddToFolderDialogOpen = useUIStore(
@@ -66,9 +66,11 @@ const AddToFolderDialog: React.FC = () => {
                   onClick={() => handleAddToFolder(folder.id)}
                   className="text-gray-200 hover:text-gray-100 flex-1 text-left"
                 >
-                  {folder.name}
+                  <span className="flex-1 text-left">{folder.name}</span>
                 </button>
-                <DeleteFolderButton folderId={folder.id} />
+                <div className="ml-4">
+                  <DeleteFolderButton itemId={folder.id} itemType="folder"  label=""/>
+                </div>
               </div>
             ))
           ) : (

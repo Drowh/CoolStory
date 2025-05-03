@@ -1,18 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useChatHistoryStore } from "../../stores/chatHistoryStore";
 import { useModalStore } from "../../stores/modalStore";
 import Button from "../ui/Button";
 import Image from "next/image";
 import logo from "../../assets/icons/logo.png";
+import { supabase } from "../../utils/supabase";
 
 const Header: React.FC = () => {
   const exportChat = useChatHistoryStore((state) => state.exportChat);
   const setModalType = useModalStore((state) => state.setModalType);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getUser();
+      setIsAuthenticated(!!data.user);
+    };
+    checkAuth();
+  }, []);
 
   const handleProfileClick = () => {
     setIsProfileMenuOpen(!isProfileMenuOpen);
+  };
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Ошибка выхода:", error);
+    } else {
+      setIsAuthenticated(false);
+      setIsProfileMenuOpen(false);
+      window.location.reload();
+    }
+  };
+
+  const openAuthModal = () => {
+    setModalType("auth");
+    setIsProfileMenuOpen(false);
   };
 
   return (
@@ -73,9 +99,15 @@ const Header: React.FC = () => {
               </button>
             </div>
             <div className="border-t border-gray-700">
-              <button className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 flex items-center">
-                <FontAwesomeIcon icon="sign-in-alt" className="mr-2" />
-                Войти
+              <button
+                onClick={isAuthenticated ? handleLogout : openAuthModal}
+                className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 flex items-center"
+              >
+                <FontAwesomeIcon
+                  icon={isAuthenticated ? "right-from-bracket" : "right-to-bracket"}
+                  className="mr-2"
+                />
+                {isAuthenticated ? "Выйти" : "Войти"}
               </button>
             </div>
           </div>
