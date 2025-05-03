@@ -31,6 +31,9 @@ import {
   faFolderPlus,
   faTags,
   faMicrophoneSlash,
+  faSignOut,
+  faRightFromBracket,
+  faRightToBracket,
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -65,6 +68,9 @@ library.add(
   faFolderPlus,
   faTags,
   faMicrophoneSlash,
+  faSignOut,
+  faRightFromBracket,
+  faRightToBracket,
 
 
 );

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type ModalType = "settings" | "theme" | "help" | null;
+type ModalType = "settings" | "theme" | "help" | "auth" | null;
 
 interface ModalState {
   modalType: ModalType;

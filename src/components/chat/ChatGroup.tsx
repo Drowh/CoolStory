@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Chat } from "../../types";
 import { useChatHistoryStore } from "../../stores/chatHistoryStore";
 import { useUIStore } from "../../stores/uiStore";
+import DeleteConfirmButton from "../ui/DeleteConfirmButton";
 
 interface ChatGroupProps {
   title: string;
@@ -10,21 +11,34 @@ interface ChatGroupProps {
 }
 
 const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
-  const setChatHistory = useChatHistoryStore((state) => state.setChatHistory);
-  const selectChat = useChatHistoryStore((state) => state.selectChat);
-  const setOpenMenuId = useUIStore((state) => state.setOpenMenuId);
-  const openMenuId = useUIStore((state) => state.openMenuId);
-  const setIsRenameDialogOpen = useUIStore(
-    (state) => state.setIsRenameDialogOpen
-  );
-  const setSelectedTabId = useUIStore((state) => state.setSelectedTabId);
-  const setIsSidebarCollapsed = useUIStore(
-    (state) => state.setIsSidebarCollapsed
-  );
-  const setIsAddToFolderDialogOpen = useUIStore(
-    (state) => state.setIsAddToFolderDialogOpen
-  );
-  const setSelectedChatId = useUIStore((state) => state.setSelectedChatId);
+  const { selectChat } = useChatHistoryStore();
+  const {
+    setOpenMenuId,
+    openMenuId,
+    setIsRenameDialogOpen,
+    setSelectedTabId,
+    setIsAddToFolderDialogOpen,
+    setSelectedChatId,
+    setIsSidebarCollapsed,
+  } = useUIStore();
+  const menuRef = useRef<HTMLDivElement>(null); 
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        openMenuId
+      ) {
+        setOpenMenuId(null); 
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openMenuId, setOpenMenuId]);
 
   if (!chats.length) return null;
 
@@ -85,7 +99,10 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
                       <FontAwesomeIcon icon="ellipsis-h" />
                     </button>
                     {openMenuId === String(chat.id) && (
-                      <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-50 py-1 overflow-hidden">
+                      <div
+                        ref={menuRef} 
+                        className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-50 py-1 overflow-hidden"
+                      >
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -114,28 +131,15 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
                             icon="folder-plus"
                             className="mr-2 text-gray-400"
                           />
-                          Добавить в папку
+                          Добавить в темку
                         </button>
                         <div className="border-t border-gray-700 my-1"></div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setChatHistory((prev) =>
-                              prev.filter((c) => c.id !== chat.id)
-                            );
-                            setOpenMenuId(null);
-                            if (chat.isActive && chats.length > 1) {
-                              const nextChat = chats.find(
-                                (c) => c.id !== chat.id
-                              );
-                              if (nextChat) selectChat(nextChat.id);
-                            }
-                          }}
-                          className="flex items-center w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700"
-                        >
-                          <FontAwesomeIcon icon="trash-alt" className="mr-2" />
-                          Удалить
-                        </button>
+                        <DeleteConfirmButton
+                          itemId={chat.id}
+                          itemType="chat"
+                          onDelete={() => setOpenMenuId(null)}
+                          onCancel={() => setOpenMenuId(null)}
+                        />
                       </div>
                     )}
                   </div>
