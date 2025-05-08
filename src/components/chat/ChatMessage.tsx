@@ -1,7 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import cat from "../../assets/icons/cat.png";
+import { renderMarkdownSafe } from "../../utils/markdown";
 
 interface Message {
   id: number;
@@ -17,6 +18,13 @@ interface ChatMessageProps {
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const isUser = message.sender === "user";
   const [isHovered, setIsHovered] = useState(false);
+  const [html, setHtml] = useState("");
+
+  useEffect(() => {
+    if (!isUser) {
+      renderMarkdownSafe(message.text).then(setHtml);
+    }
+  }, [message.text, isUser]);
 
   return (
     <div
@@ -61,7 +69,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         {isUser ? (
           <p>{message.text}</p>
         ) : (
-          <div dangerouslySetInnerHTML={{ __html: message.text }} />
+          <div dangerouslySetInnerHTML={{ __html: html }} />
         )}
       </div>
 

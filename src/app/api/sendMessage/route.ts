@@ -32,6 +32,16 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    if (
+      typeof message !== "string" ||
+      message.length < 1 ||
+      message.length > 2000
+    ) {
+      return NextResponse.json(
+        { error: "Недопустимая длина сообщения" },
+        { status: 400 }
+      );
+    }
 
     console.log("Attempting to insert user message into Supabase");
     const { error: userError } = await supabase.from("chat_messages").insert({
