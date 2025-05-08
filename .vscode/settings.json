@@ -12,6 +12,7 @@
     "gradien",
     "highp",
     "mediump",
+    "NEUROSERVICE",
     "OPENROUTER",
     "supabase"
   ]

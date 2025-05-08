@@ -1,4 +1,3 @@
-// Типы для FBO
 interface SingleFBO {
   texture: WebGLTexture;
   fbo: WebGLFramebuffer;
@@ -28,7 +27,7 @@ interface ExtFormats {
   supportLinearFiltering: boolean | undefined;
 }
 
-const useFluidCursor = (): void => {
+function initFluidCursor(): void {
   const canvas = document.getElementById("fluid") as HTMLCanvasElement | null;
   if (!canvas) {
     console.error("Canvas with id 'fluid' not found");
@@ -40,13 +39,13 @@ const useFluidCursor = (): void => {
     SIM_RESOLUTION: 128,
     DYE_RESOLUTION: 1440,
     CAPTURE_RESOLUTION: 512,
-    DENSITY_DISSIPATION: 3.5,
-    VELOCITY_DISSIPATION: 2,
+    DENSITY_DISSIPATION: 6.0,
+    VELOCITY_DISSIPATION: 2.5,
     PRESSURE: 0.1,
     PRESSURE_ITERATIONS: 20,
-    CURL: 3,
-    SPLAT_RADIUS: 0.2,
-    SPLAT_FORCE: 6000,
+    CURL: 2.0,
+    SPLAT_RADIUS: 0.18,
+    SPLAT_FORCE: 5000,
     SHADING: true,
     COLOR_UPDATE_SPEED: 10,
     PAUSED: false,
@@ -84,6 +83,31 @@ const useFluidCursor = (): void => {
   pointers.push(new (pointerPrototype as unknown as { new (): Pointer })());
 
   const { gl, ext } = getWebGLContext(canvas);
+
+  const indexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+  gl.bufferData(
+    gl.ELEMENT_ARRAY_BUFFER,
+    new Uint16Array([0, 1, 2, 2, 3, 0]),
+    gl.STATIC_DRAW
+  );
+
+  const vertexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array([-1, -1, 1, -1, 1, 1, -1, 1]),
+    gl.STATIC_DRAW
+  );
+
+  function setPositionAttribute(program: WebGLProgram) {
+    const posLoc = gl.getAttribLocation(program, "aPosition");
+    if (posLoc !== -1) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+      gl.enableVertexAttribArray(posLoc);
+      gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+    }
+  }
 
   if (!ext.supportLinearFiltering) {
     config.DYE_RESOLUTION = 256;
@@ -280,7 +304,10 @@ const useFluidCursor = (): void => {
       this.activeProgram = program;
     }
     bind() {
-      if (this.activeProgram) gl.useProgram(this.activeProgram);
+      if (this.activeProgram) {
+        gl.useProgram(this.activeProgram);
+        setPositionAttribute(this.activeProgram);
+      }
     }
   }
 
@@ -293,6 +320,7 @@ const useFluidCursor = (): void => {
     }
     bind() {
       gl.useProgram(this.program);
+      setPositionAttribute(this.program);
     }
   }
 
@@ -454,24 +482,25 @@ const useFluidCursor = (): void => {
   const splatShader = compileShader(
     gl.FRAGMENT_SHADER,
     `
-         precision highp float;
-         precision highp sampler2D;
-     
-         varying vec2 vUv;
-         uniform sampler2D uTarget;
-         uniform float aspectRatio;
-         uniform vec3 color;
-         uniform vec2 point;
-         uniform float radius;
-     
-         void main () {
-             vec2 p = vUv - point.xy;
-             p.x *= aspectRatio;
-             vec3 splat = exp(-dot(p, p) / radius) * color;
-             vec3 base = texture2D(uTarget, vUv).xyz;
-             gl_FragColor = vec4(base + splat, 1.0);
-         }
-     `,
+          precision highp float;
+          precision highp sampler2D;
+      
+          varying vec2 vUv;
+          uniform sampler2D uTarget;
+          uniform float aspectRatio;
+          uniform vec3 color;
+          uniform vec2 point;
+          uniform float radius;
+      
+          void main () {
+              vec2 p = vUv - point.xy;
+              p.x *= aspectRatio;
+              // Уменьшаем коэффициент до 0.4
+              vec3 splat = 0.4 * exp(-dot(p, p) / radius) * color;
+              vec3 base = texture2D(uTarget, vUv).xyz;
+              gl_FragColor = vec4(base + splat, 1.0);
+          }
+      `,
     []
   );
 
@@ -1100,9 +1129,10 @@ const useFluidCursor = (): void => {
 
   function clickSplat(pointer: Pointer) {
     const color = generateColor();
-    color.r *= 10.0;
-    color.g *= 10.0;
-    color.b *= 10.0;
+
+    color.r *= 2.0;
+    color.g *= 2.0;
+    color.b *= 2.0;
     const dx = 10 * (Math.random() - 0.5);
     const dy = 30 * (Math.random() - 0.5);
     splat(pointer.texcoordX, pointer.texcoordY, dx, dy, color);
@@ -1331,12 +1361,12 @@ const useFluidCursor = (): void => {
     let hash = 0;
     for (let i = 0; i < s.length; i++) {
       hash = (hash << 5) - hash + s.charCodeAt(i);
-      hash |= 0; // Convert to 32bit integer
+      hash |= 0;
     }
     return hash;
   }
 
   update();
-};
+}
 
-export default useFluidCursor;
+export default initFluidCursor;

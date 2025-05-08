@@ -1,4 +1,5 @@
 import "./globals.css";
+import FluidCursor from "../components/FluidCursor";
 
 export default function RootLayout({
   children,
@@ -7,7 +8,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" suppressHydrationWarning>
-      <body>{children}</body>
+      <body>
+        <FluidCursor />
+        {children}
+      </body>
     </html>
   );
 }

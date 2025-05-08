@@ -137,6 +137,9 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     selectChat(data.id);
   },
   selectChat: async (chatId: number) => {
+    try {
+      localStorage.setItem("lastActiveChatId", String(chatId));
+    } catch {}
     const { chatHistory, setChatHistory } = get();
     setChatHistory(
       chatHistory.map((chat) => ({
@@ -273,17 +276,30 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       return;
     }
 
-    set({
-      chatHistory: data.map((chat) => ({
-        id: chat.id,
-        title: chat.title,
-        lastMessage: chat.last_message,
-        isActive: chat.is_active,
-        hidden: chat.hidden,
-        folderId: chat.folder_id,
-        createdAt: new Date(chat.created_at),
-      })),
-    });
+    let activeChatId = null;
+    try {
+      activeChatId = localStorage.getItem("lastActiveChatId");
+      if (activeChatId) activeChatId = parseInt(activeChatId, 10);
+    } catch {}
+
+    let chatHistory = data.map((chat) => ({
+      id: chat.id,
+      title: chat.title,
+      lastMessage: chat.last_message,
+      isActive: false,
+      hidden: chat.hidden,
+      folderId: chat.folder_id,
+      createdAt: new Date(chat.created_at),
+    }));
+    if (chatHistory.length > 0) {
+      let idx = 0;
+      if (activeChatId) {
+        idx = chatHistory.findIndex((c) => c.id === activeChatId);
+        if (idx === -1) idx = 0;
+      }
+      chatHistory = chatHistory.map((c, i) => ({ ...c, isActive: i === idx }));
+    }
+    set({ chatHistory });
   },
   loadFolders: async () => {
     const user = await (
@@ -312,12 +328,15 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     });
   },
   renameChat: async (chatId: number, newTitle: string) => {
+    console.log("Переименование чата", chatId, "в", newTitle);
     const { setChatHistory } = get();
-    setChatHistory((prevChats) =>
-      prevChats.map((chat) =>
+    setChatHistory((prevChats) => {
+      const updated = prevChats.map((chat) =>
         chat.id === chatId ? { ...chat, title: newTitle } : chat
-      )
-    );
+      );
+      console.log("chatHistory после переименования:", updated);
+      return updated;
+    });
 
     const { error } = await (await import("../utils/supabase")).supabase
       .from("chats")

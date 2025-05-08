@@ -21,7 +21,7 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
     setSelectedChatId,
     setIsSidebarCollapsed,
   } = useUIStore();
-  const menuRef = useRef<HTMLDivElement>(null); 
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -30,7 +30,7 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
         !menuRef.current.contains(event.target as Node) &&
         openMenuId
       ) {
-        setOpenMenuId(null); 
+        setOpenMenuId(null);
       }
     };
 
@@ -77,8 +77,16 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
                       className={`font-medium truncate ${
                         chat.isActive ? "text-gray-100" : "text-gray-200"
                       }`}
+                      style={{
+                        maxWidth: 200,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
                     >
-                      {chat.title}
+                      {chat.title.length > 30
+                        ? chat.title.slice(0, 30) + "..."
+                        : chat.title}
                     </p>
                   </div>
                 </div>
@@ -100,7 +108,7 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
                     </button>
                     {openMenuId === String(chat.id) && (
                       <div
-                        ref={menuRef} 
+                        ref={menuRef}
                         className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-50 py-1 overflow-hidden"
                       >
                         <button

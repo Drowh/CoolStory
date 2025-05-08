@@ -1,11 +1,9 @@
-
-
 export async function sendMessageToAPI(message: string): Promise<string> {
   const response = await fetch("https://api.neuroservice.com/v1/chat", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.NEUROSERVICE_API_KEY}`,
+      Authorization: `Bearer ${process.env.NEUROSERVICE_API_KEY}`,
     },
     body: JSON.stringify({ message }),
   });
@@ -20,23 +18,8 @@ export async function sendMessageToAPI(message: string): Promise<string> {
 
 export async function generateTitle(messages: string[]): Promise<string> {
   if (messages.length === 0) return "Новый чат";
-
-  const firstMessage = messages[0];
-  const prompt = `Сгенерируй заголовок для чата на основе этого сообщения: "${firstMessage}"`;
-
-  const response = await fetch("https://api.neuroservice.com/v1/generate-title", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.NEUROSERVICE_API_KEY}`,
-    },
-    body: JSON.stringify({ prompt }),
-  });
-
-  if (!response.ok) {
-    return firstMessage.slice(0, 30) + "...";
-  }
-
-  const data = await response.json();
-  return data.title;
+  const text = messages.join(" ").replace(/\n/g, " ");
+  const words = text.split(" ").filter(Boolean);
+  const short = words.slice(0, 4).join(" ");
+  return words.length > 4 ? short + "..." : short;
 }
