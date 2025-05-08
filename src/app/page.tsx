@@ -11,6 +11,7 @@ import RenameDialog from "../components/dialogs/RenameDialog";
 import AddToFolderDialog from "../components/dialogs/AddToFolderDialog";
 import ModalManager from "@/components/modals/ModalManager";
 import { useChatHistory } from "../stores/chatHistoryStore";
+import FluidCursor from "@/components/FluidCursor";
 
 const HomePage: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -24,6 +25,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100 md:flex-row">
+      <FluidCursor />
       <Sidebar />
       <div className="flex flex-col flex-1">
         <Header />
