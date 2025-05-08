@@ -2,8 +2,8 @@ import { create } from "zustand";
 import { Chat, Folder } from "../types";
 import { exportChat } from "../utils/exportUtils";
 import { useMessageStore } from "./messageStore";
-import { supabase } from "../utils/supabase";
 import { useEffect } from "react";
+import { ModelService } from "../services/ModelService";
 
 interface ChatHistoryState {
   chatHistory: Chat[];
@@ -29,7 +29,7 @@ interface ChatHistoryState {
   loadFolders: () => Promise<void>;
   renameChat: (chatId: number, newTitle: string) => Promise<void>;
   deleteChat: (chatId: number) => Promise<void>;
-  removeChatFromFolder: (chatId: number) => Promise<void>; // Новый метод
+  removeChatFromFolder: (chatId: number) => Promise<void>;
 }
 
 export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
@@ -89,7 +89,9 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     return groups;
   },
   createNewChat: async () => {
-    const user = await supabase.auth.getUser();
+    const user = await (
+      await import("../utils/supabase")
+    ).supabase.auth.getUser();
     if (!user.data.user) {
       console.error("Пользователь не авторизован");
       return;
@@ -103,7 +105,9 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       createdAt: new Date(),
     };
 
-    const { data, error } = await supabase
+    const { data, error } = await (
+      await import("../utils/supabase")
+    ).supabase
       .from("chats")
       .insert({
         title: newChat.title,
@@ -141,22 +145,13 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       }))
     );
 
-    const { data, error } = await supabase
-      .from("messages")
-      .select("*")
-      .eq("chat_id", chatId)
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      console.error("Ошибка загрузки сообщений:", error);
-      return;
-    }
+    const messages = await ModelService.loadMessages(chatId);
 
     useMessageStore.getState().setMessages(
-      data.map((msg) => ({
-        id: msg.id,
-        text: msg.text,
-        sender: msg.sender,
+      messages.map((msg, index) => ({
+        id: Date.now() + index,
+        text: msg.content,
+        sender: msg.role as "user" | "assistant",
       }))
     );
   },
@@ -173,7 +168,7 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       )
     );
 
-    const { error } = await supabase
+    const { error } = await (await import("../utils/supabase")).supabase
       .from("chats")
       .update({ last_message: message })
       .eq("id", chatId);
@@ -195,7 +190,7 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       )
     );
 
-    const { error } = await supabase
+    const { error } = await (await import("../utils/supabase")).supabase
       .from("chats")
       .update({ folder_id: folderId })
       .eq("id", chatId);
@@ -203,13 +198,15 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     if (error) console.error("Ошибка добавления чата в папку:", error);
   },
   createFolder: async (name: string) => {
-    const user = await supabase.auth.getUser();
+    const user = await (
+      await import("../utils/supabase")
+    ).supabase.auth.getUser();
     if (!user.data.user) {
       console.error("Пользователь не авторизован");
       return;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await (await import("../utils/supabase")).supabase
       .from("folders")
       .insert({ name, user_id: user.data.user.id })
       .select()
@@ -225,7 +222,9 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
   },
   deleteFolder: async (folderId: number) => {
     const { setFolders, setChatHistory } = get();
-    const { error: folderError } = await supabase
+    const { error: folderError } = await (
+      await import("../utils/supabase")
+    ).supabase
       .from("folders")
       .delete()
       .eq("id", folderId);
@@ -235,7 +234,9 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       return;
     }
 
-    const { error: chatError } = await supabase
+    const { error: chatError } = await (
+      await import("../utils/supabase")
+    ).supabase
       .from("chats")
       .update({ folder_id: null })
       .eq("folder_id", folderId);
@@ -253,13 +254,15 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     );
   },
   loadChats: async () => {
-    const user = await supabase.auth.getUser();
+    const user = await (
+      await import("../utils/supabase")
+    ).supabase.auth.getUser();
     if (!user.data.user) {
       console.error("Пользователь не авторизован");
       return;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await (await import("../utils/supabase")).supabase
       .from("chats")
       .select("*")
       .eq("user_id", user.data.user.id)
@@ -283,13 +286,15 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     });
   },
   loadFolders: async () => {
-    const user = await supabase.auth.getUser();
+    const user = await (
+      await import("../utils/supabase")
+    ).supabase.auth.getUser();
     if (!user.data.user) {
       console.error("Пользователь не авторизован");
       return;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await (await import("../utils/supabase")).supabase
       .from("folders")
       .select("*")
       .eq("user_id", user.data.user.id);
@@ -314,7 +319,7 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       )
     );
 
-    const { error } = await supabase
+    const { error } = await (await import("../utils/supabase")).supabase
       .from("chats")
       .update({ title: newTitle })
       .eq("id", chatId);
@@ -334,7 +339,10 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
 
     setChatHistory((prev) => prev.filter((chat) => chat.id !== chatId));
 
-    const { error } = await supabase.from("chats").delete().eq("id", chatId);
+    const { error } = await (await import("../utils/supabase")).supabase
+      .from("chats")
+      .delete()
+      .eq("id", chatId);
 
     if (error) {
       console.error("Ошибка удаления чата:", error);
@@ -356,7 +364,7 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       )
     );
 
-    const { error } = await supabase
+    const { error } = await (await import("../utils/supabase")).supabase
       .from("chats")
       .update({ folder_id: null })
       .eq("id", chatId);

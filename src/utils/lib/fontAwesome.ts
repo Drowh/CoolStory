@@ -16,7 +16,7 @@ import {
   faEdit,
   faTrashAlt,
   faChevronDown,
-  faChevronUp, 
+  faChevronUp,
   faPaperclip,
   faMicrophone,
   faPaperPlane,
@@ -34,6 +34,10 @@ import {
   faSignOut,
   faRightFromBracket,
   faRightToBracket,
+  faCheckCircle,
+  faExclamationCircle,
+  faTimesCircle,
+  faBrain,
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -50,7 +54,7 @@ library.add(
   faStar,
   faEllipsisH,
   faEdit,
-  faStarRegular, 
+  faStarRegular,
   faTrashAlt,
   faChevronDown,
   faChevronUp,
@@ -71,8 +75,10 @@ library.add(
   faSignOut,
   faRightFromBracket,
   faRightToBracket,
-
-
+  faCheckCircle,
+  faExclamationCircle,
+  faTimesCircle,
+  faBrain,
 );
 
 export default library;
