@@ -7,6 +7,7 @@ interface Message {
   id: number;
   text: string;
   sender: "user" | "assistant";
+  imageUrl?: string;
 }
 
 interface ChatMessageProps {
@@ -40,15 +41,25 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       )}
 
       <div
-        className={`relative  py-3 rounded-lg leading-relaxed break-words whitespace-pre-wrap transition-all duration-200
+        className={`relative py-3 rounded-lg leading-relaxed break-words whitespace-pre-wrap transition-all duration-200
           ${
             isUser
               ? "text-base px-3 font-normal max-w-2xl bg-gradient-to-r from-gray-800 to-gray-700 text-gray-100 shadow-md"
               : "text-base font-normal w-full text-gray-100 chat-message-assistant"
           }`}
       >
+        {message.imageUrl && (
+          <Image
+            src={message.imageUrl}
+            alt="Attached"
+            className="rounded-lg mb-2"
+            width={200}
+            height={200}
+            style={{ maxWidth: "200px", height: "auto" }}
+          />
+        )}
         {isUser ? (
-          message.text
+          <p>{message.text}</p>
         ) : (
           <div dangerouslySetInnerHTML={{ __html: message.text }} />
         )}
