@@ -13,7 +13,9 @@
     "highp",
     "mediump",
     "NEUROSERVICE",
+    "nowrap",
     "OPENROUTER",
+    "rgba",
     "supabase"
   ]
 }

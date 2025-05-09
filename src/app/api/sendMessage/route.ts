@@ -14,16 +14,7 @@ const GPT4O_API_KEY = process.env.GPT4O_API_KEY;
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("Received POST request to /api/sendMessage");
-
     const { chatId, message, model, imageUrl, thinkMode } = await req.json();
-    console.log("Request body:", {
-      chatId,
-      message,
-      model,
-      imageUrl,
-      thinkMode,
-    });
 
     if (!chatId || !message || !model) {
       console.error("Missing required fields");
@@ -43,7 +34,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log("Attempting to insert user message into Supabase");
     const { error: userError } = await supabase.from("chat_messages").insert({
       chat_id: chatId,
       role: "user",
@@ -56,9 +46,7 @@ export async function POST(req: NextRequest) {
         "Не удалось сохранить сообщение пользователя: " + userError.message
       );
     }
-    console.log("User message inserted successfully");
 
-    console.log("Selecting API key for model:", model);
     const apiKeyMap = {
       deepseek: DEEPSEEK_API_KEY,
       maverick: MAVERICK_API_KEY,
@@ -70,7 +58,6 @@ export async function POST(req: NextRequest) {
       console.error("API key not found for model:", model);
       throw new Error("API-ключ для выбранной модели не найден");
     }
-    console.log("API key selected successfully");
 
     const modelMap = {
       deepseek: "deepseek/deepseek-chat-v3-0324:free",
@@ -106,8 +93,6 @@ export async function POST(req: NextRequest) {
       stream: false,
     };
 
-    console.log("Sending request to OpenRouter with payload:", payload);
-
     const response = await fetch(OPENROUTER_API_URL, {
       method: "POST",
       headers: {
@@ -128,7 +113,6 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await response.json();
-    console.log("OpenRouter API response:", data);
 
     if (data.error) {
       console.error("OpenRouter API returned an error:", data.error);
@@ -142,9 +126,7 @@ export async function POST(req: NextRequest) {
       );
       throw new Error("Ответ модели пустой");
     }
-    console.log("Assistant message extracted:", assistantMessage);
 
-    console.log("Attempting to insert assistant message into Supabase");
     const { error: assistantError } = await supabase
       .from("chat_messages")
       .insert({
@@ -159,7 +141,6 @@ export async function POST(req: NextRequest) {
         "Не удалось сохранить ответ модели: " + assistantError.message
       );
     }
-    console.log("Assistant message inserted successfully");
 
     return NextResponse.json({ success: true, message: assistantMessage });
   } catch (error: unknown) {

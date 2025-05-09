@@ -125,7 +125,6 @@ const ChatInput: React.FC = () => {
         if (activeChat.title === "Новый чат") {
           try {
             const title = await generateTitle([inputMessage, response.message]);
-            console.log("Сгенерированное название для чата:", title);
             if (title && title !== "Новый чат") {
               await useChatHistoryStore
                 .getState()

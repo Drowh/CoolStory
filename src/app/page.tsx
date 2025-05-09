@@ -18,17 +18,16 @@ const HomePage: React.FC = () => {
   useChatHistory();
 
   useEffect(() => {
-    console.log("useEffect вызван, устанавливаем messagesEndRef");
     setMessagesEndRef(messagesEndRef);
   }, [setMessagesEndRef]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100 md:flex-row">
+    <div className="flex flex-col h-auto bg-gray-900 text-gray-100 md:flex-row">
       <Sidebar />
       <div className="flex flex-col flex-1">
         <Header />
-        <main className="flex-1 flex flex-col bg-gray-900">
-          <div className="flex-1 overflow-hidden">
+        <main className="flex flex-col">
+          <div className="overflow-auto">
             <ChatArea />
           </div>
           <ChatInput />

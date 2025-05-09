@@ -2,6 +2,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import cat from "../../assets/icons/cat.png";
+import hljs from "highlight.js";
+import javascript from "highlight.js/lib/languages/javascript";
+import typescript from "highlight.js/lib/languages/typescript";
+import python from "highlight.js/lib/languages/python";
+import bash from "highlight.js/lib/languages/bash";
+import json from "highlight.js/lib/languages/json";
+import "highlight.js/styles/vs2015.css";
 import { renderMarkdownSafe } from "../../utils/markdown";
 
 interface Message {
@@ -17,24 +24,70 @@ interface ChatMessageProps {
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const isUser = message.sender === "user";
-  const [isHovered, setIsHovered] = useState(false);
   const [html, setHtml] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    hljs.registerLanguage("javascript", javascript);
+    hljs.registerLanguage("typescript", typescript);
+    hljs.registerLanguage("python", python);
+    hljs.registerLanguage("bash", bash);
+    hljs.registerLanguage("json", json);
+
+    hljs.configure({
+      ignoreUnescapedHTML: true,
+    });
+  }, []);
 
   useEffect(() => {
     if (!isUser) {
-      renderMarkdownSafe(message.text).then(setHtml);
+      try {
+        const processedHtml = renderMarkdownSafe(message.text);
+        setHtml(processedHtml);
+
+        setTimeout(() => {
+          document.querySelectorAll("pre code").forEach((block) => {
+            const htmlBlock = block as HTMLElement;
+            if (!htmlBlock.dataset.highlighted) {
+              hljs.highlightElement(htmlBlock);
+            }
+          });
+        }, 100);
+      } catch (error) {
+        console.error("Markdown parsing error:", error);
+        setHtml(`<p>${message.text}</p>`);
+      }
     }
   }, [message.text, isUser]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains("copy-btn")) {
+        const code = decodeURIComponent(target.getAttribute("data-code") || "");
+        navigator.clipboard.writeText(code);
+        target.textContent = "✓";
+        setTimeout(() => (target.textContent = "⧉"), 1200);
+      }
+    };
+
+    if (!isUser) {
+      document.addEventListener("click", handler);
+      return () => document.removeEventListener("click", handler);
+    }
+  }, [html, isUser]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(message.text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  };
 
   return (
     <div
       className={`flex items-start ${
         isUser ? "justify-end" : "justify-start"
-      } my-3 transition-all duration-200 ${
-        isHovered ? "scale-101" : "scale-100"
-      }`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      } my-0.5`}
     >
       {!isUser && (
         <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-800 border border-gray-700 mr-3 flex items-center justify-center shadow-md overflow-hidden">
@@ -49,11 +102,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       )}
 
       <div
-        className={`relative py-3 rounded-lg leading-relaxed break-words whitespace-pre-wrap transition-all duration-200
+        className={`relative py-1 rounded-lg leading-relaxed break-words whitespace-pre-wrap
           ${
             isUser
               ? "text-base px-3 font-normal max-w-2xl bg-gradient-to-r from-gray-800 to-gray-700 text-gray-100 shadow-md"
-              : "text-base font-normal w-full text-gray-100 chat-message-assistant"
+              : "text-base font-normal w-full text-gray-100 chat-message-assistant px-2" 
           }`}
       >
         {message.imageUrl && (
@@ -67,9 +120,30 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           />
         )}
         {isUser ? (
-          <p>{message.text}</p>
+          <div className="flex items-center justify-between">
+            <p className="mb-0 flex-1">{message.text}</p>
+            <button
+              className="copy-btn-msg ml-2 "
+              title="Скопировать сообщение"
+              onClick={handleCopy}
+            >
+              {copied ? "✓" : "⧉"}
+            </button>
+          </div>
         ) : (
-          <div dangerouslySetInnerHTML={{ __html: html }} />
+          <>
+            <div
+              className="markdown-content"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+            <button
+              className="copy-btn-msg"
+              title="Скопировать сообщение"
+              onClick={handleCopy}
+            >
+              {copied ? "✓" : "⧉"}
+            </button>
+          </>
         )}
       </div>
 

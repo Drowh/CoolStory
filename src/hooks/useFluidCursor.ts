@@ -221,7 +221,6 @@ function initFluidCursor(): void {
     format: GLenum,
     type: GLenum
   ) {
-    // WebGL2 константы
     const R16F = 0x822d;
     const RG16F = 0x822f;
     const RGBA16F = 0x881a;

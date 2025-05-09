@@ -13,11 +13,7 @@ const ModalManager: React.FC = () => {
       return <SettingsModal />;
     case "auth":
       return <AuthForm />;
-    // Можно добавить другие модальные окна, например:
-    // case "theme":
-    //   return <ThemeModal />;
-    // case "help":
-    //   return <HelpModal />;
+
     default:
       return null;
   }

@@ -328,13 +328,11 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     });
   },
   renameChat: async (chatId: number, newTitle: string) => {
-    console.log("Переименование чата", chatId, "в", newTitle);
     const { setChatHistory } = get();
     setChatHistory((prevChats) => {
       const updated = prevChats.map((chat) =>
         chat.id === chatId ? { ...chat, title: newTitle } : chat
       );
-      console.log("chatHistory после переименования:", updated);
       return updated;
     });
 

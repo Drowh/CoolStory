@@ -17,7 +17,6 @@ export const useVoiceInput = (): UseVoiceInputResult => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Проверяем поддержку Web Speech API
       const SpeechRecognition =
         window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -71,7 +70,6 @@ export const useVoiceInput = (): UseVoiceInputResult => {
   };
 };
 
-// Добавляем типы для Window, так как TypeScript их не знает по умолчанию
 declare global {
   interface Window {
     SpeechRecognition?: typeof SpeechRecognition;

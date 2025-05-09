@@ -8,10 +8,8 @@ const SearchBar: React.FC = () => {
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Эффект очистки при размонтировании
   useEffect(() => {
     return () => {
-      // Сбрасываем поиск при размонтировании компонента
       if (searchQuery) {
         setSearchQuery("");
       }
@@ -20,7 +18,6 @@ const SearchBar: React.FC = () => {
 
   const handleClear = () => {
     setSearchQuery("");
-    // После очистки возвращаем фокус на поле ввода
     if (inputRef.current) {
       inputRef.current.focus();
     }
