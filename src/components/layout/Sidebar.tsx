@@ -109,7 +109,7 @@ const Sidebar: React.FC = () => {
                   createNewChat();
                   if (isMobile) setIsSidebarCollapsed(true);
                 }}
-                className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 w-full mt-4 flex items-center justify-center space-x-2 py-2 rounded-lg transform transition-transform duration-200 hover:scale-102 shadow-md"
+                className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 w-full mt-4 flex items-center justify-center space-x-2 py-2 rounded-lg shadow-md"
               >
                 <span>Новый чат</span>
               </Button>
