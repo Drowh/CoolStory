@@ -54,7 +54,7 @@ const createMessageStore: StateCreator<MessageState> = (set, get) => ({
   },
   scrollToBottom: () => {
     const { messagesEndRef } = get();
-    messagesEndRef?.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef?.current?.scrollIntoView({ behavior: 'smooth' });
   },
   inputFieldRef: null,
   setInputFieldRef: (ref) => set({ inputFieldRef: ref }),

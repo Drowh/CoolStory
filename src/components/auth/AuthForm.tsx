@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "../../utils/supabase";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
-import { useModalStore } from "../../stores/modalStore"; // Добавлен импорт
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; // Добавлен импорт для иконки
+import { useModalStore } from "../../stores/modalStore"; 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; 
 
 interface AuthFormProps {
   initialMode?: "login" | "register";
@@ -17,7 +17,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
   const [emailError, setEmailError] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
   const [generalError, setGeneralError] = useState<string>("");
-  const { setModalType } = useModalStore(); // Добавлен хук для закрытия модального окна
+  const { setModalType } = useModalStore(); 
 
   const translateError = (errorMessage: string): string => {
     if (errorMessage.includes("email")) return "Неверный формат email";

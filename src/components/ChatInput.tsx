@@ -10,6 +10,7 @@ import { Message } from "../types";
 import Image from "next/image";
 import { supabase } from "../utils/supabase";
 import CustomDropup from "./ui/CustomDropup";
+import { generateTitle } from "../utils/api";
 
 interface MessageWithImage extends Message {
   imageUrl?: string;
@@ -120,6 +121,17 @@ const ChatInput: React.FC = () => {
         useChatHistoryStore
           .getState()
           .updateLastMessage(activeChat.id, response.message);
+
+        if (activeChat.title === "Новый чат") {
+          try {
+            const title = await generateTitle([inputMessage, response.message]);
+            if (title && title !== "Новый чат") {
+              await useChatHistoryStore
+                .getState()
+                .renameChat(activeChat.id, title);
+            }
+          } catch {}
+        }
       }
     } catch {
       setToast({

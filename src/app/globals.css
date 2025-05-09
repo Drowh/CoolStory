@@ -20,96 +20,325 @@
 
 body {
   font-family: "Comic Relief", system-ui, sans-serif;
+  color: #e5e7eb;
 }
 
-.btn {
-  padding: 0.5rem;
-  border-radius: 0.375rem;
-  transition: all 0.2s ease-in-out;
-  white-space: nowrap;
+/* Стили для компонента Markdown */
+.markdown-content h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  margin-bottom: 0.6rem;
+  color: #f472b6;
+  border-bottom: 1px solid rgba(244, 114, 182, 0.3);
+  padding-bottom: 0.3rem;
 }
 
-.btn:hover {
-  background-color: rgba(75, 85, 99, 0.7);
+.markdown-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  margin-bottom: 0.7rem;
+  color: #f472b6;
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(75, 85, 99, 0.5);
-  border-radius: 3px;
-}
-
-@media (max-width: 768px) {
-  .md\:w-64 {
-    width: 100%;
-  }
-  .md\:w-16 {
-    width: 100%;
-  }
-}
-
-@keyframes ripple {
-  to {
-    transform: scale(4);
-    opacity: 0;
-  }
-}
-
-.ripple-circle {
-  position: absolute;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.3);
-  transform: scale(0);
-  animation: ripple 600ms linear;
-  pointer-events: none;
-}
-
-
-/* Стили для сообщений нейросети */
-.chat-message-assistant h3 {
-  font-size: 1.125rem; /* 18px */
+.markdown-content h3 {
+  font-size: 1.25rem;
   font-weight: 600;
-  margin-bottom: 0.25rem; /* Уменьшаем отступ снизу */
-  color: #e5e7eb; /* gray-100 */
+  margin-top: 0.8rem;
+  margin-bottom: 0.4rem;
+  color: #f472b6;
 }
 
-.chat-message-assistant p {
-  margin-bottom: 0.25rem; /* Уменьшаем отступ между абзацами */
-  color: #e5e7eb; /* gray-100 */
+.markdown-content h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 0.7rem;
+  margin-bottom: 0.5rem;
+  color: #f472b6;
 }
 
-.chat-message-assistant ul {
+.markdown-content p {
+  margin-bottom: 0.01rem;
+  margin-top: 0.9rem;
+  line-height: 1.6;
+}
+
+.markdown-content ul {
   list-style-type: disc;
   margin-left: 1.25rem;
-  margin-top: 0.25rem; /* Уменьшаем отступ сверху */
-  margin-bottom: 0.25rem; /* Уменьшаем отступ снизу */
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
 }
 
-.chat-message-assistant li {
-  color: #e5e7eb; /* gray-100 */
-  margin-bottom: 0.1rem; /* Уменьшаем отступ между пунктами списка */
-  line-height: 1.3; /* Уменьшаем высоту строки */
+.markdown-content ol {
+  list-style-type: decimal;
+  margin-left: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
 }
 
-.chat-message-assistant strong {
+.markdown-content li {
+  margin-bottom: 0.3rem;
+  line-height: 1.5;
+}
+
+.markdown-content a {
+  color: #93c5fd;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.markdown-content a:hover {
+  color: #f472b6;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid #f472b6;
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  color: #d1d5db;
+  font-style: italic;
+}
+
+.markdown-content strong {
   font-weight: 600;
-  color: #f472b6; /* pink-400 */
+  color: #f472b6;
+}
+
+.markdown-content em {
+  font-style: italic;
+  color: #d1d5db;
+}
+
+.markdown-content hr {
+  border: 0;
+  height: 1px;
+  background: rgba(244, 114, 182, 0.3);
+  margin: 1.5rem 0;
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.markdown-content th {
+  background-color: rgba(244, 114, 182, 0.1);
+  border: 1px solid rgba(244, 114, 182, 0.3);
+  padding: 0.5rem;
+  text-align: left;
+  color: #f472b6;
+}
+
+.markdown-content td {
+  border: 1px solid rgba(244, 114, 182, 0.2);
+  padding: 0.5rem;
+}
+
+.markdown-content tr:nth-child(even) {
+  background-color: rgba(244, 114, 182, 0.05);
+}
+
+.markdown-content .code-block-container {
+  margin: 0 !important;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(76, 143, 255, 0.2);
+  position: relative;
+  background: #1e1e2e;
+  padding: 0;
+  overflow: hidden;
+}
+
+.markdown-content .code-block-container pre {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.markdown-content .code-block-container code.hljs {
+  display: block;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0.5rem 1rem;
+  font-family: "Fira Code", monospace;
+  font-size: 0.95em;
+  line-height: 1.4;
+  overflow-x: auto;
+}
+
+.markdown-content .code-block-container .code-lang-label {
+  position: absolute;
+  top: 0.5rem;
+  right: 3rem;
+  background: rgba(76, 143, 255, 0.2);
+  color: #93c5fd;
+  padding: 0.29rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75em;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(76, 143, 255, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+}
+
+.markdown-content .code-block-container .copy-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: rgba(76, 143, 255, 0.2);
+  border: 1px solid rgba(76, 143, 255, 0.3);
+  color: #93c5fd;
+  font-size: 1.1em;
+  padding: 0.01rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+}
+
+.markdown-content .code-block-container .copy-btn:hover {
+  background: rgba(244, 114, 182, 0.2);
+  color: #f472b6;
+  transform: translateY(-2px);
+  border-color: rgba(244, 114, 182, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+.copy-btn-msg {
+  background: rgba(76, 143, 255, 0.2);
+  border: 1px solid rgba(76, 143, 255, 0.3);
+  color: #93c5fd;
+  font-size: 1.1em;
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.1rem;
+}
+
+.copy-btn-msg:hover {
+  background: rgba(244, 114, 182, 0.2);
+  color: #f472b6;
+  transform: translateY(-2px);
+  border-color: rgba(244, 114, 182, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+.markdown-content .hljs-keyword {
+  color: #ff79c6 !important;
+}
+
+.markdown-content .hljs-string {
+  color: #f1fa8c !important;
+}
+
+.markdown-content .hljs-number {
+  color: #bd93f9 !important;
+}
+
+.markdown-content .hljs-comment {
+  color: #6272a4 !important;
+  font-style: italic !important;
+}
+
+.markdown-content .hljs-built_in {
+  color: #8be9fd !important;
+}
+
+.markdown-content .hljs-function {
+  color: #50fa7b !important;
+}
+
+.markdown-content .hljs-operator {
+  color: #ff79c6 !important;
+}
+
+.markdown-content .hljs-variable {
+  color: #f8f8f2 !important;
+}
+
+.markdown-content .hljs-property {
+  color: #8be9fd !important;
+}
+
+.markdown-content .hljs-title {
+  color: #50fa7b !important;
+}
+
+.markdown-content .hljs-params {
+  color: #f8f8f2 !important;
+}
+
+.markdown-content :not(pre) > code.inline-code {
+  background: rgba(76, 143, 255, 0.1);
+  color: #93c5fd;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: "Fira Code", monospace;
+  border: 1px solid rgba(76, 143, 255, 0.2);
+}
+
+.chat-message-assistant {
+  position: relative;
+  scroll-behavior: relative;
+}
+
+button[aria-label="Прокрутить вниз"] {
+  position: absolute;
+  right: 1rem;
+  bottom: 5rem;
+  background: linear-gradient(45deg, #db2777, #7c3aed);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(219, 39, 119, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 50 !important;
+}
+
+button[aria-label="Прокрутить вниз"]:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(219, 39, 119, 0.4);
+}
+
+.scroll-fix {
+  scroll-behavior: smooth !important;
+  scroll-snap-align: end;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(219, 39, 119, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(219, 39, 119, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(219, 39, 119, 0);
+  }
+}
+
+.animate-pulse-shadow {
+  animation: pulse 1.5s infinite;
 }
