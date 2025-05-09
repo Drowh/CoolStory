@@ -3,6 +3,7 @@ import { useMessageStore } from "../../stores/messageStore";
 import { useChatHistoryStore } from "../../stores/chatHistoryStore";
 import { useModalStore } from "../../stores/modalStore";
 import ChatMessage from "./ChatMessage";
+import LoadingIndicator from "./LoadingIndicator";
 import Image from "next/image";
 import cat from "../../assets/icons/cat.png";
 
@@ -14,7 +15,7 @@ const ChatArea: React.FC = () => {
     scrollToBottom,
     focusInputField,
   } = useMessageStore();
-  const { chatHistory } = useChatHistoryStore();
+  const { chatHistory, loadingChatId } = useChatHistoryStore();
   const { setModalType } = useModalStore();
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -119,7 +120,10 @@ const ChatArea: React.FC = () => {
     setModalType("auth");
   };
 
-  if (!activeChat) {
+  const isLoading =
+    loadingChatId !== null || (activeChat && messages.length === 0);
+
+  if (!activeChat && chatHistory.length === 0) {
     return (
       <div className="flex-1 mt-6 mx-2 flex flex-col items-center justify-center text-gray-400 transition-all duration-500 opacity-90 hover:opacity-100">
         <div
@@ -166,7 +170,9 @@ const ChatArea: React.FC = () => {
         id="chat-container"
       >
         <div className="max-w-5xl mx-auto w-full px-8">
-          {messages.length === 0 ? (
+          {isLoading ? (
+            <LoadingIndicator />
+          ) : messages.length === 0 && activeChat ? (
             <div
               onClick={focusInputField}
               className="flex flex-col cursor-pointer items-center justify-center h-64 text-gray-500 transition-all duration-500 transform hover:scale-105"

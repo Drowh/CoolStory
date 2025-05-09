@@ -1,6 +1,5 @@
 import { create, StateCreator } from "zustand";
 import { Message } from "../types";
-import { initialMessages } from "../data/initialData";
 
 interface MessageState {
   messages: Message[];
@@ -18,19 +17,34 @@ interface MessageState {
   ) => void;
   handleKeyPress: (e: React.KeyboardEvent) => void;
   scrollToBottom: () => void;
+  messageCache: Record<number, Message[]>;
+  addToCache: (chatId: number, messages: Message[]) => void;
+  getFromCache: (chatId: number) => Message[] | null;
 }
 
 const createMessageStore: StateCreator<MessageState> = (set, get) => ({
-  messages: initialMessages.map((msg) => ({
-    id: msg.id,
-    text: msg.text,
-    sender: msg.sender,
-  })),
+  messages: [],
   setMessages: (messages) =>
-    set((state) => ({
-      messages:
-        typeof messages === "function" ? messages(state.messages) : messages,
-    })),
+    set((state) => {
+      const newMessages =
+        typeof messages === "function" ? messages(state.messages) : messages;
+
+      const uniqueMessages = [];
+      const seenIds = new Set();
+      const seenContent = new Map();
+
+      for (const msg of newMessages) {
+        const contentKey = `${msg.sender}:${msg.text}`;
+
+        if (!seenIds.has(msg.id) && !seenContent.has(contentKey)) {
+          seenIds.add(msg.id);
+          seenContent.set(contentKey, true);
+          uniqueMessages.push(msg);
+        }
+      }
+
+      return { messages: uniqueMessages };
+    }),
   inputMessage: "",
   setInputMessage: (value) =>
     set((state) => ({
@@ -54,7 +68,7 @@ const createMessageStore: StateCreator<MessageState> = (set, get) => ({
   },
   scrollToBottom: () => {
     const { messagesEndRef } = get();
-    messagesEndRef?.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef?.current?.scrollIntoView({ behavior: "smooth" });
   },
   inputFieldRef: null,
   setInputFieldRef: (ref) => set({ inputFieldRef: ref }),
@@ -63,6 +77,18 @@ const createMessageStore: StateCreator<MessageState> = (set, get) => ({
     if (inputFieldRef?.current) {
       inputFieldRef.current.focus();
     }
+  },
+  messageCache: {},
+  addToCache: (chatId, messages) =>
+    set((state) => ({
+      messageCache: {
+        ...state.messageCache,
+        [chatId]: messages,
+      },
+    })),
+  getFromCache: (chatId) => {
+    const { messageCache } = get();
+    return messageCache[chatId] || null;
   },
 });
 

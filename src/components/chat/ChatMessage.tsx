@@ -11,8 +11,9 @@ import json from "highlight.js/lib/languages/json";
 import "highlight.js/styles/vs2015.css";
 import { renderMarkdownSafe } from "../../utils/markdown";
 
+
 interface Message {
-  id: number;
+  id: string;
   text: string;
   sender: "user" | "assistant";
   imageUrl?: string;

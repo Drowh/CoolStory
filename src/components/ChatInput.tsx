@@ -12,10 +12,6 @@ import { supabase } from "../utils/supabase";
 import CustomDropup from "./ui/CustomDropup";
 import { generateTitle } from "../utils/api";
 
-interface MessageWithImage extends Message {
-  imageUrl?: string;
-}
-
 const ChatInput: React.FC = () => {
   const {
     inputMessage,
@@ -28,9 +24,8 @@ const ChatInput: React.FC = () => {
     handleKeyPress,
   } = useMessageStore();
   const { isListening, toggleListening, transcript } = useVoiceInput();
-  const activeChat = useChatHistoryStore((state) =>
-    state.chatHistory.find((chat) => chat.isActive)
-  );
+  const { chatHistory, selectChat, updateLastMessage } = useChatHistoryStore();
+  const activeChat = chatHistory.find((chat) => chat.isActive);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [charCount, setCharCount] = useState(0);
@@ -62,16 +57,20 @@ const ChatInput: React.FC = () => {
 
   const handleSend = async () => {
     if (!activeChat || (!inputMessage.trim() && !imageUrl)) return;
-
+  
     const normalizedImageUrl = imageUrl ?? undefined;
+    const content = inputMessage || (imageUrl ? "Describe this image" : "");
+    
+    const messageId = `user-${activeChat.id}-${Date.now()}`;
 
-    const newUserMessage: MessageWithImage = {
-      id: Date.now(),
-      text: inputMessage || "Image attached",
+    const newUserMessage: Message = {
+      id: messageId,
+      text: content,
       sender: "user",
       imageUrl: normalizedImageUrl,
     };
     setMessages([...messages, newUserMessage]);
+
     setInputMessage("");
     setImageUrl(null);
     setIsTyping(true);
@@ -81,19 +80,17 @@ const ChatInput: React.FC = () => {
       .insert({
         chat_id: activeChat.id,
         role: "user",
-        content: inputMessage || "Image attached",
+        content,
       });
     if (userMsgError)
       console.error("Ошибка сохранения сообщения:", userMsgError);
 
-    useChatHistoryStore
-      .getState()
-      .updateLastMessage(activeChat.id, inputMessage || "Image attached");
+    await updateLastMessage(activeChat.id, content);
 
     try {
       const response = await ModelService.sendMessage(
         activeChat.id,
-        inputMessage || "Describe this image",
+        content,
         selectedModel,
         normalizedImageUrl,
         thinkMode
@@ -101,8 +98,8 @@ const ChatInput: React.FC = () => {
       if (!response.success && response.error) {
         setToast({ message: response.error, type: "error" });
       } else if (response.message) {
-        const assistantMessage: MessageWithImage = {
-          id: Date.now() + 1,
+        const assistantMessage: Message = {
+          id: `${activeChat.id}-${Date.now() + 1}`,
           text: response.message,
           sender: "assistant",
         };
@@ -118,13 +115,11 @@ const ChatInput: React.FC = () => {
         if (assistantMsgError)
           console.error("Ошибка сохранения ответа:", assistantMsgError);
 
-        useChatHistoryStore
-          .getState()
-          .updateLastMessage(activeChat.id, response.message);
+        await updateLastMessage(activeChat.id, response.message);
 
         if (activeChat.title === "Новый чат") {
           try {
-            const title = await generateTitle([inputMessage, response.message]);
+            const title = await generateTitle([content, response.message]);
             if (title && title !== "Новый чат") {
               await useChatHistoryStore
                 .getState()
@@ -141,6 +136,7 @@ const ChatInput: React.FC = () => {
     } finally {
       setIsTyping(false);
       if (textareaRef.current) textareaRef.current.style.height = "auto";
+      if (activeChat) await selectChat(activeChat.id);
     }
   };
 
@@ -245,7 +241,7 @@ const ChatInput: React.FC = () => {
                   />
                   <Button
                     onClick={handleRemoveImage}
-                    className="absolute -top-4 right-4 bg-transparent hover:bg-transparent hover:text-red-500 text-gray-400   border-none"
+                    className="absolute -top-4 right-4 bg-transparent hover:bg-transparent hover:text-red-500 text-gray-400 border-none"
                   >
                     <FontAwesomeIcon icon="times" size="sm" />
                   </Button>
