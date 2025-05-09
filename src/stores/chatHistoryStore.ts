@@ -30,6 +30,9 @@ interface ChatHistoryState {
   renameChat: (chatId: number, newTitle: string) => Promise<void>;
   deleteChat: (chatId: number) => Promise<void>;
   removeChatFromFolder: (chatId: number) => Promise<void>;
+  lastSelectedChatId: number | null;
+  loadingChatId: number | null;
+  messagesLoaded: Record<number, boolean>;
 }
 
 export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
@@ -137,9 +140,25 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     selectChat(data.id);
   },
   selectChat: async (chatId: number) => {
+    const { lastSelectedChatId, messagesLoaded, loadingChatId } = get();
+
+    if (lastSelectedChatId === chatId) {
+      return;
+    }
+
+    if (loadingChatId === chatId) {
+      return;
+    }
+
+    set({
+      lastSelectedChatId: chatId,
+      loadingChatId: chatId,
+    });
+
     try {
       localStorage.setItem("lastActiveChatId", String(chatId));
     } catch {}
+
     const { chatHistory, setChatHistory } = get();
     setChatHistory(
       chatHistory.map((chat) => ({
@@ -148,15 +167,43 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       }))
     );
 
-    const messages = await ModelService.loadMessages(chatId);
+    useMessageStore.getState().setMessages([]);
 
-    useMessageStore.getState().setMessages(
-      messages.map((msg, index) => ({
-        id: Date.now() + index,
+    if (messagesLoaded[chatId]) {
+    }
+
+    if (get().lastSelectedChatId !== chatId) {
+      set({ loadingChatId: null });
+      return;
+    }
+
+    try {
+      const messages = await ModelService.loadMessages(chatId);
+
+      if (get().lastSelectedChatId !== chatId) {
+        set({ loadingChatId: null });
+        return;
+      }
+
+      set((state) => ({
+        messagesLoaded: {
+          ...state.messagesLoaded,
+          [chatId]: true,
+        },
+        loadingChatId: null,
+      }));
+
+      const formattedMessages = messages.map((msg, index) => ({
+        id: `${chatId}-${msg.id || index}`,
         text: msg.content,
         sender: msg.role as "user" | "assistant",
-      }))
-    );
+      }));
+
+      useMessageStore.getState().setMessages(formattedMessages);
+    } catch (error) {
+      console.error(`Ошибка при загрузке сообщений для чата ${chatId}:`, error);
+      set({ loadingChatId: null });
+    }
   },
   updateLastMessage: async (chatId: number, message: string) => {
     const { setChatHistory } = get();
@@ -300,6 +347,11 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       chatHistory = chatHistory.map((c, i) => ({ ...c, isActive: i === idx }));
     }
     set({ chatHistory });
+
+    const activeChat = chatHistory.find((chat) => chat.isActive);
+    if (activeChat) {
+      await get().selectChat(activeChat.id);
+    }
   },
   loadFolders: async () => {
     const user = await (
@@ -400,6 +452,9 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
       );
     }
   },
+  lastSelectedChatId: null,
+  loadingChatId: null,
+  messagesLoaded: {},
 }));
 
 export const useChatHistory = () => {

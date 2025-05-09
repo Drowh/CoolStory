@@ -14,7 +14,7 @@ export interface Folder {
 }
 
 export interface Message {
-  id: number;
+  id: string;
   text: string;
   sender: "user" | "assistant";
   imageUrl?: string;

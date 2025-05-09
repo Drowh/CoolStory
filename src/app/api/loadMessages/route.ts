@@ -11,7 +11,10 @@ export async function GET(req: NextRequest) {
   const chatId = searchParams.get("chatId");
 
   if (!chatId) {
-    return NextResponse.json({ error: "Missing chatId parameter" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing chatId parameter" },
+      { status: 400 }
+    );
   }
 
   try {
@@ -27,7 +30,12 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, data });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    console.error("Ошибка в /api/loadMessages:", errorMessage);
+    return NextResponse.json(
+      { success: false, error: errorMessage },
+      { status: 500 }
+    );
   }
 }
