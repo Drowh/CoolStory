@@ -14,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru" className={firaCode.className}>
-      <body>
+    <html lang="ru" className={firaCode.className} suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <FluidCursor />
         {children}
       </body>

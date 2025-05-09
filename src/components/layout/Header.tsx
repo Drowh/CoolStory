@@ -43,7 +43,15 @@ const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between">
-      <Image src={logo} alt="logo" width={150} height={40} className="ml-9" />
+      <Image
+        src={logo}
+        alt="logo"
+        width={150}
+        height={40}
+        className="ml-9"
+        style={{ width: "auto", height: "auto" }}
+        priority
+      />
       <div className="flex items-center space-x-3 relative">
         <Button
           onClick={() => {
@@ -104,7 +112,9 @@ const Header: React.FC = () => {
                 className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 flex items-center"
               >
                 <FontAwesomeIcon
-                  icon={isAuthenticated ? "right-from-bracket" : "right-to-bracket"}
+                  icon={
+                    isAuthenticated ? "right-from-bracket" : "right-to-bracket"
+                  }
                   className="mr-2"
                 />
                 {isAuthenticated ? "Выйти" : "Войти"}
