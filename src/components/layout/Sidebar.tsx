@@ -6,6 +6,8 @@ import SearchBar from "../chat/SearchBar";
 import ChatGroup from "../chat/ChatGroup";
 import Button from "../ui/Button";
 import DeleteConfirmButton from "../ui/DeleteConfirmButton";
+import logoDrow from "../../assets/icons/logoDrow.png";
+import Image from "next/image";
 
 const Sidebar: React.FC = () => {
   const showFolders = useChatHistoryStore((state) => state.showFolders);
@@ -79,7 +81,7 @@ const Sidebar: React.FC = () => {
       )}
 
       {isSidebarCollapsed && isMobile && (
-        <div className="fixed top-3 left-2 z-[52] animate-fade-in-scale">
+        <div className="fixed top-5 left-2 z-[52] animate-fade-in-scale">
           <button
             onClick={() => setIsSidebarCollapsed(false)}
             className="bg-[#111827] border border-gray-600 text-gray-200 px-3 py-1 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
@@ -206,7 +208,7 @@ const Sidebar: React.FC = () => {
                                   itemId={chat.id}
                                   itemType="chat-from-folder"
                                   label=""
-                                  onDelete={() => {}} 
+                                  onDelete={() => {}}
                                 />
                               </li>
                             ))}
@@ -224,6 +226,12 @@ const Sidebar: React.FC = () => {
             </div>
           </>
         )}
+        <Image
+          src={logoDrow}
+          alt="Drow Logo"
+          className="opacity-10 w-[250px] h-auto absolute bottom-0 pointer-events-none"
+          priority
+        />
       </aside>
     </>
   );
