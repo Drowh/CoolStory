@@ -120,8 +120,7 @@ const ChatArea: React.FC = () => {
     setModalType("auth");
   };
 
-  const isLoading =
-    loadingChatId !== null || (activeChat && messages.length === 0);
+  const isLoading = loadingChatId !== null && activeChat && activeChat.id === loadingChatId;
 
   if (!activeChat && chatHistory.length === 0) {
     return (
