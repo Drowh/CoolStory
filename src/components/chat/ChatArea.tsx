@@ -8,77 +8,106 @@ import Image from "next/image";
 import cat from "../../assets/icons/cat.png";
 
 const ChatArea: React.FC = () => {
-  const {
-    messages,
-    isTyping,
-    setMessagesEndRef,
-    scrollToBottom,
-    focusInputField,
-  } = useMessageStore();
+  const { messages, isTyping, setMessagesEndRef, focusInputField } =
+    useMessageStore();
   const { chatHistory, loadingChatId } = useChatHistoryStore();
   const { setModalType } = useModalStore();
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [showScrollButton, setShowScrollButton] = useState(false);
-  const [isScrolling, setIsScrolling] = useState(false);
   const [fadeIn, setFadeIn] = useState(false);
-  const [scrollTimeout, setScrollTimeoutId] = useState<NodeJS.Timeout | null>(
-    null
-  );
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const scrollTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastScrollPositionRef = useRef(0);
 
   useEffect(() => {
     setMessagesEndRef(endOfMessagesRef);
   }, [setMessagesEndRef]);
 
+  const scrollToBottomManually = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+    if (endOfMessagesRef.current) {
+      endOfMessagesRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   useEffect(() => {
     const fadeTimer = setTimeout(() => {
       setFadeIn(true);
-      scrollToBottom();
+      scrollToBottomManually();
     }, 100);
 
     return () => clearTimeout(fadeTimer);
-  }, [scrollToBottom]);
+  }, []);
 
-  useEffect(() => {
-    const checkScroll = () => {
-      if (!chatContainerRef.current) return;
+  const checkScroll = () => {
+    if (!chatContainerRef.current) return;
 
-      const { scrollTop, scrollHeight, clientHeight } =
-        chatContainerRef.current;
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 150;
-      setShowScrollButton(!isNearBottom && messages.length > 0);
-    };
+    const container = chatContainerRef.current;
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
 
-    const handleScroll = () => {
-      setIsScrolling(true);
-      checkScroll();
+    lastScrollPositionRef.current = container.scrollTop;
 
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
+    if (distanceFromBottom > 30) {
+      setShowScrollButton(true);
+
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
       }
 
-      const newScrollTimeout = setTimeout(() => {
-        setIsScrolling(false);
-      }, 1000);
+      scrollTimerRef.current = setTimeout(() => {
+        if (chatContainerRef.current) {
+          const newDistanceFromBottom =
+            chatContainerRef.current.scrollHeight -
+            chatContainerRef.current.scrollTop -
+            chatContainerRef.current.clientHeight;
 
-      setScrollTimeoutId(newScrollTimeout);
+          if (newDistanceFromBottom <= 30) {
+            setShowScrollButton(false);
+          }
+        }
+      }, 2000);
+    } else {
+      setShowScrollButton(false);
+    }
+  };
+
+  useEffect(() => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      checkScroll();
     };
 
-    const chatContainer = chatContainerRef.current;
-    if (chatContainer) {
-      chatContainer.addEventListener("scroll", handleScroll);
-      checkScroll();
+    container.addEventListener("scroll", handleScroll);
 
-      return () => {
-        chatContainer.removeEventListener("scroll", handleScroll);
-        if (scrollTimeout) {
-          clearTimeout(scrollTimeout);
-        }
-      };
-    }
-  }, [messages, scrollTimeout]);
+    const observer = new MutationObserver(() => {
+      setTimeout(handleScroll, 100);
+    });
+
+    observer.observe(container, {
+      childList: true,
+      subtree: true,
+    });
+
+    handleScroll();
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+      observer.disconnect();
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
+    };
+  }, [messages]);
 
   const activeChat = chatHistory.find((chat) => chat.isActive);
+  const isLoading =
+    loadingChatId !== null && activeChat && activeChat.id === loadingChatId;
 
   useEffect(() => {
     if (activeChat) {
@@ -105,22 +134,9 @@ const ChatArea: React.FC = () => {
     return () => clearTimeout(timer);
   }, [activeChat]);
 
-  const handleScrollToBottom = () => {
-    scrollToBottom();
-    const button = document.querySelector('[aria-label="Прокрутить вниз"]');
-    if (button) {
-      button.classList.add("animate-pulse-shadow");
-      setTimeout(() => {
-        button.classList.remove("animate-pulse-shadow");
-      }, 1500);
-    }
-  };
-
   const openAuthModal = () => {
     setModalType("auth");
   };
-
-  const isLoading = loadingChatId !== null && activeChat && activeChat.id === loadingChatId;
 
   if (!activeChat && chatHistory.length === 0) {
     return (
@@ -157,16 +173,22 @@ const ChatArea: React.FC = () => {
 
   return (
     <div
-      className={`relative flex flex-col h-full transition-all duration-500 ${
+      className={`relative flex flex-col transition-all duration-500  ${
         fadeIn ? "opacity-100" : "opacity-0"
       }`}
+      style={{
+        height: "calc(100vh - 200px)",
+        overflow: "hidden",
+      }}
     >
       <div
-        className={`flex-1 overflow-y-auto p-3 md:p-4 scrollbar-thin scrollbar-thumb-pink-600 scrollbar-track-transparent scroll-fix ${
-          isScrolling ? "scroll-smooth" : ""
-        }`}
+        className="flex-1 overflow-y-auto p-3 md:p-4 scrollbar-thin scrollbar-thumb-pink-600 scrollbar-track-transparent scroll-fix"
         ref={chatContainerRef}
         id="chat-container"
+        style={{
+          scrollBehavior: "smooth",
+          height: "100%",
+        }}
       >
         <div className="max-w-5xl mx-auto w-full px-8">
           {isLoading ? (
@@ -228,33 +250,38 @@ const ChatArea: React.FC = () => {
           )}
           <div
             ref={endOfMessagesRef}
-            className="h-4 scroll-fix"
+            className="h-2 scroll-fix"
             id="end-of-messages"
           />
         </div>
       </div>
+
       {showScrollButton && (
         <button
-          onClick={handleScrollToBottom}
-          className="fixed right-4 sm:right-6 md:right-8 bottom-20 md:bottom-24 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 z-50 animate-bounce-slow"
+          onClick={scrollToBottomManually}
+          className="scroll-to-bottom fixed bottom-[160px] md:bottom-[145px] left-1/2 transform -translate-x-1/2 w-[35px] h-[35px] md:w-[40px] md:h-[40px] rounded-full bg-gradient-to-r from-pink-600/70 to-purple-700/70 text-white text-lg md:text-xl flex items-center justify-center border border-white/50 shadow-lg z-50 transition-all duration-300 hover:scale-110 hover:shadow-xl hover:opacity-100"
+          style={{
+            boxShadow: "0 3px 10px rgba(219, 39, 119, 0.4)",
+            animation: "bounce 2s infinite ease-in-out",
+            opacity: 0.7,
+          }}
           aria-label="Прокрутить вниз"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 14l-7 7m0 0l-7-7m7 7V3"
-            />
-          </svg>
+          ↓
         </button>
       )}
+
+      <style jsx>{`
+        @keyframes bounce {
+          0%,
+          100% {
+            transform: translateY(0) translateX(-50%);
+          }
+          50% {
+            transform: translateY(-5px) translateX(-50%);
+          }
+        }
+      `}</style>
     </div>
   );
 };

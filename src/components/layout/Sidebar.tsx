@@ -81,7 +81,7 @@ const Sidebar: React.FC = () => {
       )}
 
       {isSidebarCollapsed && isMobile && (
-        <div className="fixed top-5 left-2 z-[52] animate-fade-in-scale">
+        <div className="fixed top-2.5 left-2 z-[52] animate-fade-in-scale">
           <button
             onClick={() => setIsSidebarCollapsed(false)}
             className="bg-[#111827] border border-gray-600 text-gray-200 px-3 py-1 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"

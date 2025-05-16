@@ -1,7 +1,5 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import { useMessageStore } from "../stores/messageStore";
 import "../utils/lib/fontAwesome";
 import Header from "../components/layout/Header";
 import Sidebar from "../components/layout/Sidebar";
@@ -12,31 +10,22 @@ import AddToFolderDialog from "../components/dialogs/AddToFolderDialog";
 import ModalManager from "@/components/modals/ModalManager";
 import { useChatHistory } from "../stores/chatHistoryStore";
 
-const HomePage: React.FC = () => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const setMessagesEndRef = useMessageStore((state) => state.setMessagesEndRef);
+const HomePage = () => {
   useChatHistory();
 
-  useEffect(() => {
-    setMessagesEndRef(messagesEndRef);
-  }, [setMessagesEndRef]);
-
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100 md:flex-row">
+    <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100 md:flex-row ">
       <Sidebar />
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 w-full">
         <Header />
-        <main className="flex flex-col">
-          <div className="overflow-auto">
-            <ChatArea />
-          </div>
+        <main className="flex flex-col flex-1 overflow-hidden">
+          <ChatArea />
           <ChatInput />
         </main>
       </div>
       <RenameDialog />
       <AddToFolderDialog />
       <ModalManager />
-      <div ref={messagesEndRef} className="hidden" />
     </div>
   );
 };

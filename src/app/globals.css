@@ -21,9 +21,35 @@
 body {
   font-family: "Comic Relief", system-ui, sans-serif;
   color: #e5e7eb;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Стили для компонента Markdown */
+.scroll-fix {
+  scrollbar-width: thin;
+  scrollbar-color: #db2777 transparent;
+}
+
+.scroll-fix::-webkit-scrollbar {
+  display: block;
+  width: 6px;
+}
+
+.scroll-fix::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-fix::-webkit-scrollbar-thumb {
+  background-color: #db2777;
+  border-radius: 20px;
+}
+
+#chat-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 .markdown-content h1 {
   font-size: 1.8rem;
   font-weight: 700;
@@ -59,9 +85,10 @@ body {
 }
 
 .markdown-content p {
-  margin-bottom: 0.01rem;
-  margin-top: 0.9rem;
-  line-height: 1.6;
+  margin-bottom: 0.7rem;
+  margin-top: 0.7rem;
+  line-height: 1.5;
+  word-break: break-word;
 }
 
 .markdown-content ul {
@@ -147,7 +174,7 @@ body {
 }
 
 .markdown-content .code-block-container {
-  margin: 0 !important;
+  margin: 0.5rem 0;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(76, 143, 255, 0.2);
@@ -155,16 +182,18 @@ body {
   background: #1e1e2e;
   padding: 0;
   overflow: hidden;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .markdown-content .code-block-container pre {
-  margin: 0 !important;
-  padding: 0 !important;
+  margin: 0;
+  padding: 0;
 }
 
 .markdown-content .code-block-container code.hljs {
   display: block;
-  margin: 0;
+  margin: -60px 0;
   border-radius: 0;
   background: transparent;
   padding: 0.5rem 1rem;
@@ -240,48 +269,48 @@ body {
 }
 
 .markdown-content .hljs-keyword {
-  color: #ff79c6 !important;
+  color: #ff79c6;
 }
 
 .markdown-content .hljs-string {
-  color: #f1fa8c !important;
+  color: #f1fa8c;
 }
 
 .markdown-content .hljs-number {
-  color: #bd93f9 !important;
+  color: #bd93f9;
 }
 
 .markdown-content .hljs-comment {
-  color: #6272a4 !important;
-  font-style: italic !important;
+  color: #6272a4;
+  font-style: italic;
 }
 
 .markdown-content .hljs-built_in {
-  color: #8be9fd !important;
+  color: #8be9fd;
 }
 
 .markdown-content .hljs-function {
-  color: #50fa7b !important;
+  color: #50fa7b;
 }
 
 .markdown-content .hljs-operator {
-  color: #ff79c6 !important;
+  color: #ff79c6;
 }
 
 .markdown-content .hljs-variable {
-  color: #f8f8f2 !important;
+  color: #f8f8f2;
 }
 
 .markdown-content .hljs-property {
-  color: #8be9fd !important;
+  color: #8be9fd;
 }
 
 .markdown-content .hljs-title {
-  color: #50fa7b !important;
+  color: #50fa7b;
 }
 
 .markdown-content .hljs-params {
-  color: #f8f8f2 !important;
+  color: #f8f8f2;
 }
 
 .markdown-content :not(pre) > code.inline-code {
@@ -295,41 +324,15 @@ body {
 
 .chat-message-assistant {
   position: relative;
-  scroll-behavior: relative;
 }
 
-button[aria-label="Прокрутить вниз"] {
-  position: absolute;
-  right: 1rem;
-  bottom: 5rem;
-  background: linear-gradient(45deg, #db2777, #7c3aed);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(219, 39, 119, 0.3);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 50 !important;
+.animate-pulse-shadow {
+  animation: pulse-shadow 2s infinite;
 }
 
-button[aria-label="Прокрутить вниз"]:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(219, 39, 119, 0.4);
-}
-
-.scroll-fix {
-  scroll-behavior: smooth !important;
-  scroll-snap-align: end;
-}
-
-@keyframes pulse {
+@keyframes pulse-shadow {
   0% {
-    box-shadow: 0 0 0 0 rgba(219, 39, 119, 0.4);
+    box-shadow: 0 0 0 0 rgba(219, 39, 119, 0.7);
   }
   70% {
     box-shadow: 0 0 0 10px rgba(219, 39, 119, 0);
@@ -339,6 +342,123 @@ button[aria-label="Прокрутить вниз"]:hover {
   }
 }
 
-.animate-pulse-shadow {
-  animation: pulse 1.5s infinite;
+.scroll-to-bottom {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.scroll-to-bottom:active {
+  transform: scale(0.95) translateX(-50%);
+}
+
+.chat-message-assistant,
+.chat-message-user {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.chat-message-assistant .bg-gray-800,
+.chat-message-user .bg-gray-800 {
+  width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.markdown-content {
+  overflow-x: hidden;
+}
+
+.markdown-content pre {
+  overflow-x: auto;
+}
+
+pre.python {
+  background-color: #1e1e2e;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .markdown-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .markdown-content h2 {
+    font-size: 1.3rem;
+  }
+
+  .markdown-content h3 {
+    font-size: 1.15rem;
+  }
+
+  .markdown-content h1,
+  .markdown-content h2,
+  .markdown-content h3 {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .markdown-content code.hljs {
+    font-size: 0.85em;
+  }
+
+  .p-3 {
+    padding: 0.5rem;
+  }
+
+  .p-4 {
+    padding: 0.75rem;
+  }
+
+  #chat-container .max-w-5xl {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .px-8 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .chat-message-assistant,
+  .chat-message-user {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .chat-message-assistant .markdown-content {
+    width: 100%;
+  }
+
+  .chat-message-user {
+    align-items: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .px-8 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .markdown-content pre code {
+    font-size: 0.8em;
+  }
+
+  #chat-container {
+    padding: 0 0.25rem;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0) translateX(-50%);
+  }
+  50% {
+    transform: translateY(-5px) translateX(-50%);
+  }
 }

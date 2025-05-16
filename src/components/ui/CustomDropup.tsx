@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronUp } from "@fortawesome/free-solid-svg-icons";
+import { faChevronUp, faCog } from "@fortawesome/free-solid-svg-icons";
 
 type ModelType = "deepseek" | "maverick" | "claude" | "gpt4o";
 
@@ -48,23 +48,23 @@ const CustomDropup: React.FC<CustomDropupProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="p-1 w-26 sm:w-32 md:w-40 bg-gray-700 text-gray-200 rounded-md border border-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none text-sm flex justify-between items-center"
+        className="p-1 w-10 sm:w-26 md:w-40 bg-gray-700 text-gray-200 rounded-md border border-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none text-sm flex items-center justify-center sm:justify-between"
       >
-        <span className="truncate">{currentModel?.label}</span>
+        <span className="hidden sm:inline truncate">{currentModel?.label}</span>
+        <FontAwesomeIcon icon={faCog} className="sm:hidden text-lg" />
         <FontAwesomeIcon
           icon={faChevronUp}
-          className={`ml-1 transition-transform ${
-            isOpen ? "transform rotate-180" : ""
-          }`}
+          className="ml-1 sm:ml-2 transition-transform text-sm sm:text-base"
+          transform={isOpen ? { rotate: 180 } : undefined}
         />
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-full left-0 mb-1 w-full bg-gray-700 border border-gray-600 rounded-md shadow-lg z-10">
+        <div className="absolute bottom-full left-0 mb-1 w-full min-w-40 bg-gray-700 border border-gray-600 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
           {models.map((model) => (
             <div
               key={model.value}
-              className={`px-2 border-b border-gray-600 py-1 text-sm cursor-pointer ${
+              className={`px-2 py-1 text-sm cursor-pointer ${
                 model.value === value
                   ? "bg-gray-600 text-white"
                   : "text-gray-200 hover:bg-gray-600"
@@ -79,6 +79,29 @@ const CustomDropup: React.FC<CustomDropupProps> = ({
           ))}
         </div>
       )}
+
+      <style jsx>{`
+        @media (max-width: 320px) {
+          button {
+            width: 40px;
+          }
+          .truncate {
+            display: none;
+          }
+          .sm\\:hidden {
+            display: inline-flex;
+          }
+        }
+
+        @media (min-width: 321px) {
+          .sm\\:inline {
+            display: inline;
+          }
+          .sm\\:hidden {
+            display: none;
+          }
+        }
+      `}</style>
     </div>
   );
 };
