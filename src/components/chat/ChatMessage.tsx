@@ -144,7 +144,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       </div>
 
       {!isUser && (
-        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-800 border border-gray-700 md:mr-3 md:mb-0 flex items-center justify-center shadow-md overflow-hidden">
+        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-800 border border-gray-700 md:mb-0 flex items-center justify-center shadow-md overflow-hidden">
           <Image
             src={cat}
             alt="Assistant"
