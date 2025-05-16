@@ -164,7 +164,7 @@ const ChatInput: React.FC = () => {
   const showCharCounter = charCount > 0 && charCount > 80;
 
   return (
-    <div className="sticky bottom-0 p-4 transition-all duration-300">
+    <div className="sticky bottom-0 px-4 transition-all duration-300">
       {toast && (
         <Toast
           message={toast.message}
@@ -258,7 +258,7 @@ const ChatInput: React.FC = () => {
                   {charCount}/2000
                 </div>
               )}
-              <div className="flex flex-col-reverse sm:flex-row items-end sm:items-center gap-2">
+              <div className="flex  items-end sm:items-center gap-2">
                 <Button
                   onClick={toggleListening}
                   className={`p-2 rounded-full ${

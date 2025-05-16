@@ -11,7 +11,6 @@ import json from "highlight.js/lib/languages/json";
 import "highlight.js/styles/vs2015.css";
 import { renderMarkdownSafe } from "../../utils/markdown";
 
-
 interface Message {
   id: string;
   text: string;
@@ -86,28 +85,24 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
 
   return (
     <div
-      className={`flex items-start ${
-        isUser ? "justify-end" : "justify-start"
-      } my-0.5`}
+      className={`flex ${
+        isUser
+          ? "flex-col items-end md:flex-row"
+          : "flex-col items-start md:flex-row"
+      } my-0.5 w-full`}
     >
-      {!isUser && (
-        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-800 border border-gray-700 mr-3 flex items-center justify-center shadow-md overflow-hidden">
-          <Image
-            src={cat}
-            alt="Assistant"
-            className="w-full h-full object-cover"
-            width={40}
-            height={40}
-          />
+      {isUser && (
+        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 mb-3 ml-2 md:mt-0 flex items-center justify-center shadow-md order-1 md:order-2">
+          <FontAwesomeIcon icon="user" className="text-white text-sm" />
         </div>
       )}
 
       <div
-        className={`relative py-1 rounded-lg leading-relaxed break-words whitespace-pre-wrap
+        className={`relative py-1 rounded-lg leading-relaxed break-words whitespace-pre-wrap order-2 md:order-1
           ${
             isUser
               ? "text-base px-3 font-normal max-w-2xl bg-gradient-to-r from-gray-800 to-gray-700 text-gray-100 shadow-md"
-              : "text-base font-normal w-full text-gray-100 chat-message-assistant px-2" 
+              : "text-base font-normal w-full text-gray-100 chat-message-assistant px-2"
           }`}
       >
         {message.imageUrl && (
@@ -122,9 +117,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         )}
         {isUser ? (
           <div className="flex items-center justify-between">
-            <p className="mb-0 flex-1">{message.text}</p>
+            <p className="mb-0 flex-1 mr-1">{message.text}</p>
             <button
-              className="copy-btn-msg ml-2 "
+              className="copy-btn-msg -mr-2"
               title="Скопировать сообщение"
               onClick={handleCopy}
             >
@@ -148,9 +143,15 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         )}
       </div>
 
-      {isUser && (
-        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 ml-3 flex items-center justify-center shadow-md">
-          <FontAwesomeIcon icon="user" className="text-white text-sm" />
+      {!isUser && (
+        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-800 border border-gray-700 md:mr-3 md:mb-0 flex items-center justify-center shadow-md overflow-hidden">
+          <Image
+            src={cat}
+            alt="Assistant"
+            className="w-full h-full object-cover"
+            width={40}
+            height={40}
+          />
         </div>
       )}
     </div>

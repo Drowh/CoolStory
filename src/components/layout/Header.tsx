@@ -46,8 +46,8 @@ const Header: React.FC = () => {
       <Image
         src={logo}
         alt="logo"
-        width={150}
-        height={40}
+        width={100}
+        height={30}
         className="ml-9"
         style={{ width: "auto", height: "auto" }}
         priority
@@ -123,6 +123,14 @@ const Header: React.FC = () => {
           </div>
         )}
       </div>
+      <style jsx>{`
+        @media (max-width: 640px) {
+          img {
+            width: 80px;
+            height: 24px;
+          }
+        }
+      `}</style>
     </header>
   );
 };
