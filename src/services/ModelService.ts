@@ -66,7 +66,15 @@ export const ModelService = {
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         const response = await fetch(`/api/loadMessages?chatId=${chatId}`);
-        const { data, error } = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            `Ошибка сервера: ${response.status} ${response.statusText}`
+          );
+        }
+
+        const responseData = await response.json();
+        const { data, error } = responseData;
 
         if (error) {
           console.error("Ошибка загрузки сообщений:", error);
