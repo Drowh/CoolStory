@@ -1,9 +1,10 @@
-import { Fira_Code } from "next/font/google";
 import "./globals.css";
+import { Fira_Code } from "next/font/google";
 import FluidCursor from "../components/FluidCursor";
-import React from "react";
+import type { Metadata } from "next";
+import { ReactNode } from "react";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "CoolStory",
   description: "Интерфейс для общения с ИИ",
 };
@@ -14,11 +15,7 @@ const firaCode = Fira_Code({
   display: "swap",
 });
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ru" className={firaCode.className} suppressHydrationWarning>
       <body suppressHydrationWarning>
