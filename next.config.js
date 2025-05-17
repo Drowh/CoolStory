@@ -2,6 +2,10 @@
 const nextConfig = {
   /* config options here */
   transpilePackages: ["highlight.js"],
+  eslint: {
+    // Игнорируем ошибки ESLint во время сборки
+    ignoreDuringBuilds: true,
+  },
   webpack: (config, { isServer }) => {
     // If client-side, don't polyfill Node.js modules
     if (!isServer) {

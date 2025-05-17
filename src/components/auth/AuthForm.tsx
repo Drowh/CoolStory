@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "../../utils/supabase";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
-import { useModalStore } from "../../stores/modalStore"; 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; 
+import { useModalStore } from "../../stores/modalStore";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface AuthFormProps {
   initialMode?: "login" | "register";
@@ -17,7 +17,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
   const [emailError, setEmailError] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
   const [generalError, setGeneralError] = useState<string>("");
-  const { setModalType } = useModalStore(); 
+  const { setModalType } = useModalStore();
 
   const translateError = (errorMessage: string): string => {
     if (errorMessage.includes("email")) return "Неверный формат email";
@@ -101,7 +101,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };
-  }, []);
+  }, [closeModal]);
 
   const toggleMode = () => {
     setMode(mode === "login" ? "register" : "login");
@@ -119,7 +119,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
     >
       <div
         className="bg-gray-800 rounded-lg p-8 w-full max-w-md relative"
-        onClick={(e) => e.stopPropagation()} 
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={closeModal}

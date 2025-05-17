@@ -49,10 +49,7 @@ const Sidebar: React.FC = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, [isSidebarCollapsed, setIsSidebarCollapsed]);
 
-  const groupedChats = useMemo(
-    () => groupChatsByDate(),
-    [groupChatsByDate, chatHistory]
-  );
+  const groupedChats = useMemo(() => groupChatsByDate(), [groupChatsByDate]);
 
   const sidebarBaseClasses = `
     top-0 left-0 z-[51]
