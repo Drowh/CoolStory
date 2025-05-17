@@ -1,6 +1,7 @@
 import { Fira_Code } from "next/font/google";
 import "./globals.css";
 import FluidCursor from "../components/FluidCursor";
+import React from "react";
 
 export const metadata = {
   title: "CoolStory",

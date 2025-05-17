@@ -1,8 +1,7 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   /* config options here */
-  transpilePackages: ['highlight.js'],
+  transpilePackages: ["highlight.js"],
   webpack: (config, { isServer }) => {
     // If client-side, don't polyfill Node.js modules
     if (!isServer) {
@@ -17,4 +16,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
