@@ -1,0 +1,6 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "regions": ["iad1"],
+  "ignoreCommand": "echo $VERCEL_ENV"
+}

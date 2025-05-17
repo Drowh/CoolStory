@@ -1,8 +1,8 @@
-import "./globals.css";
-import { Fira_Code } from "next/font/google";
-import FluidCursor from "../components/FluidCursor";
-import type { Metadata } from "next";
 import { ReactNode } from "react";
+import { Fira_Code } from "next/font/google";
+import type { Metadata } from "next";
+import "./globals.css";
+import FluidCursorWrapper from "../components/FluidCursorWrapper";
 
 export const metadata: Metadata = {
   title: "CoolStory",
@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ru" className={firaCode.className} suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <FluidCursor />
+        <FluidCursorWrapper />
         {children}
       </body>
     </html>
