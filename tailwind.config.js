@@ -1,33 +1,12 @@
-export const content = [
-  "./src/app/**/*.{js,ts,jsx,tsx}",
-  "./src/pages/**/*.{js,ts,jsx,tsx}",
-  "./src/components/**/*.{js,ts,jsx,tsx}",
-];
-
-export const theme = {
-  extend: {
-    animation: {
-      "bounce-slow": "bounce 2s infinite",
-      "spin-slow": "spin 3s linear infinite",
-      float: "float 6s ease-in-out infinite",
-      "pulse-shadow": "pulse-shadow 1.5s ease-in-out",
-      "fade-in-scale": "fade-in-scale 0.3s ease-out",
-    },
-    keyframes: {
-      float: {
-        "0%, 100%": { transform: "translateY(0)" },
-        "50%": { transform: "translateY(-10px)" },
-      },
-      "fade-in-scale": {
-        "0%": { opacity: 0, transform: "scale(0.9)" },
-        "100%": { opacity: 1, transform: "scale(1)" },
-      },
-      "pulse-shadow": {
-        "0%, 100%": { boxShadow: "0 0 0 0 rgba(236, 72, 153, 0)" },
-        "50%": { boxShadow: "0 0 0 15px rgba(236, 72, 153, 0.2)" },
-      },
-    },
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/app/**/*.{js,ts,jsx,tsx}",
+    "./src/pages/**/*.{js,ts,jsx,tsx}",
+    "./src/components/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
   },
+  plugins: [],
 };
-
-export const plugins = [];
