@@ -1,6 +1,7 @@
 import { Fira_Code } from "next/font/google";
 import "./globals.css";
 import FluidCursor from "../components/FluidCursor";
+import Toaster from "../components/ui/Toaster";
 
 const firaCode = Fira_Code({
   subsets: ["latin", "cyrillic"],
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         <FluidCursor />
         {children}
+        <Toaster />
       </body>
     </html>
   );

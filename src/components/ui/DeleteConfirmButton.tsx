@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useChatHistoryStore } from "../../stores/chatHistory";
 import Button from "./Button";
+import useToast from "../../hooks/useToast";
 
 interface DeleteConfirmButtonProps {
   itemId: number;
@@ -23,6 +24,7 @@ const DeleteConfirmButton: React.FC<DeleteConfirmButtonProps> = ({
   const { deleteChat, deleteFolder, removeChatFromFolder } =
     useChatHistoryStore();
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const toast = useToast();
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -31,15 +33,30 @@ const DeleteConfirmButton: React.FC<DeleteConfirmButtonProps> = ({
   };
 
   const confirmDelete = () => {
-    if (itemType === "chat") {
-      deleteChat(itemId);
-    } else if (itemType === "folder") {
-      deleteFolder(itemId);
-    } else if (itemType === "chat-from-folder") {
-      removeChatFromFolder(itemId);
+    try {
+      if (itemType === "chat") {
+        deleteChat(itemId);
+        toast.success("Чат успешно удален");
+      } else if (itemType === "folder") {
+        deleteFolder(itemId);
+        toast.success("Темка успешно удалена");
+      } else if (itemType === "chat-from-folder") {
+        removeChatFromFolder(itemId);
+        toast.success("Чат удален из темки");
+      }
+      setIsDeleteConfirmOpen(false);
+      if (onDelete) onDelete();
+    } catch {
+      toast.error(
+        `Ошибка при удалении ${
+          itemType === "chat"
+            ? "чата"
+            : itemType === "folder"
+            ? "темки"
+            : "чата из темки"
+        }`
+      );
     }
-    setIsDeleteConfirmOpen(false);
-    if (onDelete) onDelete();
   };
 
   const buttonClassName = label

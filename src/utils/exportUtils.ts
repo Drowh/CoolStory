@@ -28,6 +28,6 @@ export const exportChat = (chat: Chat, messages: Message[]): void => {
     URL.revokeObjectURL(url);
   } catch (error) {
     console.error("Ошибка при экспорте чата:", error);
-    alert("Не удалось экспортировать чат. Пожалуйста, попробуйте позже.");
+    throw new Error("Не удалось экспортировать чат");
   }
 };

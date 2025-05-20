@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SearchBar from "../../../chat/SearchBar";
 import Button from "../../../ui/Button";
 import { useChatHistoryStore } from "../../../../stores/chatHistory";
+import useToast from "../../../../hooks/useToast";
 
 interface SidebarHeaderProps {
   isSidebarCollapsed: boolean;
@@ -16,10 +17,16 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   setIsSidebarCollapsed,
 }) => {
   const createNewChat = useChatHistoryStore((state) => state.createNewChat);
+  const toast = useToast();
 
   const handleCreateNewChat = () => {
-    createNewChat();
-    if (isMobile) setIsSidebarCollapsed(true);
+    try {
+      createNewChat();
+      toast.success("Новый чат создан");
+      if (isMobile) setIsSidebarCollapsed(true);
+    } catch {
+      toast.error("Не удалось создать новый чат");
+    }
   };
 
   if (isSidebarCollapsed && !isMobile) {

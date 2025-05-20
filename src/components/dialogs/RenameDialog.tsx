@@ -3,6 +3,7 @@ import { useChatHistoryStore } from "../../stores/chatHistory";
 import { useUIStore } from "../../stores/uiStore";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
+import useToast from "../../hooks/useToast";
 
 const RenameDialog: React.FC = () => {
   const { renameChat } = useChatHistoryStore();
@@ -13,6 +14,7 @@ const RenameDialog: React.FC = () => {
     newChatName,
     setNewChatName,
   } = useUIStore();
+  const toast = useToast();
 
   useEffect(() => {
     if (!isRenameDialogOpen) {
@@ -29,8 +31,10 @@ const RenameDialog: React.FC = () => {
         await renameChat(chatId, newChatName.trim());
         setIsRenameDialogOpen(false);
         setNewChatName("");
+        toast.success("Чат успешно переименован");
       } catch (error) {
         console.error("Ошибка переименования чата:", error);
+        toast.error("Не удалось переименовать чат");
       }
     }
   };
