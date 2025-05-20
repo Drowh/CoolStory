@@ -50,6 +50,7 @@ const ChatInputToolbar: React.FC<ChatInputToolbarProps> = ({
             onChange={onImageUpload}
             className="hidden"
             id="imageUpload"
+            
           />
           <label
             htmlFor="imageUpload"
@@ -71,7 +72,7 @@ const ChatInputToolbar: React.FC<ChatInputToolbarProps> = ({
           />
           <Button
             onClick={onRemoveImage}
-            className="absolute -top-4 right-4 bg-transparent hover:bg-transparent hover:text-red-500 text-gray-400 border-none"
+            className="absolute -top-4 right-4 bg-transparent hover:bg-transparent hover:text-red-500 text-gray-400 border-none outline-none focus:outline-none"
           >
             <FontAwesomeIcon icon="times" size="sm" />
           </Button>

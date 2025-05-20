@@ -1,18 +1,13 @@
-import { useState } from "react";
 import { supabase } from "../../utils/supabase";
 import { ModelService } from "../../services/ModelService";
 import { useChatHistoryStore } from "../../stores/chatHistory";
 import { generateTitle } from "../../utils/api";
 import { Message } from "../../types";
 import { useMessageStore } from "../../stores/messageStore";
-
-type ToastState = {
-  message: string;
-  type: "error" | "success";
-} | null;
+import useToast from "../../hooks/useToast";
 
 export const useSendMessage = () => {
-  const [toast, setToast] = useState<ToastState>(null);
+  const toast = useToast();
   const { setMessages, messages, setIsTyping } = useMessageStore();
   const { updateLastMessage, selectChat } = useChatHistoryStore();
 
@@ -40,7 +35,6 @@ export const useSendMessage = () => {
     setIsTyping(true);
 
     try {
-      // Сохранение сообщения пользователя в Supabase
       const { error: userMsgError } = await supabase
         .from("chat_messages")
         .insert({
@@ -55,7 +49,6 @@ export const useSendMessage = () => {
 
       await updateLastMessage(activeChat.id, messageContent);
 
-      // Отправка сообщения в API и получение ответа
       const response = await ModelService.sendMessage(
         activeChat.id,
         messageContent,
@@ -65,7 +58,7 @@ export const useSendMessage = () => {
       );
 
       if (!response.success && response.error) {
-        setToast({ message: response.error, type: "error" });
+        toast.error(response.error);
       } else if (response.message) {
         const assistantMessage: Message = {
           id: `${activeChat.id}-${Date.now() + 1}`,
@@ -74,7 +67,6 @@ export const useSendMessage = () => {
         };
         setMessages((prev) => [...prev, assistantMessage]);
 
-        // Сохранение ответа в Supabase
         const { error: assistantMsgError } = await supabase
           .from("chat_messages")
           .insert({
@@ -89,7 +81,6 @@ export const useSendMessage = () => {
 
         await updateLastMessage(activeChat.id, response.message);
 
-        // Создание заголовка для нового чата
         if (activeChat.title === "Новый чат") {
           try {
             const title = await generateTitle([
@@ -105,21 +96,14 @@ export const useSendMessage = () => {
         }
       }
     } catch {
-      setToast({
-        message: "Ошибка сети или сервера. Попробуйте позже.",
-        type: "error",
-      });
+      toast.error("Ошибка сети или сервера. Попробуйте позже.");
     } finally {
       setIsTyping(false);
       if (activeChat) await selectChat(activeChat.id);
     }
-
-    return { toast, clearToast: () => setToast(null) };
   };
 
   return {
     sendMessage,
-    toast,
-    clearToast: () => setToast(null),
   };
 };

@@ -2,10 +2,10 @@ import React, { useRef, useEffect, useState } from "react";
 import { useMessageStore } from "../../../stores/messageStore";
 import { useVoiceInput } from "../../../hooks/useVoiceInput";
 import { useChatHistoryStore } from "../../../stores/chatHistory";
-import Toast from "../../ui/Toast";
 import ChatInputToolbar from "./ChatInputToolbar";
 import ChatInputActions from "./ChatInputActions";
-import { useSendMessage, useImageUpload } from "../../../hooks/chat";
+import { useSendMessage } from "../../../hooks/chat/useSendMessage";
+import { useImageUpload } from "../../../hooks/chat/useImageUpload";
 
 const ChatInput: React.FC = () => {
   const {
@@ -19,7 +19,7 @@ const ChatInput: React.FC = () => {
   const { chatHistory } = useChatHistoryStore();
   const activeChat = chatHistory.find((chat) => chat.isActive);
 
-  const { sendMessage, toast, clearToast } = useSendMessage();
+  const { sendMessage } = useSendMessage();
   const { imageUrl, handleImageUpload, handleRemoveImage } = useImageUpload();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -68,9 +68,6 @@ const ChatInput: React.FC = () => {
 
   return (
     <div className="sticky bottom-0 px-4 transition-all duration-300">
-      {toast && (
-        <Toast message={toast.message} type={toast.type} onClose={clearToast} />
-      )}
       <div
         className={`max-w-3xl mx-auto relative ${
           isFocused ? "scale-101" : "scale-100"

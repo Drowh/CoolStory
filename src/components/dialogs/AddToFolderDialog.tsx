@@ -3,6 +3,7 @@ import { useChatHistoryStore } from "../../stores/chatHistory";
 import { useUIStore } from "../../stores/uiStore";
 import Button from "../ui/Button";
 import DeleteFolderButton from "../ui/DeleteConfirmButton";
+import useToast from "../../hooks/useToast";
 
 const AddToFolderDialog: React.FC = () => {
   const isAddToFolderDialogOpen = useUIStore(
@@ -16,21 +17,34 @@ const AddToFolderDialog: React.FC = () => {
   const folders = useChatHistoryStore((state) => state.folders);
   const createFolder = useChatHistoryStore((state) => state.createFolder);
   const addChatToFolder = useChatHistoryStore((state) => state.addChatToFolder);
+  const toast = useToast();
 
   const [newFolderName, setNewFolderName] = useState("");
 
   const handleCreateFolder = () => {
     if (newFolderName.trim()) {
-      createFolder(newFolderName);
-      setNewFolderName("");
+      try {
+        createFolder(newFolderName);
+        toast.success(`Темка "${newFolderName}" создана`);
+        setNewFolderName("");
+      } catch {
+        toast.error("Не удалось создать темку");
+      }
     }
   };
 
   const handleAddToFolder = (folderId: number) => {
     if (selectedChatId !== null) {
-      addChatToFolder(selectedChatId, folderId);
-      setIsAddToFolderDialogOpen(false);
-      setSelectedChatId(null);
+      try {
+        addChatToFolder(selectedChatId, folderId);
+        const folderName =
+          folders.find((f) => f.id === folderId)?.name || "выбранную темку";
+        toast.success(`Чат добавлен в "${folderName}"`);
+        setIsAddToFolderDialogOpen(false);
+        setSelectedChatId(null);
+      } catch {
+        toast.error("Не удалось добавить чат в темку");
+      }
     }
   };
 

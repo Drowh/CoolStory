@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { supabase } from "../../utils/supabase";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
-import { useModalStore } from "../../stores/modalStore"; 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; 
+import { useModalStore } from "../../stores/modalStore";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import useToast from "../../hooks/useToast";
 
 interface AuthFormProps {
   initialMode?: "login" | "register";
@@ -17,7 +18,8 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
   const [emailError, setEmailError] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
   const [generalError, setGeneralError] = useState<string>("");
-  const { setModalType } = useModalStore(); 
+  const { setModalType } = useModalStore();
+  const toast = useToast();
 
   const translateError = (errorMessage: string): string => {
     if (errorMessage.includes("email")) return "Неверный формат email";
@@ -63,7 +65,8 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
           password,
         });
         if (loginError) throw new Error(loginError.message);
-        alert("Вход выполнен!");
+        toast.success("Вход выполнен успешно!");
+        setModalType(null);
         window.location.reload();
       } else {
         const { error: registerError } = await supabase.auth.signUp({
@@ -71,12 +74,14 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
           password,
         });
         if (registerError) throw new Error(registerError.message);
-        alert("Регистрация успешна! Подтвердите email.");
+        toast.success("Регистрация успешна! Подтвердите email.");
+        setModalType(null);
       }
     } catch (error: unknown) {
       const translatedError = translateError(
         error instanceof Error ? error.message : String(error)
       );
+      toast.error(translatedError);
       if (translatedError.includes("email")) setEmailError(translatedError);
       else if (translatedError.includes("пароль"))
         setPasswordError(translatedError);
@@ -119,7 +124,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
     >
       <div
         className="bg-gray-800 rounded-lg p-8 w-full max-w-md relative"
-        onClick={(e) => e.stopPropagation()} 
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={closeModal}
