@@ -12,6 +12,8 @@ export const theme = {
       float: "float 6s ease-in-out infinite",
       "pulse-shadow": "pulse-shadow 1.5s ease-in-out",
       "fade-in-scale": "fade-in-scale 0.3s ease-out",
+      shimmer: "shimmer 2.5s infinite",
+      "progress-bar": "progress-bar 1.2s infinite ease-in-out",
     },
     keyframes: {
       float: {
@@ -25,6 +27,14 @@ export const theme = {
       "pulse-shadow": {
         "0%, 100%": { boxShadow: "0 0 0 0 rgba(236, 72, 153, 0)" },
         "50%": { boxShadow: "0 0 0 15px rgba(236, 72, 153, 0.2)" },
+      },
+      shimmer: {
+        "0%": { backgroundPosition: "-200% 0" },
+        "100%": { backgroundPosition: "200% 0" },
+      },
+      "progress-bar": {
+        "0%": { width: "0%" },
+        "100%": { width: "100%" },
       },
     },
   },
