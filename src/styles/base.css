@@ -1,0 +1,48 @@
+@font-face {
+  font-family: "Comic Relief";
+  src: url("/fonts/ComicRelief-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Comic Relief";
+  src: url("/fonts/ComicRelief-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  font-family: "Comic Relief", system-ui, sans-serif;
+  color: #e5e7eb;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-fix {
+  scrollbar-width: thin;
+  scrollbar-color: #db2777 transparent;
+}
+
+.scroll-fix::-webkit-scrollbar {
+  display: block;
+  width: 6px;
+}
+
+.scroll-fix::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-fix::-webkit-scrollbar-thumb {
+  background-color: #db2777;
+  border-radius: 20px;
+}
+
+mark {
+  background-color: rgba(236, 72, 153, 0.3); 
+  color: inherit;
+  padding: 0 2px;
+  border-radius: 2px;
+} 

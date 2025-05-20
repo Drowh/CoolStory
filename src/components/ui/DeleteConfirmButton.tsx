@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useChatHistoryStore } from "../../stores/chatHistoryStore";
+import { useChatHistoryStore } from "../../stores/chatHistory";
 import Button from "./Button";
 
 interface DeleteConfirmButtonProps {

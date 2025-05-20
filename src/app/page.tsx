@@ -1,14 +1,12 @@
 "use client";
 
 import "../utils/lib/fontAwesome";
-import Header from "../components/layout/Header";
-import Sidebar from "../components/layout/Sidebar";
-import ChatArea from "../components/chat/ChatArea";
-import ChatInput from "../components/ChatInput";
+import { Header, Sidebar } from "../components/layout";
+import { ChatArea, ChatInput } from "../components/chat";
 import RenameDialog from "../components/dialogs/RenameDialog";
 import AddToFolderDialog from "../components/dialogs/AddToFolderDialog";
 import ModalManager from "@/components/modals/ModalManager";
-import { useChatHistory } from "../stores/chatHistoryStore";
+import { useChatHistory } from "../stores/chatHistory";
 
 const HomePage = () => {
   useChatHistory();

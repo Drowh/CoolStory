@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useChatHistoryStore } from "../../stores/chatHistoryStore";
+import { useChatHistoryStore } from "../../stores/chatHistory";
 import { useUIStore } from "../../stores/uiStore";
 import Button from "../ui/Button";
 import DeleteFolderButton from "../ui/DeleteConfirmButton";
@@ -69,7 +69,11 @@ const AddToFolderDialog: React.FC = () => {
                   <span className="flex-1 text-left">{folder.name}</span>
                 </button>
                 <div className="ml-4">
-                  <DeleteFolderButton itemId={folder.id} itemType="folder"  label=""/>
+                  <DeleteFolderButton
+                    itemId={folder.id}
+                    itemType="folder"
+                    label=""
+                  />
                 </div>
               </div>
             ))

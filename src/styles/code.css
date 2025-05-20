@@ -1,0 +1,116 @@
+.markdown-content .code-block-container {
+  margin: 0.5rem 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(76, 143, 255, 0.2);
+  position: relative;
+  background: #1e1e2e;
+  padding: 0;
+  overflow: hidden;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.markdown-content .code-block-container pre {
+  margin: 0;
+  padding: 0;
+}
+
+.markdown-content .code-block-container code.hljs {
+  display: block;
+  margin: -60px 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0.5rem 1rem;
+  font-family: "Fira Code", monospace;
+  font-size: 0.95em;
+  line-height: 1.4;
+  overflow-x: auto;
+}
+
+.markdown-content .code-block-container .code-lang-label {
+  position: absolute;
+  top: 0.5rem;
+  right: 3rem;
+  background: rgba(76, 143, 255, 0.2);
+  color: #93c5fd;
+  padding: 0.29rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75em;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(76, 143, 255, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+}
+
+.markdown-content .code-block-container .copy-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: rgba(76, 143, 255, 0.2);
+  border: 1px solid rgba(76, 143, 255, 0.3);
+  color: #93c5fd;
+  font-size: 1.1em;
+  padding: 0.01rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+}
+
+.markdown-content .code-block-container .copy-btn:hover {
+  background: rgba(244, 114, 182, 0.2);
+  color: #f472b6;
+  transform: translateY(-2px);
+  border-color: rgba(244, 114, 182, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Syntax Highlighting */
+.markdown-content .hljs-keyword {
+  color: #ff79c6;
+}
+
+.markdown-content .hljs-string {
+  color: #f1fa8c;
+}
+
+.markdown-content .hljs-number {
+  color: #bd93f9;
+}
+
+.markdown-content .hljs-comment {
+  color: #6272a4;
+  font-style: italic;
+}
+
+.markdown-content .hljs-built_in {
+  color: #8be9fd;
+}
+
+.markdown-content .hljs-function {
+  color: #50fa7b;
+}
+
+.markdown-content .hljs-operator {
+  color: #ff79c6;
+}
+
+.markdown-content .hljs-variable {
+  color: #f8f8f2;
+}
+
+.markdown-content .hljs-property {
+  color: #8be9fd;
+}
+
+.markdown-content .hljs-title {
+  color: #50fa7b;
+}
+
+.markdown-content .hljs-params {
+  color: #f8f8f2;
+} 
