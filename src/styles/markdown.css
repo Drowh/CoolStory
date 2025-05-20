@@ -1,0 +1,147 @@
+.markdown-content h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  margin-bottom: 0.6rem;
+  color: #f472b6;
+  border-bottom: 1px solid rgba(244, 114, 182, 0.3);
+  padding-bottom: 0.3rem;
+}
+
+.markdown-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  margin-bottom: 0.7rem;
+  color: #f472b6;
+}
+
+.markdown-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 0.8rem;
+  margin-bottom: 0.4rem;
+  color: #f472b6;
+}
+
+.markdown-content h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 0.7rem;
+  margin-bottom: 0.5rem;
+  color: #f472b6;
+}
+
+.markdown-content p {
+  margin-bottom: 0.7rem;
+  margin-top: 0.7rem;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.markdown-content ul {
+  list-style-type: disc;
+  margin-left: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+  margin-left: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.markdown-content li {
+  margin-bottom: 0.3rem;
+  line-height: 1.5;
+}
+
+.markdown-content a {
+  color: #93c5fd;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.markdown-content a:hover {
+  color: #f472b6;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid #f472b6;
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  color: #d1d5db;
+  font-style: italic;
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: #f472b6;
+}
+
+.markdown-content em {
+  font-style: italic;
+  color: #d1d5db;
+}
+
+.markdown-content hr {
+  border: 0;
+  height: 1px;
+  background: rgba(244, 114, 182, 0.3);
+  margin: 1.5rem 0;
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.markdown-content th {
+  background-color: rgba(244, 114, 182, 0.1);
+  border: 1px solid rgba(244, 114, 182, 0.3);
+  padding: 0.5rem;
+  text-align: left;
+  color: #f472b6;
+}
+
+.markdown-content td {
+  border: 1px solid rgba(244, 114, 182, 0.2);
+  padding: 0.5rem;
+}
+
+.markdown-content tr:nth-child(even) {
+  background-color: rgba(244, 114, 182, 0.05);
+}
+
+.markdown-content pre {
+  overflow-x: auto;
+}
+
+.markdown-content {
+  overflow-x: hidden;
+}
+
+pre.python {
+  background-color: #1e1e2e;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  position: relative;
+}
+
+.markdown-content :not(pre) > code.inline-code {
+  background: rgba(76, 143, 255, 0.1);
+  color: #93c5fd;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: "Fira Code", monospace;
+  border: 1px solid rgba(76, 143, 255, 0.2);
+} 

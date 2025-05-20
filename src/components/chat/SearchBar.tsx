@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useChatHistoryStore } from "../../stores/chatHistoryStore";
+import { useChatHistoryStore } from "../../stores/chatHistory";
 import Input from "../../components/ui/Input";
 import debounce from "lodash.debounce";
 

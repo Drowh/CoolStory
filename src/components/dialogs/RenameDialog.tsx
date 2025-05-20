@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useChatHistoryStore } from "../../stores/chatHistoryStore";
+import { useChatHistoryStore } from "../../stores/chatHistory";
 import { useUIStore } from "../../stores/uiStore";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";

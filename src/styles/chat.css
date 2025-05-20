@@ -1,0 +1,79 @@
+#chat-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.chat-message-assistant {
+  position: relative;
+}
+
+.chat-message-assistant,
+.chat-message-user {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.chat-message-assistant .bg-gray-800,
+.chat-message-user .bg-gray-800 {
+  width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.copy-btn-msg {
+  background: rgba(76, 143, 255, 0.2);
+  border: 1px solid rgba(76, 143, 255, 0.3);
+  color: #93c5fd;
+  font-size: 1.1em;
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.1rem;
+}
+
+.copy-btn-msg:hover {
+  background: rgba(244, 114, 182, 0.2);
+  color: #f472b6;
+  transform: translateY(-2px);
+  border-color: rgba(244, 114, 182, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+.scroll-to-bottom {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.scroll-to-bottom:active {
+  transform: scale(0.95) translateX(-50%);
+}
+
+.input-gradient-border {
+  position: relative;
+  z-index: 0;
+}
+
+.input-gradient-border::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -2px;
+  padding: 2px;
+  border-radius: 10px;
+  background: linear-gradient(to right, #db2777, #9333ea);
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+} 

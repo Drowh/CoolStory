@@ -1,0 +1,25 @@
+.animate-pulse-shadow {
+  animation: pulse-shadow 2s infinite;
+}
+
+@keyframes pulse-shadow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(219, 39, 119, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(219, 39, 119, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(219, 39, 119, 0);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0) translateX(-50%);
+  }
+  50% {
+    transform: translateY(-5px) translateX(-50%);
+  }
+} 
