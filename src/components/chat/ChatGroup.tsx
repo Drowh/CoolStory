@@ -7,11 +7,12 @@ import DeleteConfirmButton from "../ui/DeleteConfirmButton";
 
 interface ChatGroupProps {
   title: string;
-  chats: Chat[];
+  chats: { chat: Chat; matchedSnippet?: string }[];
 }
 
 const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
   const { selectChat } = useChatHistoryStore();
+  const searchQuery = useChatHistoryStore((state) => state.searchQuery);
   const {
     setOpenMenuId,
     openMenuId,
@@ -49,119 +50,158 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
     }
   };
 
+  const highlightMatch = (text: string, query: string) => {
+    if (!query || !text) return text;
+    const queryLower = query.toLowerCase();
+    const textLower = text.toLowerCase();
+    const result = [];
+    let lastIndex = 0;
+
+    let index = textLower.indexOf(queryLower);
+    while (index !== -1) {
+      result.push(text.slice(lastIndex, index));
+      result.push(
+        <span key={index} className="bg-pink-500/30 rounded px-0.5">
+          {text.slice(index, index + query.length)}
+        </span>
+      );
+      lastIndex = index + query.length;
+      index = textLower.indexOf(queryLower, lastIndex);
+    }
+    result.push(text.slice(lastIndex));
+    return result.length > 1 ? <>{result}</> : text;
+  };
+
   return (
     <div className="mb-4">
       <h3 className="text-xs uppercase text-gray-400 font-semibold px-3 py-2 tracking-wider">
         {title}
       </h3>
       <ul className="space-y-1.5 cursor-pointer">
-        {chats.map((chat) => (
-          <li
-            key={chat.id}
-            className={`group relative rounded-md overflow-visible transition-all duration-200 ${
-              chat.isActive
-                ? "bg-gradient-to-r from-gray-700 to-gray-800 shadow-md border-l-2 border-pink-500"
-                : "hover:bg-gray-700"
-            }`}
-            onClick={() => handleChatClick(String(chat.id))}
-          >
-            <div className={`p-3 ${chat.isActive ? "pl-2" : ""}`}>
-              <div className="flex items-center justify-between">
-                <div className="flex-1 flex items-center space-x-2">
-                  <div
-                    className={`flex flex-row items-center ${
-                      chat.isActive ? "text-pink-400" : "text-gray-400"
-                    }`}
-                  >
-                    <p
-                      className={`font-medium truncate ${
-                        chat.isActive ? "text-gray-100" : "text-gray-200"
+        {chats.map(({ chat, matchedSnippet }, index) => {
+          const displayTitle =
+            chat.title.length > 30
+              ? chat.title.slice(0, 30) + "..."
+              : chat.title;
+          return (
+            <li
+              key={`${chat.id}-${index}`}
+              className={`group relative rounded-md overflow-visible transition-all duration-200 ${
+                chat.isActive
+                  ? "bg-gradient-to-r from-gray-700 to-gray-800 shadow-md border-l-2 border-pink-500"
+                  : "hover:bg-gray-700"
+              }`}
+              onClick={() => handleChatClick(String(chat.id))}
+            >
+              <div className={`p-3 ${chat.isActive ? "pl-2" : ""}`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 flex items-center space-x-2">
+                    <div
+                      className={`flex flex-row items-center ${
+                        chat.isActive ? "text-pink-400" : "text-gray-400"
                       }`}
-                      style={{
-                        maxWidth: 200,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
                     >
-                      {chat.title.length > 30
-                        ? chat.title.slice(0, 30) + "..."
-                        : chat.title}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-1.5">
-                  <div className="relative">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenMenuId(
-                          openMenuId === String(chat.id)
-                            ? null
-                            : String(chat.id)
-                        );
-                      }}
-                      className="text-gray-400 hover:text-gray-200 p-1 rounded-full hover:bg-gray-600 transition-colors duration-200 opacity-0 group-hover:opacity-100"
-                      aria-label="Открыть меню"
-                    >
-                      <FontAwesomeIcon icon="ellipsis-h" />
-                    </button>
-                    {openMenuId === String(chat.id) && (
-                      <div
-                        ref={menuRef}
-                        className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-50 py-1 overflow-hidden"
+                      <p
+                        className={`font-medium truncate ${
+                          chat.isActive ? "text-gray-100" : "text-gray-200"
+                        }`}
+                        style={{
+                          maxWidth: 200,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
                       >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedTabId(String(chat.id));
-                            setIsRenameDialogOpen(true);
-                            setOpenMenuId(null);
-                          }}
-                          className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                        {highlightMatch(displayTitle, searchQuery)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <div className="relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(
+                            openMenuId === String(chat.id)
+                              ? null
+                              : String(chat.id)
+                          );
+                        }}
+                        className="text-gray-400 hover:text-gray-200 p-1 rounded-full hover:bg-gray-600 transition-colors duration-200 opacity-0 group-hover:opacity-100"
+                        aria-label="Открыть меню"
+                      >
+                        <FontAwesomeIcon icon="ellipsis-h" />
+                      </button>
+                      {openMenuId === String(chat.id) && (
+                        <div
+                          ref={menuRef}
+                          className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-50 py-1 overflow-hidden"
                         >
-                          <FontAwesomeIcon
-                            icon="edit"
-                            className="mr-2 text-gray-400"
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedTabId(String(chat.id));
+                              setIsRenameDialogOpen(true);
+                              setOpenMenuId(null);
+                            }}
+                            className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                          >
+                            <FontAwesomeIcon
+                              icon="edit"
+                              className="mr-2 text-gray-400"
+                            />
+                            Переименовать
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedChatId(chat.id);
+                              setIsAddToFolderDialogOpen(true);
+                              setOpenMenuId(null);
+                            }}
+                            className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                          >
+                            <FontAwesomeIcon
+                              icon="folder-plus"
+                              className="mr-2 text-gray-400"
+                            />
+                            Добавить в темку
+                          </button>
+                          <div className="border-t border-gray-700 my-1"></div>
+                          <DeleteConfirmButton
+                            itemId={chat.id}
+                            itemType="chat"
+                            onDelete={() => setOpenMenuId(null)}
+                            onCancel={() => setOpenMenuId(null)}
                           />
-                          Переименовать
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedChatId(chat.id);
-                            setIsAddToFolderDialogOpen(true);
-                            setOpenMenuId(null);
-                          }}
-                          className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
-                        >
-                          <FontAwesomeIcon
-                            icon="folder-plus"
-                            className="mr-2 text-gray-400"
-                          />
-                          Добавить в темку
-                        </button>
-                        <div className="border-t border-gray-700 my-1"></div>
-                        <DeleteConfirmButton
-                          itemId={chat.id}
-                          itemType="chat"
-                          onDelete={() => setOpenMenuId(null)}
-                          onCancel={() => setOpenMenuId(null)}
-                        />
-                      </div>
-                    )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
+                {matchedSnippet && searchQuery ? (
+                  <div
+                    className="text-sm text-gray-400 mt-1.5 pl-6 overflow-hidden"
+                    style={{ maxHeight: "3rem" }}
+                  >
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: `...${matchedSnippet}...`,
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400 truncate mt-1.5 pl-6">
+                    {chat.lastMessage}
+                  </p>
+                )}
               </div>
-              <p className="text-sm text-gray-400 truncate mt-1.5 pl-6">
-                {chat.lastMessage}
-              </p>
-            </div>
-            {chat.isActive && (
-              <div className="absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-pink-500 to-purple-600"></div>
-            )}
-          </li>
-        ))}
+              {chat.isActive && (
+                <div className="absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-pink-500 to-purple-600"></div>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

@@ -1,13 +1,14 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useChatHistoryStore } from "../../stores/chatHistoryStore";
 import { useUIStore } from "../../stores/uiStore";
-import { useMemo, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import SearchBar from "../chat/SearchBar";
 import ChatGroup from "../chat/ChatGroup";
 import Button from "../ui/Button";
 import DeleteConfirmButton from "../ui/DeleteConfirmButton";
 import logoDrow from "../../assets/icons/logoDrow.png";
 import Image from "next/image";
+import { Chat } from "../../types";
 
 const Sidebar: React.FC = () => {
   const showFolders = useChatHistoryStore((state) => state.showFolders);
@@ -17,6 +18,7 @@ const Sidebar: React.FC = () => {
   const groupChatsByDate = useChatHistoryStore(
     (state) => state.groupChatsByDate
   );
+  const searchQuery = useChatHistoryStore((state) => state.searchQuery);
   const createNewChat = useChatHistoryStore((state) => state.createNewChat);
   const selectChat = useChatHistoryStore((state) => state.selectChat);
 
@@ -33,6 +35,11 @@ const Sidebar: React.FC = () => {
   );
 
   const [isMobile, setIsMobile] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [groupedChats, setGroupedChats] = useState<{
+    today: { chat: Chat; matchedSnippet?: string }[];
+    older: { chat: Chat; matchedSnippet?: string }[];
+  }>({ today: [], older: [] });
 
   useEffect(() => {
     const checkMobile = () => {
@@ -49,10 +56,18 @@ const Sidebar: React.FC = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, [isSidebarCollapsed, setIsSidebarCollapsed]);
 
-  const groupedChats = useMemo(
-    () => groupChatsByDate(),
-    [groupChatsByDate, chatHistory]
-  );
+  useEffect(() => {
+    const fetchGroupedChats = async () => {
+      setIsLoading(true);
+      try {
+        const result = await groupChatsByDate();
+        setGroupedChats(result);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchGroupedChats();
+  }, [groupChatsByDate, chatHistory, searchQuery]);
 
   const sidebarBaseClasses = `
     top-0 left-0 z-[51]
@@ -140,6 +155,14 @@ const Sidebar: React.FC = () => {
 
         {!isSidebarCollapsed && (
           <>
+            {isLoading && (
+              <div className="flex justify-center py-3">
+                <FontAwesomeIcon
+                  icon="spinner"
+                  className="text-pink-500 animate-spin text-xl"
+                />
+              </div>
+            )}
             <div className="px-4 py-3">
               <div className="flex items-center justify-between">
                 <button
