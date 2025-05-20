@@ -462,3 +462,10 @@ pre.python {
     transform: translateY(-5px) translateX(-50%);
   }
 }
+
+mark {
+  background-color: rgba(236, 72, 153, 0.3); 
+  color: inherit;
+  padding: 0 2px;
+  border-radius: 2px;
+}

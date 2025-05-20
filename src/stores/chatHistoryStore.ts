@@ -14,10 +14,10 @@ interface ChatHistoryState {
   setSearchQuery: (value: string | ((prev: string) => string)) => void;
   showFolders: boolean;
   setShowFolders: (value: boolean | ((prev: boolean) => boolean)) => void;
-  groupChatsByDate: () => {
-    today: Chat[];
-    older: Chat[];
-  };
+  groupChatsByDate: () => Promise<{
+    today: { chat: Chat; matchedSnippet?: string }[];
+    older: { chat: Chat; matchedSnippet?: string }[];
+  }>;
   createNewChat: () => Promise<void>;
   selectChat: (chatId: number) => Promise<void>;
   exportChat: () => void;
@@ -33,6 +33,35 @@ interface ChatHistoryState {
   lastSelectedChatId: number | null;
   loadingChatId: number | null;
   messagesLoaded: Record<number, boolean>;
+  chatMessagesCache: Record<
+    number,
+    { id: string; text: string; sender: string }[]
+  >;
+  setChatMessagesCache: (
+    chatId: number,
+    messages: { id: string; text: string; sender: string }[]
+  ) => void;
+}
+
+function levenshteinDistance(a: string, b: string): number {
+  const matrix: number[][] = Array(a.length + 1)
+    .fill(null)
+    .map(() => Array(b.length + 1).fill(0));
+
+  for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
+  for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
+
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1].toLowerCase() === b[j - 1].toLowerCase() ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return matrix[a.length][b.length];
 }
 
 export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
@@ -65,27 +94,138 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
         typeof value === "function" ? value(get().showFolders) : value,
     });
   },
-  groupChatsByDate: () => {
+  chatMessagesCache: {},
+  setChatMessagesCache: (chatId, messages) => {
+    set((state) => ({
+      chatMessagesCache: {
+        ...state.chatMessagesCache,
+        [chatId]: messages,
+      },
+    }));
+  },
+  groupChatsByDate: async () => {
     const groups = {
-      today: [] as Chat[],
-      older: [] as Chat[],
+      today: [] as { chat: Chat; matchedSnippet?: string }[],
+      older: [] as { chat: Chat; matchedSnippet?: string }[],
     };
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const { chatHistory, searchQuery } = get();
+    const {
+      chatHistory,
+      searchQuery,
+      chatMessagesCache,
+      setChatMessagesCache,
+    } = get();
 
-    const filteredChats = chatHistory.filter(
-      (chat) =>
-        chat.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !chat.hidden
-    );
+    const query = searchQuery.trim().toLowerCase();
+    let filteredChats: {
+      chat: Chat;
+      score: number;
+      matchedSnippet?: string;
+    }[] = chatHistory
+      .filter((chat) => !chat.hidden)
+      .map((chat) => ({ chat, score: 0, matchedSnippet: undefined }));
 
-    filteredChats.forEach((chat) => {
+    if (query) {
+      const titleMatches: {
+        chat: Chat;
+        score: number;
+        matchedSnippet?: string;
+      }[] = [];
+      const contentMatches: {
+        chat: Chat;
+        score: number;
+        matchedSnippet?: string;
+      }[] = [];
+
+      for (const chatEntry of filteredChats) {
+        const chat = chatEntry.chat;
+        let score = 0;
+        let matchedSnippet: string | undefined = undefined;
+
+        const titleMatch = chat.title.toLowerCase().includes(query);
+        if (titleMatch) {
+          score += 100;
+          const queryIndex = chat.title.toLowerCase().indexOf(query);
+          if (queryIndex < 10) score += 20;
+          titleMatches.push({ chat, score, matchedSnippet });
+          continue;
+        }
+
+        if (!chatMessagesCache[chat.id]) {
+          try {
+            const messages = await ModelService.loadMessages(chat.id);
+            const formattedMessages = messages.map((msg, index) => ({
+              id: `${chat.id}-${msg.id || index}`,
+              text: msg.content || "",
+              sender: msg.role as "user" | "assistant",
+            }));
+            setChatMessagesCache(chat.id, formattedMessages);
+            
+          } catch (error) {
+            console.error(`Error loading messages for chat ${chat.id}:`, error);
+            continue;
+          }
+        }
+
+        const messages = chatMessagesCache[chat.id] || [];
+        if (messages.length > 0) {
+          for (const msg of messages) {
+            const text = msg.text.toLowerCase();
+            if (text.includes(query)) {
+              score += 50;
+              const queryIndex = text.indexOf(query);
+              if (queryIndex < 50) score += 20;
+              const start = Math.max(0, queryIndex - 30);
+              const end = Math.min(text.length, queryIndex + query.length + 30);
+              matchedSnippet = text
+                .slice(start, end)
+                .replace(new RegExp(`(${query})`, "gi"), `<mark>$1</mark>`);
+              contentMatches.push({ chat, score, matchedSnippet });
+              break;
+            } else {
+              const words = text.split(/\s+/);
+              for (const word of words) {
+                const distance = levenshteinDistance(query, word);
+                if (distance <= 2 && word.length >= query.length - 1) {
+                  score += 30;
+                  const start = Math.max(0, text.indexOf(word) - 20);
+                  const end = Math.min(
+                    text.length,
+                    text.indexOf(word) + word.length + 20
+                  );
+                  matchedSnippet = `${text.slice(
+                    start,
+                    text.indexOf(word)
+                  )}${word}${text.slice(
+                    text.indexOf(word) + word.length,
+                    end
+                  )}`;
+                  
+                  break;
+                }
+              }
+              if (matchedSnippet) break;
+            }
+          }
+          if (score > 0) {
+            contentMatches.push({ chat, score, matchedSnippet });
+          }
+        }
+      }
+
+      titleMatches.sort((a, b) => b.score - a.score);
+      contentMatches.sort((a, b) => b.score - a.score);
+
+      filteredChats = [...titleMatches, ...contentMatches];
+    }
+
+    filteredChats.forEach(({ chat, matchedSnippet }) => {
       const chatDate = chat.createdAt ? new Date(chat.createdAt) : new Date();
       if (chatDate >= today) {
-        groups.today.push(chat);
+        groups.today.push({ chat, matchedSnippet });
       } else {
-        groups.older.push(chat);
+        groups.older.push({ chat, matchedSnippet });
       }
     });
 
@@ -299,7 +439,7 @@ export const useChatHistoryStore = create<ChatHistoryState>((set, get) => ({
     setFolders((prev) => prev.filter((folder) => folder.id !== folderId));
     setChatHistory((prevChats) =>
       prevChats.map((chat) =>
-        chat.folderId === folderId ? { ...chat, folderId: undefined } : chat
+        chat.id === folderId ? { ...chat, folderId: undefined } : chat
       )
     );
   },

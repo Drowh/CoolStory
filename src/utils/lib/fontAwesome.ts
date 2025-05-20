@@ -38,6 +38,8 @@ import {
   faExclamationCircle,
   faTimesCircle,
   faBrain,
+  faSpinner,
+
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -79,6 +81,7 @@ library.add(
   faExclamationCircle,
   faTimesCircle,
   faBrain,
+  faSpinner,
 );
 
 export default library;

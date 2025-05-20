@@ -1,26 +1,44 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useChatHistoryStore } from "../../stores/chatHistoryStore";
 import Input from "../../components/ui/Input";
+import debounce from "lodash.debounce";
 
 const SearchBar: React.FC = () => {
   const { searchQuery, setSearchQuery } = useChatHistoryStore();
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [inputValue, setInputValue] = useState(searchQuery);
+
+  const debouncedSetSearchQuery = useCallback(
+    debounce((value: string) => {
+      setSearchQuery(value);
+    }, 300),
+    [setSearchQuery]
+  );
+
+  useEffect(() => {
+    setInputValue(searchQuery);
+  }, [searchQuery]);
 
   useEffect(() => {
     return () => {
-      if (searchQuery) {
-        setSearchQuery("");
-      }
+      debouncedSetSearchQuery.cancel();
     };
-  }, [searchQuery, setSearchQuery]);
+  }, [debouncedSetSearchQuery]);
 
   const handleClear = () => {
+    setInputValue("");
     setSearchQuery("");
     if (inputRef.current) {
       inputRef.current.focus();
     }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+    debouncedSetSearchQuery(value);
   };
 
   return (
@@ -34,8 +52,8 @@ const SearchBar: React.FC = () => {
         <Input
           ref={inputRef}
           type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={inputValue}
+          onChange={handleChange}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder="Поиск чатов..."
@@ -51,7 +69,7 @@ const SearchBar: React.FC = () => {
             isFocused ? "text-pink-400" : "text-gray-400"
           }`}
         />
-        {searchQuery && (
+        {inputValue && (
           <button
             onClick={handleClear}
             className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 bg-gray-700/80 hover:bg-gray-600 rounded-full p-1 transition-colors duration-200"
