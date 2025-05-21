@@ -88,18 +88,6 @@ const ChatArea: React.FC = () => {
       {showScrollButton && (
         <ScrollToBottomButton onClick={scrollToBottomManually} />
       )}
-
-      <style jsx>{`
-        @keyframes bounce {
-          0%,
-          100% {
-            transform: translateY(0) translateX(-50%);
-          }
-          50% {
-            transform: translateY(-5px) translateX(-50%);
-          }
-        }
-      `}</style>
     </div>
   );
 };
