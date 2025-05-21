@@ -76,6 +76,7 @@ export function Toaster() {
   return (
     <SonnerToaster
       position="top-right"
+      style={{ top: '70px' }}
       theme="dark"
       className="custom-toaster"
       icons={{

@@ -1,9 +1,5 @@
 @import '../styles/base.css';
-@import '../styles/markdown.css';
-@import '../styles/code.css';
-@import '../styles/chat.css';
 @import '../styles/animations.css';
-@import '../styles/media.css';
 
 @tailwind base;
 @tailwind components;

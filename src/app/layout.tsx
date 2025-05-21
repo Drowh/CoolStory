@@ -4,6 +4,7 @@ import FluidCursor from "../components/FluidCursor";
 import Toaster from "../components/ui/Toaster";
 import { PreloaderProvider } from "../contexts/PreloaderContext";
 import Preloader from "../components/Preloader";
+import { ProfileProvider } from "../contexts/ProfileContext";
 
 const firaCode = Fira_Code({
   subsets: ["latin", "cyrillic"],
@@ -19,18 +20,20 @@ export default function RootLayout({
   return (
     <html lang="ru" className={firaCode.className} suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <PreloaderProvider>
-          <Preloader />
-          <div
-            className="content-container"
-            style={{ opacity: 0 }}
-            id="main-content"
-          >
-            <FluidCursor />
-            {children}
-            <Toaster />
-          </div>
-        </PreloaderProvider>
+        <ProfileProvider>
+          <PreloaderProvider>
+            <Preloader />
+            <div
+              className="content-container"
+              style={{ opacity: 0 }}
+              id="main-content"
+            >
+              <FluidCursor />
+              {children}
+              <Toaster />
+            </div>
+          </PreloaderProvider>
+        </ProfileProvider>
       </body>
     </html>
   );

@@ -1,7 +1,5 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import cat from "../../assets/icons/cat.png";
 import hljs from "highlight.js";
 import javascript from "highlight.js/lib/languages/javascript";
 import typescript from "highlight.js/lib/languages/typescript";
@@ -10,6 +8,10 @@ import bash from "highlight.js/lib/languages/bash";
 import json from "highlight.js/lib/languages/json";
 import "highlight.js/styles/vs2015.css";
 import { renderMarkdownSafe } from "../../utils/markdown";
+import { useProfile } from "../../contexts/ProfileContext";
+import Avatar from "../ui/Avatar";
+import "../../styles/markdown.css";
+import "../../styles/chat.css";
 
 interface Message {
   id: string;
@@ -26,6 +28,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const isUser = message.sender === "user";
   const [html, setHtml] = useState("");
   const [copied, setCopied] = useState(false);
+  const { avatarId } = useProfile();
 
   useEffect(() => {
     hljs.registerLanguage("javascript", javascript);
@@ -92,8 +95,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       } my-0.5 w-full`}
     >
       {isUser && (
-        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 mb-3 ml-2 md:mt-0 flex items-center justify-center shadow-md order-1 md:order-2">
-          <FontAwesomeIcon icon="user" className="text-white text-sm" />
+        <div className="flex-shrink-0 w-10 h-10 rounded-full mb-3 ml-2 md:mt-0 flex items-center justify-center shadow-md order-1 md:order-2">
+          <Avatar avatarId={avatarId} size="md" />
         </div>
       )}
 
@@ -144,9 +147,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       </div>
 
       {!isUser && (
-        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-800 border border-gray-700 md:mb-0 flex items-center justify-center shadow-md overflow-hidden">
+        <div className="flex-shrink-0 w-10 h-10 rounded-full  md:mb-0 flex items-center justify-center shadow-md overflow-hidden">
           <Image
-            src={cat}
+            src="/assets/icons/cat.png"
             alt="Assistant"
             className="w-full h-full object-cover"
             width={40}

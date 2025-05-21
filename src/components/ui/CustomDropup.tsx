@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronUp, faCog } from "@fortawesome/free-solid-svg-icons";
+import "../../styles/media.css";
 
 type ModelType = "deepseek" | "maverick" | "claude" | "gpt4o";
 

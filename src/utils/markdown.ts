@@ -1,5 +1,6 @@
 import { marked } from "marked";
 import hljs from "highlight.js";
+import "../styles/code.css";
 
 declare module "marked" {
   interface MarkedOptions {

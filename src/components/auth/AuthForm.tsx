@@ -5,6 +5,7 @@ import Button from "../ui/Button";
 import { useModalStore } from "../../stores/modalStore";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useToast from "../../hooks/useToast";
+import { createUserProfile } from "../../services/profileService";
 
 interface AuthFormProps {
   initialMode?: "login" | "register";
@@ -69,11 +70,17 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
         setModalType(null);
         window.location.reload();
       } else {
-        const { error: registerError } = await supabase.auth.signUp({
+        const { error: registerError, data } = await supabase.auth.signUp({
           email,
           password,
         });
+
         if (registerError) throw new Error(registerError.message);
+
+        if (data.user) {
+          await createUserProfile();
+        }
+
         toast.success("Регистрация успешна! Подтвердите email.");
         setModalType(null);
       }

@@ -50,7 +50,7 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
       className={`group relative rounded-md overflow-visible transition-all duration-200 ${
         chat.isActive
           ? "bg-gradient-to-r from-gray-700 to-gray-800 shadow-md border-l-2 border-pink-500"
-          : "hover:bg-gray-700"
+          : "hover:bg-gradient-to-r hover:from-gray-700 hover:to-gray-800 hover:shadow-md"
       }`}
       onClick={() => handleChatClick(String(chat.id))}
     >
@@ -86,7 +86,12 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
                     openMenuId === String(chat.id) ? null : String(chat.id)
                   );
                 }}
-                className="text-gray-400 hover:text-gray-200 p-1 rounded-full hover:bg-gray-600 transition-colors duration-200 opacity-0 group-hover:opacity-100"
+                className={`text-gray-400 hover:text-gray-200 ml-1 rounded-full hover:bg-pink-600/70 transition-all duration-200 
+                  ${
+                    chat.isActive
+                      ? "opacity-100"
+                      : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                  }`}
                 aria-label="Открыть меню"
               >
                 <FontAwesomeIcon icon="ellipsis-h" />

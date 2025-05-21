@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Button from "../../../ui/Button";
 import { useModalStore } from "../../../../stores/modalStore";
+import Avatar from "../../../ui/Avatar";
+import AvatarPicker from "../../../ui/AvatarPicker";
+import { useProfile } from "../../../../contexts/ProfileContext";
+import "../../../../styles/profileMenu.css";
 
 interface ProfileMenuProps {
   isProfileMenuOpen: boolean;
@@ -17,27 +20,55 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
   onLogout,
 }) => {
   const setModalType = useModalStore((state) => state.setModalType);
+  const { avatarId, changeAvatar } = useProfile();
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
   const openAuthModal = () => {
     setModalType("auth");
   };
 
+  const handleAvatarClick = () => {
+    setShowAvatarPicker((prev) => !prev);
+  };
+
+  const handleSelectAvatar = async (id: number) => {
+    await changeAvatar(id);
+    setShowAvatarPicker(false);
+  };
+
   return (
     <>
-      <Button
+      <button
         onClick={onProfileClick}
-        className="bg-pink-600 hover:bg-pink-700 text-white rounded-full w-10 h-10 flex items-center justify-center z-10"
+        className="profile-menu-button relative bg-transparent p-0 rounded-full flex items-center justify-center z-10 focus:outline-none focus:shadow-none focus:border-none outline-none shadow-none border-none"
         aria-label="Профиль"
+        type="button"
+        style={{ outline: "none" }}
       >
-        <FontAwesomeIcon icon="user" />
-      </Button>
+        <Avatar
+          avatarId={isAuthenticated ? avatarId : 1}
+          size="md"
+          className="ring-2 ring-pink-600"
+        />
+      </button>
       {isProfileMenuOpen && (
         <div className="absolute right-0 top-full mt-2 w-48 bg-gray-800 rounded-md shadow-lg z-50 border border-gray-700">
           <div className="py-1">
-            <button className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 flex items-center">
+            <button
+              onClick={handleAvatarClick}
+              className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 flex items-center"
+            >
               <FontAwesomeIcon icon="user-circle" className="mr-2" />
-              Профиль
+              {showAvatarPicker ? "Скрыть аватарки" : "Сменить аватарку"}
             </button>
+
+            {showAvatarPicker && isAuthenticated && (
+              <AvatarPicker
+                selectedAvatarId={avatarId}
+                onSelectAvatar={handleSelectAvatar}
+              />
+            )}
+
             <button
               onClick={() => {
                 onProfileClick();
