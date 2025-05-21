@@ -1,0 +1,25 @@
+body .profile-menu-button {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
+body .profile-menu-button:focus,
+body .profile-menu-button:active,
+body .profile-menu-button:hover {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
+button[aria-label="Профиль"].profile-menu-button {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
+.profile-menu-button > button {
+  outline: none;
+  box-shadow: none;
+  border: none;
+} 

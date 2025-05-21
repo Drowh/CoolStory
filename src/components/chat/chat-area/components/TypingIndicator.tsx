@@ -1,13 +1,12 @@
 import React from "react";
 import Image from "next/image";
-import cat from "../../../../assets/icons/cat.png";
 
 const TypingIndicator: React.FC = () => {
   return (
     <div className="flex items-start mt-4 w-full">
       <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-800 border border-gray-700 mr-3 flex items-center justify-center shadow-md overflow-hidden">
         <Image
-          src={cat}
+          src="/assets/icons/cat.png"
           alt="Assistant"
           className="w-full h-full object-cover"
           width={40}

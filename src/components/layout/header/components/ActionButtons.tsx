@@ -20,7 +20,7 @@ const ActionButtons: React.FC = () => {
   return (
     <Button
       onClick={handleExport}
-      className="text-gray-400 py-3 hover:bg-gray-700 hover:text-gray-200"
+      className="text-gray-400 bg-tran hover:bg-gray-700 hover:text-gray-200"
     >
       <FontAwesomeIcon icon="download" />
     </Button>

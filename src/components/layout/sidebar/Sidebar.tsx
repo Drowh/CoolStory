@@ -4,7 +4,6 @@ import { useChatHistoryStore } from "../../../stores/chatHistory";
 import { useUIStore } from "../../../stores/uiStore";
 import { Chat } from "../../../types";
 import Image from "next/image";
-import logoDrow from "../../../assets/icons/logoDrow.png";
 import {
   SidebarHeader,
   SidebarFolders,
@@ -108,9 +107,11 @@ const Sidebar: React.FC = () => {
           </>
         )}
         <Image
-          src={logoDrow}
+          src="/assets/icons/logoDrow.png"
           alt="Drow Logo"
           className="opacity-10 w-[250px] h-auto absolute bottom-0 pointer-events-none"
+          width={250}
+          height={100}
           priority
         />
       </aside>
