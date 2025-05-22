@@ -55,10 +55,12 @@ const RenameDialog: React.FC = () => {
       onClick={() => setIsRenameDialogOpen(false)}
     >
       <div
-        className="bg-gray-800 p-4 rounded-md w-80"
+        className="bg-white dark:bg-gray-800 p-4 rounded-md w-80"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold mb-4">Переименовать чат</h2>
+        <h2 className="text-lg font-semibold mb-4 text-zinc-900 dark:text-gray-200">
+          Переименовать чат
+        </h2>
         <Input
           value={newChatName}
           onChange={(e) => setNewChatName(e.target.value)}
@@ -70,13 +72,13 @@ const RenameDialog: React.FC = () => {
         <div className="flex justify-end space-x-2">
           <Button
             onClick={() => setIsRenameDialogOpen(false)}
-            className="bg-gray-700 hover:bg-gray-600"
+            className="bg-zinc-100 hover:bg-zinc-200 text-zinc-900 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
           >
             Отмена
           </Button>
           <Button
             onClick={handleRename}
-            className="bg-pink-600 hover:bg-pink-700"
+            className="bg-pink-600 hover:bg-pink-700 text-white"
             disabled={!newChatName.trim()}
           >
             Сохранить

@@ -31,18 +31,19 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({
 
   if (isSidebarCollapsed && !isMobile) {
     return (
-      <div className="p-4 border-b border-gray-700">
+      <div className="p-4 border-b border-zinc-300 dark:border-gray-700">
         <div className="flex flex-col items-center space-y-4">
           <button
             onClick={() => setIsSidebarCollapsed(false)}
-            className="text-gray-400 hover:text-gray-200 bg-[#111827] border border-gray-600 hover:bg-gray-700 p-2 rounded-lg w-12"
+            className="text-zinc-600 hover:text-zinc-900 bg-white dark:bg-[#111827] border border-zinc-300 dark:border-gray-600 hover:bg-zinc-100 dark:hover:bg-gray-700 p-2 rounded-lg w-12"
             aria-label="Развернуть боковую панель"
           >
             <FontAwesomeIcon icon="chevron-right" />
           </button>
           <Button
             onClick={handleCreateNewChat}
-            className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 p-2 rounded-lg transform transition-transform duration-200 hover:scale-105 shadow-md"
+            className="p-2 rounded-lg transform transition-transform duration-200 hover:scale-105 shadow-md text-white hover:brightness-90 active:scale-95 transition-all duration-100"
+            style={{ backgroundColor: "#f472b6" }}
             aria-label="Новый чат"
           >
             <FontAwesomeIcon icon="plus" />
@@ -53,12 +54,12 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   }
 
   return (
-    <div className="p-4 border-b border-gray-700">
+    <div className="p-4 border-b border-zinc-300 dark:border-gray-700">
       <div className="flex items-center justify-between gap-2">
         <SearchBar />
         <button
           onClick={() => setIsSidebarCollapsed(true)}
-          className="text-gray-400 px-4 hover:text-gray-200 bg-[#111827] border border-gray-600 hover:bg-gray-600 p-2 rounded-lg"
+          className="text-zinc-600 hover:text-zinc-900 bg-white dark:bg-[#111827] border border-zinc-300 dark:border-gray-600 hover:bg-zinc-100 dark:hover:bg-gray-600 p-2 rounded-lg"
           aria-label="Свернуть боковую панель"
         >
           <FontAwesomeIcon icon="chevron-left" />
@@ -66,7 +67,8 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({
       </div>
       <Button
         onClick={handleCreateNewChat}
-        className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 w-full mt-4 flex items-center justify-center space-x-2 py-2 rounded-lg shadow-md"
+        className="w-full mt-4 flex items-center justify-center space-x-2 py-2 rounded-lg shadow-md text-white hover:brightness-90 active:scale-95 transition-all duration-100"
+        style={{ backgroundColor: "#f472b6" }}
       >
         <span>Новый чат</span>
       </Button>

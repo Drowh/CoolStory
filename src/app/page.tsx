@@ -12,7 +12,7 @@ const HomePage = () => {
   useChatHistory();
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100 md:flex-row ">
+    <div className="flex flex-col min-h-screen bg-white text-zinc-900 dark:bg-gray-900 dark:text-gray-100 md:flex-row ">
       <Sidebar />
       <div className="flex flex-col flex-1 w-full">
         <Header />

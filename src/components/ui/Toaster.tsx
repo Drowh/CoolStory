@@ -76,7 +76,7 @@ export function Toaster() {
   return (
     <SonnerToaster
       position="top-right"
-      style={{ top: '70px' }}
+      style={{ top: '70px', right: '235px' }}
       theme="dark"
       className="custom-toaster"
       icons={{
@@ -86,7 +86,7 @@ export function Toaster() {
         warning: <WarningIcon />,
       }}
       toastOptions={{
-        duration: 3000,
+        duration: 2000,
         unstyled: true,
         classNames: {
           toast: `

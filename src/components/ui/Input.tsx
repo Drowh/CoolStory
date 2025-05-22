@@ -9,19 +9,29 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ error, className = "", fullWidth = false, onEnterPress, onKeyDown, ...props }, ref) => {
+  (
+    {
+      error,
+      className = "",
+      fullWidth = false,
+      onEnterPress,
+      onKeyDown,
+      ...props
+    },
+    ref
+  ) => {
     const baseStyles =
-      "bg-gray-700 text-gray-100 rounded-md border border-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none px-4 py-3 text-base transition-colors duration-200 w-full";
+      "bg-white dark:bg-gray-800 text-zinc-900 dark:text-gray-100 rounded-md border border-zinc-200 dark:border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/50 outline-none px-4 py-3 text-base transition-all duration-200 w-full placeholder-zinc-400 dark:placeholder-gray-500";
 
     const errorStyles = error
-      ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+      ? "border-red-500 focus:border-red-500 focus:ring-red-500/50"
       : "";
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter" && onEnterPress) {
         onEnterPress();
       }
-      
+
       if (onKeyDown) {
         onKeyDown(e as KeyboardEvent<HTMLInputElement>);
       }
@@ -35,7 +45,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           onKeyDown={handleKeyDown}
           {...props}
         />
-        {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+        {error && (
+          <p className="mt-1 text-xs text-red-500 dark:text-red-400">{error}</p>
+        )}
       </div>
     );
   }

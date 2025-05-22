@@ -60,8 +60,8 @@ const DeleteConfirmButton: React.FC<DeleteConfirmButtonProps> = ({
   };
 
   const buttonClassName = label
-    ? "flex items-center w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700"
-    : "text-red-400 hover:text-red-300 p-1";
+    ? "flex items-center w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-zinc-50 dark:text-red-400 dark:hover:bg-gray-700"
+    : "text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 p-1";
 
   return (
     <>
@@ -82,24 +82,30 @@ const DeleteConfirmButton: React.FC<DeleteConfirmButtonProps> = ({
 
       {isDeleteConfirmOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in"
           onClick={() => {
             setIsDeleteConfirmOpen(false);
             if (onCancel) onCancel();
           }}
         >
           <div
-            className="bg-gray-800 rounded-lg p-6 w-full max-w-sm"
+            className="rounded-lg p-6 w-full max-w-sm animate-fade-in-scale 
+            bg-white text-zinc-900 shadow-lg border border-zinc-200 
+            dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-lg text-gray-200 mb-4">
+            <h2 className="text-lg mb-4">
               {itemType === "chat"
                 ? "Удалить чат?"
                 : itemType === "folder"
                 ? "Удалить темку?"
                 : "Удалить чат из темки?"}
             </h2>
-            <p className="text-gray-400 mb-4">
+            <p
+              className="mb-4 
+            text-zinc-600 
+            dark:text-gray-400"
+            >
               {itemType === "chat"
                 ? "Вы уверены, что хотите удалить этот чат?"
                 : itemType === "folder"
@@ -112,13 +118,15 @@ const DeleteConfirmButton: React.FC<DeleteConfirmButtonProps> = ({
                   setIsDeleteConfirmOpen(false);
                   if (onCancel) onCancel();
                 }}
-                className="bg-gray-700 hover:bg-gray-600 text-gray-200"
+                className="bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
               >
                 Отмена
               </Button>
               <Button
                 onClick={confirmDelete}
-                className="bg-red-600 hover:bg-red-700 text-white"
+                variant="solid"
+                className="bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
+                style={{ backgroundColor: "#dc2626", color: "#fff" }}
               >
                 Удалить
               </Button>

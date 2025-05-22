@@ -19,17 +19,18 @@ const MicrophoneButton: React.FC<MicrophoneButtonProps> = ({
     return (
       <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none">
         {[1, 2, 3].map((i) => {
-          const scale = 1 + Math.min(speechLevel / 100, 1) * 0.5;
+          const scale = 1 + Math.min(speechLevel / 100, 1) * 0.4;
           return (
             <div
               key={i}
-              className={`absolute rounded-full bg-red-600/20 animate-pulse-wave`}
+              className={`absolute rounded-full bg-pink-500/20 dark:bg-pink-400/20 animate-pulse-wave`}
               style={{
                 width: "100%",
                 height: "100%",
-                transform: `scale(${scale * i * 0.4})`,
-                animationDelay: `${i * 0.2}s`,
-                opacity: isListening ? 0.7 - i * 0.2 : 0,
+                transform: `scale(${scale * i * 0.3})`,
+                animationDuration: `${0.8 + i * 0.2}s`,
+                animationDelay: `${i * 0.15}s`,
+                opacity: isListening ? 0.8 - i * 0.2 : 0,
               }}
             />
           );
@@ -43,18 +44,19 @@ const MicrophoneButton: React.FC<MicrophoneButtonProps> = ({
       {generateWaveCircles()}
       <Button
         onClick={onClick}
-        className={`p-2 rounded-full relative z-10 ${
+        className={`p-2 rounded-full relative z-10 transition-all duration-200 ${
           isListening
-            ? "bg-red-600 hover:bg-red-700"
-            : "bg-gray-700 hover:bg-gray-600"
-        } text-white`}
+            ? "hover:bg-red-700"
+            : "bg-zinc-100 hover:bg-zinc-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+        } text-white dark:text-white shadow-sm hover:shadow-md`}
+        style={isListening ? { backgroundColor: "#dc2626" } : {}}
         aria-label={isListening ? "Остановить запись" : "Начать запись"}
       >
         <FontAwesomeIcon icon="microphone" />
         {isListening && (
           <span className="absolute -top-1 -right-1 flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-pink-500"></span>
           </span>
         )}
       </Button>

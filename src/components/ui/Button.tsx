@@ -19,12 +19,14 @@ const Button: React.FC<ButtonProps> = ({
   const btnRef = useRef<HTMLButtonElement>(null);
 
   const variantStyles = {
-    solid: "bg-gray-700 hover:bg-gray-600 text-gray-100 ",
+    solid:
+      "bg-zinc-100 hover:bg-zinc-200 text-zinc-900 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 transition-colors duration-200",
     ghost:
-      "bg-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-700/40",
-    outline: "border border-gray-600 text-gray-100 hover:bg-gray-700",
+      "bg-transparent text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700/40 transition-colors duration-200",
+    outline:
+      "border border-zinc-200 text-zinc-900 hover:bg-zinc-50 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700/40 transition-colors duration-200",
     gradient:
-      "bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white",
+      "bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white transition-all duration-200",
   };
 
   const sizeStyles = {
@@ -38,15 +40,17 @@ const Button: React.FC<ButtonProps> = ({
       {...props}
       ref={btnRef}
       className={classNames(
-        "rounded-md transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-pink-500 relative overflow-hidden transform hover:scale-102  ",
+        "rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-pink-500/50 relative overflow-hidden transform hover:scale-[1.02] active:scale-[0.98]",
         variantStyles[variant],
         sizeStyles[size],
-        props.disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer",
+        props.disabled
+          ? "opacity-60 cursor-not-allowed hover:scale-100"
+          : "cursor-pointer",
         className
       )}
     >
-      <div className="flex items-center justify-center">
-        {icon && <span className="mr-2">{icon}</span>}
+      <div className="flex items-center justify-center gap-2">
+        {icon && <span>{icon}</span>}
         {children}
       </div>
     </button>

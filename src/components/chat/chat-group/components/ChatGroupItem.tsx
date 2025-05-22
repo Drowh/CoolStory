@@ -49,8 +49,8 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
     <li
       className={`group relative rounded-md overflow-visible transition-all duration-200 ${
         chat.isActive
-          ? "bg-gradient-to-r from-gray-700 to-gray-800 shadow-md border-l-2 border-pink-500"
-          : "hover:bg-gradient-to-r hover:from-gray-700 hover:to-gray-800 hover:shadow-md"
+          ? "bg-zinc-100 dark:bg-gray-700 shadow-md border-l-2 border-pink-500"
+          : "hover:bg-zinc-100 dark:hover:bg-gray-700 hover:shadow-md"
       }`}
       onClick={() => handleChatClick(String(chat.id))}
     >
@@ -59,12 +59,16 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
           <div className="flex-1 flex items-center space-x-2">
             <div
               className={`flex flex-row items-center ${
-                chat.isActive ? "text-pink-400" : "text-gray-400"
+                chat.isActive
+                  ? "text-pink-500"
+                  : "text-zinc-500 dark:text-gray-400"
               }`}
             >
               <p
                 className={`font-medium truncate ${
-                  chat.isActive ? "text-gray-100" : "text-gray-200"
+                  chat.isActive
+                    ? "text-zinc-900 dark:text-gray-100"
+                    : "text-zinc-700 dark:text-gray-200"
                 }`}
                 style={{
                   maxWidth: 200,
@@ -86,7 +90,7 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
                     openMenuId === String(chat.id) ? null : String(chat.id)
                   );
                 }}
-                className={`text-gray-400 hover:text-gray-200 ml-1 rounded-full hover:bg-pink-600/70 transition-all duration-200 
+                className={`text-zinc-500 dark:text-gray-400 hover:text-zinc-900 dark:hover:text-gray-200 ml-1 rounded-full hover:bg-zinc-100 dark:hover:bg-gray-700 transition-all duration-200 
                   ${
                     chat.isActive
                       ? "opacity-100"
@@ -104,7 +108,7 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
         </div>
         {matchedSnippet && searchQuery ? (
           <div
-            className="text-sm text-gray-400 mt-1.5 pl-6 overflow-hidden"
+            className="text-sm text-zinc-500 dark:text-gray-400 mt-1.5 pl-6 overflow-hidden"
             style={{ maxHeight: "3rem" }}
           >
             <div
@@ -114,7 +118,7 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
             />
           </div>
         ) : (
-          <p className="text-sm text-gray-400 truncate mt-1.5 pl-6">
+          <p className="text-sm text-zinc-500 dark:text-gray-400 truncate mt-1.5 pl-6">
             {chat.lastMessage}
           </p>
         )}

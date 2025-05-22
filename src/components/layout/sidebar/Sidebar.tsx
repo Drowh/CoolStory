@@ -60,7 +60,7 @@ const Sidebar: React.FC = () => {
 
   const sidebarBaseClasses = `
     top-0 left-0 z-[51]
-    bg-gray-800 border-r border-gray-700 
+    bg-white border-r border-zinc-300 text-zinc-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100
     transition-all duration-300 flex flex-col
     custom-scrollbar overflow-y-auto
   `;
