@@ -9,6 +9,7 @@ interface ChatInputActionsProps {
   canSend: boolean;
   isTyping: boolean;
   onSend: () => void;
+  speechLevel?: number;
 }
 
 const ChatInputActions: React.FC<ChatInputActionsProps> = ({
@@ -19,6 +20,7 @@ const ChatInputActions: React.FC<ChatInputActionsProps> = ({
   canSend,
   isTyping,
   onSend,
+  speechLevel = 0,
 }) => {
   return (
     <div className="flex items-center">
@@ -31,7 +33,11 @@ const ChatInputActions: React.FC<ChatInputActionsProps> = ({
       )}
 
       <div className="flex items-end sm:items-center gap-2">
-        <MicrophoneButton isListening={isListening} onClick={toggleListening} />
+        <MicrophoneButton
+          isListening={isListening}
+          onClick={toggleListening}
+          speechLevel={speechLevel}
+        />
         <SendButton canSend={canSend} isTyping={isTyping} onClick={onSend} />
       </div>
     </div>

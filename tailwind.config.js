@@ -14,6 +14,7 @@ export const theme = {
       "fade-in-scale": "fade-in-scale 0.3s ease-out",
       shimmer: "shimmer 2.5s infinite",
       "progress-bar": "progress-bar 1.2s infinite ease-in-out",
+      "pulse-wave": "pulse-wave 2s ease-out infinite",
     },
     keyframes: {
       float: {
@@ -35,6 +36,10 @@ export const theme = {
       "progress-bar": {
         "0%": { width: "0%" },
         "100%": { width: "100%" },
+      },
+      "pulse-wave": {
+        "0%": { transform: "scale(0.95)", opacity: "1" },
+        "100%": { transform: "scale(1.3)", opacity: "0" },
       },
     },
   },

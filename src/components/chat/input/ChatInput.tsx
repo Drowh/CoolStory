@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { useMessageStore } from "../../../stores/messageStore";
 import { useVoiceInput } from "../../../hooks/useVoiceInput";
 import { useChatHistoryStore } from "../../../stores/chatHistory";
@@ -15,7 +15,8 @@ const ChatInput: React.FC = () => {
     handleKeyPress,
     isTyping,
   } = useMessageStore();
-  const { isListening, toggleListening, transcript } = useVoiceInput();
+  const { isListening, toggleListening, transcript, speechLevel } =
+    useVoiceInput();
   const { chatHistory } = useChatHistoryStore();
   const activeChat = chatHistory.find((chat) => chat.isActive);
 
@@ -29,14 +30,24 @@ const ChatInput: React.FC = () => {
     "deepseek" | "maverick" | "claude" | "gpt4o"
   >("gpt4o");
   const [thinkMode, setThinkMode] = useState(false);
+  const [baseMessage, setBaseMessage] = useState("");
 
   useEffect(() => {
     setInputFieldRef(textareaRef);
   }, [setInputFieldRef]);
 
+  const capitalizeFirstLetter = (text: string): string => {
+    if (!text) return text;
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
   useEffect(() => {
-    if (transcript) setInputMessage(transcript);
-  }, [transcript, setInputMessage]);
+    if (isListening) {
+      const separator = baseMessage.trim() ? ". " : "";
+      const capitalizedTranscript = capitalizeFirstLetter(transcript);
+      setInputMessage(baseMessage + separator + capitalizedTranscript);
+    }
+  }, [transcript, isListening, baseMessage, setInputMessage]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -61,6 +72,13 @@ const ChatInput: React.FC = () => {
     if (textareaRef.current) textareaRef.current.style.height = "auto";
   };
 
+  const handleToggleListening = useCallback(() => {
+    if (!isListening) {
+      setBaseMessage(inputMessage);
+    }
+    toggleListening();
+  }, [isListening, inputMessage, toggleListening]);
+
   const showCharCounter = charCount > 0 && charCount > 80;
   const canSend = !!imageUrl || !!inputMessage.trim();
 
@@ -79,7 +97,11 @@ const ChatInput: React.FC = () => {
           <textarea
             ref={textareaRef}
             value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
+            onChange={(e) => {
+              if (!isListening) {
+                setInputMessage(e.target.value);
+              }
+            }}
             onKeyDown={(e) => {
               handleKeyPress(e);
               if (e.key === "Enter" && !e.shiftKey) {
@@ -109,10 +131,11 @@ const ChatInput: React.FC = () => {
               charCount={charCount}
               showCharCounter={showCharCounter}
               isListening={isListening}
-              toggleListening={toggleListening}
+              toggleListening={handleToggleListening}
               canSend={canSend}
               isTyping={isTyping}
               onSend={handleSend}
+              speechLevel={speechLevel}
             />
           </div>
         </div>
