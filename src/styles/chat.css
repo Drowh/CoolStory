@@ -22,9 +22,9 @@
 }
 
 .copy-btn-msg {
-  background: rgba(76, 143, 255, 0.2);
-  border: 1px solid rgba(76, 143, 255, 0.3);
-  color: #93c5fd;
+  background: rgba(80, 135, 229, 0.2);
+  border: 1px solid rgba(0, 29, 78, 0.3);
+  color:rgb(5, 101, 211);
   font-size: 1.1em;
   padding: 0.1rem 0.5rem;
   border-radius: 4px;
@@ -35,6 +35,12 @@
   align-items: center;
   justify-content: center;
   margin-left: 0.1rem;
+}
+
+.dark .copy-btn-msg {
+  color: #93c5fd;
+  border: 1px solid rgba(65, 127, 235, 0.3);
+
 }
 
 .copy-btn-msg:hover {

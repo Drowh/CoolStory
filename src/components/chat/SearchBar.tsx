@@ -10,22 +10,29 @@ const SearchBar: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState(searchQuery);
 
-  const debouncedSetSearchQuery = useCallback(
-    debounce((value: string) => {
+  // Use useCallback for the core search logic
+  const updateSearchQuery = useCallback(
+    (value: string) => {
       setSearchQuery(value);
-    }, 300),
-    [setSearchQuery]
+    },
+    [setSearchQuery] // setSearchQuery is stable from zustand, safe to include
   );
+
+  // Debounce the useCallback function and store it in a ref
+  const debouncedUpdateSearchQuery = useRef(debounce(updateSearchQuery, 300));
 
   useEffect(() => {
     setInputValue(searchQuery);
   }, [searchQuery]);
 
   useEffect(() => {
+    // Capture the current debounced function
+    const debounced = debouncedUpdateSearchQuery.current;
+    // Cleanup the debounced function on component unmount
     return () => {
-      debouncedSetSearchQuery.cancel();
+      debounced.cancel();
     };
-  }, [debouncedSetSearchQuery]);
+  }, [debouncedUpdateSearchQuery]); // Dependency array includes the ref itself
 
   const handleClear = () => {
     setInputValue("");
@@ -38,7 +45,8 @@ const SearchBar: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
-    debouncedSetSearchQuery(value);
+    // Call the debounced function stored in the ref
+    debouncedUpdateSearchQuery.current(value);
   };
 
   return (
@@ -57,22 +65,22 @@ const SearchBar: React.FC = () => {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder="Поиск чатов..."
-          className={`w-full bg-gray-700 text-gray-100 rounded-lg border transition-all duration-200 outline-none pl-10 pr-3 py-2.5 text-sm ${
+          className={`w-full bg-white dark:bg-gray-700 text-zinc-900 dark:text-gray-100 rounded-lg border transition-all duration-200 outline-none pl-10 pr-3 py-2.5 text-sm placeholder-zinc-500 dark:placeholder-gray-400 ${
             isFocused
               ? "border-pink-500 shadow-md shadow-pink-500/10"
-              : "border-gray-600 group-hover:border-gray-500"
+              : "border-zinc-300 dark:border-gray-600 group-hover:border-zinc-400 dark:group-hover:border-gray-500"
           }`}
         />
         <FontAwesomeIcon
           icon="search"
           className={`absolute left-3 top-1/2 transform -translate-y-1/2 transition-colors duration-200 ${
-            isFocused ? "text-pink-400" : "text-gray-400"
+            isFocused ? "text-pink-500" : "text-zinc-500 dark:text-gray-400"
           }`}
         />
         {inputValue && (
           <button
             onClick={handleClear}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 bg-gray-700/80 hover:bg-gray-600 rounded-full p-1 transition-colors duration-200"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-zinc-500 dark:text-gray-400 hover:text-zinc-700 dark:hover:text-gray-200 bg-white/80 dark:bg-gray-700/80 hover:bg-zinc-100/80 dark:hover:bg-gray-600/80 rounded-full p-1 transition-colors duration-200"
             aria-label="Очистить поиск"
           >
             <FontAwesomeIcon icon="times" size="xs" />

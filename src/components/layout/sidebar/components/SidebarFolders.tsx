@@ -36,15 +36,15 @@ const SidebarFolders: React.FC<SidebarFoldersProps> = ({ isMobile }) => {
       <div className="flex items-center justify-between">
         <button
           onClick={() => setShowFolders(!showFolders)}
-          className="flex items-center px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors duration-200 shadow-sm"
+          className="flex items-center px-3 py-2 bg-white hover:bg-zinc-100 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-md transition-colors duration-200 shadow-sm"
         >
           <FontAwesomeIcon icon="tags" className="text-pink-500 mr-2" />
-          <span className="text-gray-200">Темки</span>
+          <span className="text-zinc-900 dark:text-gray-200">Темки</span>
         </button>
         {showFolders && (
           <Button
             onClick={() => setIsAddToFolderDialogOpen(true)}
-            className="text-gray-400 hover:text-gray-200 bg-gray-700 hover:bg-gray-600 p-2 rounded-lg"
+            className="text-zinc-600 hover:text-zinc-900 bg-white hover:bg-zinc-100 dark:text-gray-400 dark:hover:text-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 p-2 rounded-lg"
           >
             <FontAwesomeIcon icon="plus" />
           </Button>
@@ -62,11 +62,11 @@ const SidebarFolders: React.FC<SidebarFoldersProps> = ({ isMobile }) => {
                 <div className="flex items-center justify-between py-1">
                   <button
                     onClick={() => toggleFolderExpansion(folder.id)}
-                    className="flex items-center text-gray-200 hover:text-gray-100 w-full text-left"
+                    className="flex items-center text-zinc-900 hover:text-zinc-700 dark:text-gray-200 dark:hover:text-gray-100 w-full text-left"
                   >
                     <FontAwesomeIcon
                       icon={isExpanded ? "chevron-down" : "chevron-right"}
-                      className="mr-2 text-gray-400"
+                      className="mr-2 text-zinc-500 dark:text-gray-400"
                     />
                     {folder.name}
                   </button>
@@ -77,14 +77,14 @@ const SidebarFolders: React.FC<SidebarFoldersProps> = ({ isMobile }) => {
                   />
                 </div>
                 {isExpanded && folderChats.length > 0 && (
-                  <ul className="pl-6 space-y-1">
+                  <ul className="pl-6 space-y-1 border-l border-zinc-200 dark:border-gray-700">
                     {folderChats.map((chat) => (
                       <li
                         key={chat.id}
                         className={`flex items-center justify-between p-2 rounded-md cursor-pointer ${
                           chat.isActive
-                            ? "bg-gray-700 text-gray-100 border-l-2 border-pink-500"
-                            : "text-gray-300 hover:bg-gray-700"
+                            ? "bg-zinc-100 text-zinc-900 dark:bg-gray-700 dark:text-gray-100 border-l-2 border-pink-500"
+                            : "text-zinc-600 hover:bg-zinc-100 dark:text-gray-300 dark:hover:bg-gray-700"
                         }`}
                         onClick={() => handleChatClick(chat.id)}
                       >

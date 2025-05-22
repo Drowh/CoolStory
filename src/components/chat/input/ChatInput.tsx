@@ -92,7 +92,7 @@ const ChatInput: React.FC = () => {
         } transition-transform duration-300`}
       >
         <div
-          className={`w-full border border-gray-500 rounded-lg bg-gray-800 p-2 flex flex-col transition-colors duration-200 ${containerClass}`}
+          className={`w-full border border-zinc-300 dark:border-gray-500 rounded-lg bg-white dark:bg-gray-800 p-2 flex flex-col transition-colors duration-200 ${containerClass}`}
         >
           <textarea
             ref={textareaRef}
@@ -112,10 +112,10 @@ const ChatInput: React.FC = () => {
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder="Нажмите Enter для отправки, Shift+Enter для новой строки."
-            className={`w-full py-1 bg-transparent text-gray-100 border-0 focus:ring-0 outline-none resize-none text-base mb-2`}
+            className={`w-full py-1 bg-transparent text-zinc-900 dark:text-gray-100 border-0 focus:ring-0 outline-none resize-none text-base mb-2 placeholder-zinc-500 dark:placeholder-gray-400`}
             rows={1}
             disabled={isTyping}
-            maxLength={2000}
+            maxLength={5000}
           />
           <div className="flex items-center justify-between">
             <ChatInputToolbar
@@ -139,7 +139,7 @@ const ChatInput: React.FC = () => {
             />
           </div>
         </div>
-        <div className="max-w-3xl mx-auto mt-2 text-sm text-gray-500 text-center transition-opacity duration-200 hover:text-gray-400">
+        <div className="max-w-3xl mx-auto mt-2 text-sm text-zinc-600 dark:text-gray-500 text-center transition-opacity duration-200 hover:text-zinc-900 dark:hover:text-gray-400">
           CoolStory может допускать ошибки. Проверьте важную информацию.
         </div>
       </div>

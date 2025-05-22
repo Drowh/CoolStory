@@ -14,10 +14,12 @@ const SettingsModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-lg text-gray-200 mb-4">Настройки</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+        <h2 className="text-lg text-zinc-900 dark:text-gray-200 mb-4">
+          Настройки
+        </h2>
         <div className="mb-4">
-          <label className="flex items-center space-x-2 text-gray-300">
+          <label className="flex items-center space-x-2 text-zinc-700 dark:text-gray-300">
             <input
               type="checkbox"
               checked={autoCollapseFolders}
@@ -30,7 +32,7 @@ const SettingsModal: React.FC = () => {
         <div className="flex justify-end">
           <Button
             onClick={() => setModalType(null)}
-            className="bg-gray-700 hover:bg-gray-600 text-gray-200"
+            className="bg-zinc-100 hover:bg-zinc-200 text-zinc-900 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
           >
             Закрыть
           </Button>

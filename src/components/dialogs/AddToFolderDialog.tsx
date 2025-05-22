@@ -51,20 +51,34 @@ const AddToFolderDialog: React.FC = () => {
   if (!isAddToFolderDialogOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-lg text-gray-200 mb-4">Добавить в темку</h2>
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in"
+      onClick={() => {
+        setIsAddToFolderDialogOpen(false);
+        setSelectedChatId(null);
+      }}
+    >
+      <div
+        className="rounded-lg p-6 w-full max-w-md animate-fade-in-scale 
+      bg-white text-zinc-900 border border-zinc-200 shadow-lg 
+      dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-lg mb-4">Добавить в темку</h2>
         <div className="mb-4">
           <input
             type="text"
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
             placeholder="Название новой темки"
-            className="w-full p-2 bg-gray-700 text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+            className="w-full p-2 rounded-md focus:outline-none focus:ring-2 
+            bg-zinc-100 text-zinc-900 border border-zinc-200 focus:border-pink-500 focus:ring-pink-500 
+            dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:focus:ring-pink-500 dark:focus:border-pink-500"
           />
           <Button
             onClick={handleCreateFolder}
-            className="mt-2 bg-pink-600 hover:bg-pink-700 text-white w-full"
+            className="mt-2 w-full text-white hover:brightness-90 active:scale-95 transition-all duration-100"
+            style={{ backgroundColor: "#f472b6" }}
           >
             Создать темку
           </Button>
@@ -74,11 +88,15 @@ const AddToFolderDialog: React.FC = () => {
             folders.map((folder) => (
               <div
                 key={folder.id}
-                className="flex items-center justify-between p-2 border-gray-700 hover:bg-gray-700 border-2 rounded-md mb-2"
+                className="flex items-center justify-between p-2 rounded-md mb-2 border-2 
+                border-zinc-200 hover:bg-zinc-100 hover:border-pink-500 focus-within:border-pink-500 transition-colors duration-200 
+                dark:border-gray-700 dark:hover:bg-gray-700"
               >
                 <button
                   onClick={() => handleAddToFolder(folder.id)}
-                  className="text-gray-200 hover:text-gray-100 flex-1 text-left"
+                  className="flex-1 text-left 
+                  text-zinc-900 hover:text-zinc-700 
+                  dark:text-gray-200 dark:hover:text-gray-100"
                 >
                   <span className="flex-1 text-left">{folder.name}</span>
                 </button>
@@ -101,7 +119,7 @@ const AddToFolderDialog: React.FC = () => {
               setIsAddToFolderDialogOpen(false);
               setSelectedChatId(null);
             }}
-            className="bg-gray-700 hover:bg-gray-600 text-gray-200"
+            className="bg-zinc-200 hover:bg-zinc-300 text-zinc-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
           >
             Закрыть
           </Button>

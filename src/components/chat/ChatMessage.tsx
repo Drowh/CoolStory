@@ -7,6 +7,7 @@ import python from "highlight.js/lib/languages/python";
 import bash from "highlight.js/lib/languages/bash";
 import json from "highlight.js/lib/languages/json";
 import "highlight.js/styles/vs2015.css";
+import "highlight.js/styles/vs.css";
 import { renderMarkdownSafe } from "../../utils/markdown";
 import { useProfile } from "../../contexts/ProfileContext";
 import Avatar from "../ui/Avatar";
@@ -92,7 +93,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         isUser
           ? "flex-col items-end md:flex-row"
           : "flex-col items-start md:flex-row"
-      } my-0.5 w-full`}
+      } my-2 w-full`}
     >
       {isUser && (
         <div className="flex-shrink-0 w-10 h-10 rounded-full mb-3 ml-2 md:mt-0 flex items-center justify-center shadow-md order-1 md:order-2">
@@ -101,11 +102,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       )}
 
       <div
-        className={`relative py-1 rounded-lg leading-relaxed break-words whitespace-pre-wrap order-2 md:order-1
+        className={`relative py-2 px-3 rounded-lg leading-relaxed break-words whitespace-pre-wrap order-2 md:order-1 shadow-sm
           ${
             isUser
-              ? "text-base px-3 font-normal max-w-2xl bg-gradient-to-r from-gray-800 to-gray-700 text-gray-100 shadow-md"
-              : "text-base font-normal w-full text-gray-100 chat-message-assistant px-2"
+              ? "text-base font-normal max-w-2xl bg-gradient-to-r from-blue-50 to-blue-100 text-zinc-900 dark:from-gray-800 dark:to-gray-700 dark:text-gray-100"
+              : "text-base font-normal w-full text-zinc-900 dark:text-gray-100"
           }`}
       >
         {message.imageUrl && (
@@ -122,7 +123,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           <div className="flex items-center justify-between">
             <p className="mb-0 flex-1 mr-1">{message.text}</p>
             <button
-              className="copy-btn-msg -mr-2"
+              className="copy-btn-msg -mr-2 text-zinc-600 hover:text-zinc-900 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200"
               title="Скопировать сообщение"
               onClick={handleCopy}
             >
@@ -132,11 +133,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         ) : (
           <>
             <div
-              className="markdown-content"
+              className="markdown-content prose dark:prose-invert max-w-none"
               dangerouslySetInnerHTML={{ __html: html }}
             />
             <button
-              className="copy-btn-msg"
+              className="copy-btn-msg text-zinc-600 hover:text-zinc-900 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200"
               title="Скопировать сообщение"
               onClick={handleCopy}
             >
@@ -147,7 +148,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       </div>
 
       {!isUser && (
-        <div className="flex-shrink-0 w-10 h-10 rounded-full  md:mb-0 flex items-center justify-center shadow-md overflow-hidden">
+        <div className="flex-shrink-0 w-10 h-10 rounded-full md:mb-0 flex items-center justify-center shadow-md overflow-hidden">
           <Image
             src="/assets/icons/cat.png"
             alt="Assistant"

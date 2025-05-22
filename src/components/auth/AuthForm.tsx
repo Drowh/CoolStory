@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../../utils/supabase";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
@@ -98,9 +98,9 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
     }
   };
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setModalType(null);
-  };
+  }, [setModalType]);
 
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
@@ -113,7 +113,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };
-  }, []);
+  }, [closeModal]);
 
   const toggleMode = () => {
     setMode(mode === "login" ? "register" : "login");
@@ -126,26 +126,26 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in"
       onClick={closeModal}
     >
       <div
-        className="bg-gray-800 rounded-lg p-8 w-full max-w-md relative"
+        className="bg-white dark:bg-gray-800 rounded-xl p-8 w-full max-w-md relative shadow-lg border border-zinc-100 dark:border-gray-700 animate-fade-in-scale"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={closeModal}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200"
           aria-label="Закрыть"
         >
           <FontAwesomeIcon icon="times" size="lg" />
         </button>
 
-        <h2 className="text-2xl text-gray-200 mb-6">
+        <h2 className="text-2xl text-zinc-900 dark:text-gray-100 mb-6 font-medium">
           {mode === "login" ? "Вход" : "Регистрация"}
         </h2>
 
-        <div className="space-y-6 mb-6">
+        <div className="space-y-4 mb-6">
           <Input
             type="email"
             placeholder="Email"
@@ -173,7 +173,9 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
         </div>
 
         {generalError && (
-          <p className="text-red-500 text-sm mb-4">{generalError}</p>
+          <p className="text-red-500 dark:text-red-400 text-sm mb-4">
+            {generalError}
+          </p>
         )}
 
         <Button
@@ -194,7 +196,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
           onClick={toggleMode}
           variant="ghost"
           size="md"
-          className="w-full mt-4"
+          className="w-full mt-4 text-zinc-500 hover:text-zinc-900 dark:text-gray-400 dark:hover:text-gray-200"
         >
           {mode === "login"
             ? "Нет аккаунта? Зарегистрируйтесь"

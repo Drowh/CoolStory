@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface MobileToggleProps {
@@ -10,13 +10,13 @@ const MobileToggle: React.FC<MobileToggleProps> = ({ onClick }) => {
     <div className="fixed top-2.5 left-2 z-[52] animate-fade-in-scale">
       <button
         onClick={onClick}
-        className="bg-[#111827] border border-gray-600 text-gray-200 px-3 py-1 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
+        className="bg-white dark:bg-gray-800 border border-zinc-200 dark:border-gray-700 text-zinc-600 dark:text-gray-300 hover:text-zinc-900 dark:hover:text-gray-100 px-3 py-1.5 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         aria-label="Открыть меню"
       >
-        <FontAwesomeIcon icon="bars" />
+        <FontAwesomeIcon icon="bars" className="text-lg" />
       </button>
     </div>
   );
 };
 
-export default MobileToggle; 
+export default MobileToggle;

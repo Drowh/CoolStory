@@ -6,7 +6,9 @@ import Image from "next/image";
 
 interface ChatInputToolbarProps {
   selectedModel: "deepseek" | "maverick" | "claude" | "gpt4o";
-  setSelectedModel: (model: "deepseek" | "maverick" | "claude" | "gpt4o") => void;
+  setSelectedModel: (
+    model: "deepseek" | "maverick" | "claude" | "gpt4o"
+  ) => void;
   thinkMode: boolean;
   setThinkMode: (value: boolean) => void;
   imageUrl: string | null;
@@ -30,7 +32,7 @@ const ChatInputToolbar: React.FC<ChatInputToolbarProps> = ({
         onChange={(value) => setSelectedModel(value)}
         className="mr-2"
       />
-      
+
       <Button
         onClick={() => setThinkMode(!thinkMode)}
         className={`p-2 rounded-full ${
@@ -41,7 +43,7 @@ const ChatInputToolbar: React.FC<ChatInputToolbarProps> = ({
       >
         <FontAwesomeIcon icon="brain" />
       </Button>
-      
+
       {!imageUrl && (
         <>
           <input
@@ -50,7 +52,6 @@ const ChatInputToolbar: React.FC<ChatInputToolbarProps> = ({
             onChange={onImageUpload}
             className="hidden"
             id="imageUpload"
-            
           />
           <label
             htmlFor="imageUpload"
@@ -60,7 +61,7 @@ const ChatInputToolbar: React.FC<ChatInputToolbarProps> = ({
           </label>
         </>
       )}
-      
+
       {imageUrl && (
         <div className="flex items-center relative mr-2">
           <Image
@@ -72,7 +73,8 @@ const ChatInputToolbar: React.FC<ChatInputToolbarProps> = ({
           />
           <Button
             onClick={onRemoveImage}
-            className="absolute -top-4 right-4 bg-transparent hover:bg-transparent hover:text-red-500 text-gray-400 border-none outline-none focus:outline-none"
+            variant="ghost"
+            className="absolute -top-4 right-4 bg-transparent hover:bg-transparent hover:text-red-500 text-gray-400 border-none outline-none focus:outline-none hover:!bg-transparent dark:hover:!bg-transparent"
           >
             <FontAwesomeIcon icon="times" size="sm" />
           </Button>
@@ -82,4 +84,4 @@ const ChatInputToolbar: React.FC<ChatInputToolbarProps> = ({
   );
 };
 
-export default ChatInputToolbar; 
+export default ChatInputToolbar;

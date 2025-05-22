@@ -33,7 +33,7 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
 
   return (
     <div className="mb-4">
-      <h3 className="text-xs uppercase text-gray-400 font-semibold px-3 py-2 tracking-wider">
+      <h3 className="text-xs uppercase text-zinc-500 dark:text-gray-400 font-semibold px-3 py-2 tracking-wider">
         {title}
       </h3>
       <ChatGroupList

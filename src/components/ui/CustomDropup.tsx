@@ -49,7 +49,11 @@ const CustomDropup: React.FC<CustomDropupProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="p-1 w-10 sm:w-26 md:w-40 bg-gray-700 text-gray-200 rounded-md border border-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none text-sm flex items-center justify-center sm:justify-between"
+        className={
+          `p-1 w-10 sm:w-26 md:w-40 rounded-md outline-none text-sm flex items-center justify-center sm:justify-between ` +
+          `bg-zinc-100 text-zinc-900 border border-zinc-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 ` +
+          `dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:focus:border-pink-500 dark:focus:ring-1 dark:focus:ring-pink-500`
+        }
       >
         <span className="hidden sm:inline truncate">{currentModel?.label}</span>
         <FontAwesomeIcon icon={faCog} className="sm:hidden text-lg" />
@@ -61,15 +65,22 @@ const CustomDropup: React.FC<CustomDropupProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-full left-0 mb-1 w-full min-w-40 bg-gray-700 border border-gray-600 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
+        <div
+          className={
+            `absolute bottom-full left-0 mb-1 w-full min-w-40 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto ` +
+            `bg-white border border-zinc-200 ` +
+            `dark:bg-gray-700 dark:border-gray-600`
+          }
+        >
           {models.map((model) => (
             <div
               key={model.value}
-              className={`px-2 py-1 text-sm cursor-pointer ${
-                model.value === value
-                  ? "bg-gray-600 text-white"
-                  : "text-gray-200 hover:bg-gray-600"
-              }`}
+              className={`px-2 py-1 text-sm cursor-pointer 
+                ${
+                  model.value === value
+                    ? "bg-blue-100 text-blue-800 dark:bg-gray-600 dark:text-white"
+                    : "text-zinc-700 hover:bg-zinc-200 dark:text-gray-200 dark:hover:bg-gray-600"
+                }`}
               onClick={() => {
                 onChange(model.value as ModelType);
                 setIsOpen(false);
