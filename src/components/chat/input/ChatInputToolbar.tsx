@@ -26,11 +26,16 @@ const ChatInputToolbar: React.FC<ChatInputToolbarProps> = ({
   onRemoveImage,
 }) => {
   return (
-    <div className="flex items-center mt-auto">
+    <div
+      className="flex items-center mt-auto"
+      role="toolbar"
+      aria-label="Панель инструментов ввода"
+    >
       <CustomDropup
         value={selectedModel}
         onChange={(value) => setSelectedModel(value)}
         className="mr-2"
+        aria-label="Выбор модели"
       />
 
       <Button
@@ -40,8 +45,14 @@ const ChatInputToolbar: React.FC<ChatInputToolbarProps> = ({
             ? "bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
             : "bg-gray-700 hover:bg-gray-600"
         } text-white mr-2`}
+        aria-label={
+          thinkMode
+            ? "Отключить режим размышления"
+            : "Включить режим размышления"
+        }
+        aria-pressed={thinkMode}
       >
-        <FontAwesomeIcon icon="brain" />
+        <FontAwesomeIcon icon="brain" aria-hidden="true" />
       </Button>
 
       {!imageUrl && (
@@ -52,21 +63,29 @@ const ChatInputToolbar: React.FC<ChatInputToolbarProps> = ({
             onChange={onImageUpload}
             className="hidden"
             id="imageUpload"
+            aria-label="Загрузить изображение"
           />
           <label
             htmlFor="imageUpload"
             className="p-2 rounded-full text-gray-400 hover:text-gray-200 cursor-pointer mr-2"
+            role="button"
+            tabIndex={0}
+            aria-label="Загрузить изображение"
           >
-            <FontAwesomeIcon icon="image" size="lg" />
+            <FontAwesomeIcon icon="image" size="lg" aria-hidden="true" />
           </label>
         </>
       )}
 
       {imageUrl && (
-        <div className="flex items-center relative mr-2">
+        <div
+          className="flex items-center relative mr-2"
+          role="group"
+          aria-label="Прикрепленное изображение"
+        >
           <Image
             src={imageUrl}
-            alt="Attached"
+            alt="Прикрепленное изображение"
             className="w-8 h-8 object-cover rounded"
             width={32}
             height={32}
@@ -75,8 +94,9 @@ const ChatInputToolbar: React.FC<ChatInputToolbarProps> = ({
             onClick={onRemoveImage}
             variant="ghost"
             className="absolute -top-4 right-4 bg-transparent hover:bg-transparent hover:text-red-500 text-gray-400 border-none outline-none focus:outline-none hover:!bg-transparent dark:hover:!bg-transparent"
+            aria-label="Удалить изображение"
           >
-            <FontAwesomeIcon icon="times" size="sm" />
+            <FontAwesomeIcon icon="times" size="sm" aria-hidden="true" />
           </Button>
         </div>
       )}

@@ -9,12 +9,16 @@ interface ChatGroupItemProps {
   chatInfo: { chat: Chat; matchedSnippet?: string };
   handleChatClick: (chatId: string) => void;
   menuRef: React.RefObject<HTMLDivElement>;
+  isMobile: boolean;
+  setIsSidebarCollapsed: (collapsed: boolean) => void;
 }
 
 const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
   chatInfo,
   handleChatClick,
   menuRef,
+  isMobile,
+  setIsSidebarCollapsed,
 }) => {
   const { chat, matchedSnippet } = chatInfo;
   const searchQuery = useChatHistoryStore((state) => state.searchQuery);
@@ -53,6 +57,16 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
           : "hover:bg-zinc-100 dark:hover:bg-gray-700 hover:shadow-md"
       }`}
       onClick={() => handleChatClick(String(chat.id))}
+      role="option"
+      aria-selected={chat.isActive}
+      aria-label={`Чат: ${chat.title || "Без названия"}`}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleChatClick(String(chat.id));
+        }
+      }}
     >
       <div className={`p-3 ${chat.isActive ? "pl-2" : ""}`}>
         <div className="flex items-center justify-between">
@@ -63,6 +77,7 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
                   ? "text-pink-500"
                   : "text-zinc-500 dark:text-gray-400"
               }`}
+              aria-hidden="true"
             >
               <p
                 className={`font-medium truncate ${
@@ -96,12 +111,19 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
                       ? "opacity-100"
                       : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                   }`}
-                aria-label="Открыть меню"
+                aria-label="Открыть меню действий для чата"
+                aria-haspopup="true"
+                aria-expanded={openMenuId === String(chat.id)}
               >
-                <FontAwesomeIcon icon="ellipsis-h" />
+                <FontAwesomeIcon icon="ellipsis-h" aria-hidden="true" />
               </button>
               {openMenuId === String(chat.id) && (
-                <ChatItemMenu chatId={chat.id} menuRef={menuRef} />
+                <ChatItemMenu
+                  chatId={chat.id}
+                  menuRef={menuRef}
+                  isMobile={isMobile}
+                  setIsSidebarCollapsed={setIsSidebarCollapsed}
+                />
               )}
             </div>
           </div>
@@ -110,6 +132,7 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
           <div
             className="text-sm text-zinc-500 dark:text-gray-400 mt-1.5 pl-6 overflow-hidden"
             style={{ maxHeight: "3rem" }}
+            aria-hidden="true"
           >
             <div
               dangerouslySetInnerHTML={{
@@ -118,13 +141,19 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
             />
           </div>
         ) : (
-          <p className="text-sm text-zinc-500 dark:text-gray-400 truncate mt-1.5 pl-6">
+          <p
+            className="text-sm text-zinc-500 dark:text-gray-400 truncate mt-1.5 pl-6"
+            aria-hidden="true"
+          >
             {chat.lastMessage}
           </p>
         )}
       </div>
       {chat.isActive && (
-        <div className="absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-pink-500 to-purple-600"></div>
+        <div
+          className="absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-pink-500 to-purple-600"
+          aria-hidden="true"
+        ></div>
       )}
     </li>
   );

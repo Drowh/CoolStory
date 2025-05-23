@@ -1,0 +1,35 @@
+.sidebar {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, width, opacity;
+  transform-origin: left;
+}
+
+.sidebar.mobile {
+  position: fixed;
+}
+
+.sidebar.mobile.collapsed {
+  transform: translateX(-100%);
+  opacity: 0;
+  width: 0;
+}
+
+.sidebar.mobile.expanded {
+  transform: translateX(0);
+  opacity: 1;
+  width: 16rem;
+}
+
+.sidebar.desktop {
+  position: sticky;
+}
+
+.sidebar.desktop.collapsed {
+  width: 4rem;
+}
+
+.sidebar.desktop.expanded {
+  width: 16rem;
+} 

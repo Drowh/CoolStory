@@ -6,9 +6,16 @@ import ChatGroupList from "./components/ChatGroupList";
 interface ChatGroupProps {
   title: string;
   chats: { chat: Chat; matchedSnippet?: string }[];
+  isMobile: boolean;
+  setIsSidebarCollapsed: (collapsed: boolean) => void;
 }
 
-const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
+const ChatGroup: React.FC<ChatGroupProps> = ({
+  title,
+  chats,
+  isMobile,
+  setIsSidebarCollapsed,
+}) => {
   const { openMenuId, setOpenMenuId } = useUIStore();
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -39,6 +46,8 @@ const ChatGroup: React.FC<ChatGroupProps> = ({ title, chats }) => {
       <ChatGroupList
         chats={chats}
         menuRef={menuRef as React.RefObject<HTMLDivElement>}
+        isMobile={isMobile}
+        setIsSidebarCollapsed={setIsSidebarCollapsed}
       />
     </div>
   );

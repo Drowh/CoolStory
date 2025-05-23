@@ -10,15 +10,13 @@ const SearchBar: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState(searchQuery);
 
-  // Use useCallback for the core search logic
   const updateSearchQuery = useCallback(
     (value: string) => {
       setSearchQuery(value);
     },
-    [setSearchQuery] // setSearchQuery is stable from zustand, safe to include
+    [setSearchQuery]
   );
 
-  // Debounce the useCallback function and store it in a ref
   const debouncedUpdateSearchQuery = useRef(debounce(updateSearchQuery, 300));
 
   useEffect(() => {
@@ -26,13 +24,11 @@ const SearchBar: React.FC = () => {
   }, [searchQuery]);
 
   useEffect(() => {
-    // Capture the current debounced function
     const debounced = debouncedUpdateSearchQuery.current;
-    // Cleanup the debounced function on component unmount
     return () => {
       debounced.cancel();
     };
-  }, [debouncedUpdateSearchQuery]); // Dependency array includes the ref itself
+  }, [debouncedUpdateSearchQuery]); 
 
   const handleClear = () => {
     setInputValue("");
@@ -45,7 +41,6 @@ const SearchBar: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
-    // Call the debounced function stored in the ref
     debouncedUpdateSearchQuery.current(value);
   };
 
@@ -70,12 +65,14 @@ const SearchBar: React.FC = () => {
               ? "border-pink-500 shadow-md shadow-pink-500/10"
               : "border-zinc-300 dark:border-gray-600 group-hover:border-zinc-400 dark:group-hover:border-gray-500"
           }`}
+          aria-label="Поле поиска чатов"
         />
         <FontAwesomeIcon
           icon="search"
           className={`absolute left-3 top-1/2 transform -translate-y-1/2 transition-colors duration-200 ${
             isFocused ? "text-pink-500" : "text-zinc-500 dark:text-gray-400"
           }`}
+          aria-hidden="true"
         />
         {inputValue && (
           <button

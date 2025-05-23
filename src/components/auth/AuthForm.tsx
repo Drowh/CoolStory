@@ -128,75 +128,106 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
     <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in"
       onClick={closeModal}
+      role="button"
+      aria-label="Закрыть окно аутентификации"
     >
       <div
         className="bg-white dark:bg-gray-800 rounded-xl p-8 w-full max-w-md relative shadow-lg border border-zinc-100 dark:border-gray-700 animate-fade-in-scale"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="auth-dialog-title"
       >
         <button
           onClick={closeModal}
           className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200"
-          aria-label="Закрыть"
+          aria-label="Закрыть окно аутентификации"
         >
-          <FontAwesomeIcon icon="times" size="lg" />
+          <FontAwesomeIcon icon="times" size="lg" aria-hidden="true" />
         </button>
 
-        <h2 className="text-2xl text-zinc-900 dark:text-gray-100 mb-6 font-medium">
+        <h2
+          id="auth-dialog-title"
+          className="text-2xl text-zinc-900 dark:text-gray-100 mb-6 font-medium"
+        >
           {mode === "login" ? "Вход" : "Регистрация"}
         </h2>
 
-        <div className="space-y-4 mb-6">
-          <Input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            error={emailError}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSubmit();
-              }
-            }}
-          />
-          <Input
-            type="password"
-            placeholder="Пароль"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={passwordError}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSubmit();
-              }
-            }}
-          />
-        </div>
-
-        {generalError && (
-          <p className="text-red-500 dark:text-red-400 text-sm mb-4">
-            {generalError}
-          </p>
-        )}
-
-        <Button
-          onClick={handleSubmit}
-          disabled={loading}
-          variant="gradient"
-          size="md"
-          className="w-full"
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
         >
-          {loading
-            ? "Загрузка..."
-            : mode === "login"
-            ? "Войти"
-            : "Зарегистрироваться"}
-        </Button>
+          <div className="space-y-4 mb-6">
+            <Input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              error={emailError}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSubmit();
+                }
+              }}
+              aria-label="Email"
+              id="auth-email"
+            />
+            <Input
+              type="password"
+              placeholder="Пароль"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              error={passwordError}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSubmit();
+                }
+              }}
+              aria-label="Пароль"
+              id="auth-password"
+            />
+          </div>
+
+          {generalError && (
+            <p
+              className="text-red-500 dark:text-red-400 text-sm mb-4"
+              role="alert"
+            >
+              {generalError}
+            </p>
+          )}
+
+          <Button
+            onClick={handleSubmit}
+            disabled={loading}
+            variant="gradient"
+            size="md"
+            className="w-full"
+            aria-label={
+              mode === "login" ? "Войти в аккаунт" : "Зарегистрировать аккаунт"
+            }
+            aria-disabled={loading}
+          >
+            {loading
+              ? "Загрузка..."
+              : mode === "login"
+              ? "Войти"
+              : "Зарегистрироваться"}
+          </Button>
+        </form>
 
         <Button
           onClick={toggleMode}
           variant="ghost"
           size="md"
           className="w-full mt-4 text-zinc-500 hover:text-zinc-900 dark:text-gray-400 dark:hover:text-gray-200"
+          aria-label={
+            mode === "login"
+              ? "Переключиться на регистрацию"
+              : "Переключиться на вход"
+          }
         >
           {mode === "login"
             ? "Нет аккаунта? Зарегистрируйтесь"

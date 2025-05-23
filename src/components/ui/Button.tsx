@@ -48,9 +48,11 @@ const Button: React.FC<ButtonProps> = ({
           : "cursor-pointer",
         className
       )}
+      aria-disabled={props.disabled}
+      role={props.role || "button"}
     >
       <div className="flex items-center justify-center gap-2">
-        {icon && <span>{icon}</span>}
+        {icon && <span aria-hidden="true">{icon}</span>}
         {children}
       </div>
     </button>

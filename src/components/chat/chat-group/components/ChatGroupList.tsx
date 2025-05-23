@@ -1,17 +1,22 @@
 import React from "react";
 import { Chat } from "../../../../types";
 import { useChatHistoryStore } from "../../../../stores/chatHistory";
-import { useUIStore } from "../../../../stores/uiStore";
 import ChatGroupItem from "./ChatGroupItem";
 
 interface ChatGroupListProps {
   chats: { chat: Chat; matchedSnippet?: string }[];
   menuRef: React.RefObject<HTMLDivElement>;
+  isMobile: boolean;
+  setIsSidebarCollapsed: (collapsed: boolean) => void;
 }
 
-const ChatGroupList: React.FC<ChatGroupListProps> = ({ chats, menuRef }) => {
+const ChatGroupList: React.FC<ChatGroupListProps> = ({
+  chats,
+  menuRef,
+  isMobile,
+  setIsSidebarCollapsed,
+}) => {
   const { selectChat } = useChatHistoryStore();
-  const { setIsSidebarCollapsed } = useUIStore();
 
   const handleChatClick = (chatId: string) => {
     selectChat(parseInt(chatId, 10));
@@ -28,6 +33,8 @@ const ChatGroupList: React.FC<ChatGroupListProps> = ({ chats, menuRef }) => {
           chatInfo={chatInfo}
           handleChatClick={handleChatClick}
           menuRef={menuRef}
+          isMobile={isMobile}
+          setIsSidebarCollapsed={setIsSidebarCollapsed}
         />
       ))}
     </ul>

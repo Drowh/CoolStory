@@ -23,8 +23,9 @@ const ActionButtons: React.FC = () => {
       className="text-zinc-500 hover:text-zinc-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
       variant="ghost"
       size="sm"
+      aria-label="Экспортировать чат"
     >
-      <FontAwesomeIcon icon="download" className="text-lg" />
+      <FontAwesomeIcon icon="download" className="text-lg" aria-hidden="true" />
     </Button>
   );
 };

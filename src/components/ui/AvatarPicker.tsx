@@ -37,6 +37,7 @@ const AvatarPicker: React.FC<AvatarPickerProps> = ({
               src={`/assets/icons/avatars/${id}.png?v=${imageVersion}`}
               alt={`Аватарка ${id}`}
               fill
+              sizes="2.5rem"
               className="object-cover"
             />
           </button>

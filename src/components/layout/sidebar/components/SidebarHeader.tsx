@@ -38,7 +38,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({
             className="text-zinc-600 hover:text-zinc-900 bg-white dark:bg-[#111827] border border-zinc-300 dark:border-gray-600 hover:bg-zinc-100 dark:hover:bg-gray-700 p-2 rounded-lg w-12"
             aria-label="Развернуть боковую панель"
           >
-            <FontAwesomeIcon icon="chevron-right" />
+            <FontAwesomeIcon icon="chevron-right" aria-hidden="true" />
           </button>
           <Button
             onClick={handleCreateNewChat}
@@ -46,7 +46,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({
             style={{ backgroundColor: "#f472b6" }}
             aria-label="Новый чат"
           >
-            <FontAwesomeIcon icon="plus" />
+            <FontAwesomeIcon icon="plus" aria-hidden="true" />
           </Button>
         </div>
       </div>
@@ -62,13 +62,14 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({
           className="text-zinc-600 hover:text-zinc-900 bg-white dark:bg-[#111827] border border-zinc-300 dark:border-gray-600 hover:bg-zinc-100 dark:hover:bg-gray-600 p-2 rounded-lg"
           aria-label="Свернуть боковую панель"
         >
-          <FontAwesomeIcon icon="chevron-left" />
+          <FontAwesomeIcon icon="chevron-left" aria-hidden="true" />
         </button>
       </div>
       <Button
         onClick={handleCreateNewChat}
         className="w-full mt-4 flex items-center justify-center space-x-2 py-2 rounded-lg shadow-md text-white hover:brightness-90 active:scale-95 transition-all duration-100"
         style={{ backgroundColor: "#f472b6" }}
+        aria-label="Создать новый чат"
       >
         <span>Новый чат</span>
       </Button>

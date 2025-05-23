@@ -64,7 +64,7 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.dark .markdown-content .code-block-container .code-lang-label {
+.markdown-content .code-block-container .code-lang-label {
   background: rgba(76, 143, 255, 0.2);
   color: #93c5fd;
   border-color: rgba(76, 143, 255, 0.3);
@@ -87,36 +87,14 @@
   backdrop-filter: blur(4px);
 }
 
-.markdown-content .code-block-container .copy-btn:hover {
-  background: rgba(244, 114, 182, 0.2);
-  color: #f472b6;
-  transform: translateY(-2px);
-  border-color: rgba(244, 114, 182, 0.3);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
-}
-
 .markdown-content .code-block-container .copy-btn {
-  background: rgba(31, 41, 55, 0.05);
-  border-color: rgba(31, 41, 55, 0.1);
-  color: #4b5563;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.markdown-content .code-block-container .copy-btn:hover {
-  background: rgba(31, 41, 55, 0.1);
-  color: #1f2937;
-  border-color: rgba(31, 41, 55, 0.2);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.dark .markdown-content .code-block-container .copy-btn {
   background: rgba(76, 143, 255, 0.2);
   border-color: rgba(76, 143, 255, 0.3);
   color: #93c5fd;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.dark .markdown-content .code-block-container .copy-btn:hover {
+.markdown-content .code-block-container .copy-btn:hover {
   background: rgba(244, 114, 182, 0.2);
   color: #f472b6;
   border-color: rgba(244, 114, 182, 0.3);
@@ -214,6 +192,18 @@
   color: #f8f8f2;
 }
 
+.dark .markdown-content .hljs-attr {
+  color:rgb(245, 170, 212);
+}
+
+.dark .markdown-content .hljs-attribute {
+  color:rgb(240, 62, 62);
+}
+
+.dark .markdown-content .hljs-name {
+  color:rgb(97, 131, 253);
+}
+
 .dark .markdown-content .code-block-container code.hljs {
-  color: #f8f8f2; /* Цвет текста для темной темы */
+  color: #f8f8f2;
 } 

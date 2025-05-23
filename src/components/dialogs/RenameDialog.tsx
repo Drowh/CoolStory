@@ -53,12 +53,20 @@ const RenameDialog: React.FC = () => {
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
       onClick={() => setIsRenameDialogOpen(false)}
+      role="button"
+      aria-label="Закрыть диалог переименования"
     >
       <div
         className="bg-white dark:bg-gray-800 p-4 rounded-md w-80"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="rename-dialog-title"
       >
-        <h2 className="text-lg font-semibold mb-4 text-zinc-900 dark:text-gray-200">
+        <h2
+          id="rename-dialog-title"
+          className="text-lg font-semibold mb-4 text-zinc-900 dark:text-gray-200"
+        >
           Переименовать чат
         </h2>
         <Input
@@ -68,6 +76,7 @@ const RenameDialog: React.FC = () => {
           placeholder="Новое название"
           className="mb-4"
           autoFocus
+          aria-label="Поле ввода нового названия чата"
         />
         <div className="flex justify-end space-x-2">
           <Button
@@ -80,6 +89,7 @@ const RenameDialog: React.FC = () => {
             onClick={handleRename}
             className="bg-pink-600 hover:bg-pink-700 text-white"
             disabled={!newChatName.trim()}
+            aria-disabled={!newChatName.trim()}
           >
             Сохранить
           </Button>

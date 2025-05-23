@@ -1,19 +1,18 @@
 import React from "react";
 import { useModalStore } from "../../stores/modalStore";
-import SettingsModal from "./SettingsModal";
+import TabbedModal from "./TabbedModal";
 import AuthForm from "../auth/AuthForm";
 
 const ModalManager: React.FC = () => {
-  const modalType = useModalStore((state) => state.modalType);
+  const { modalType, settingsActiveTab } = useModalStore();
 
   if (!modalType) return null;
 
   switch (modalType) {
     case "settings":
-      return <SettingsModal />;
+      return <TabbedModal initialTab={settingsActiveTab || "settings"} />;
     case "auth":
       return <AuthForm />;
-
     default:
       return null;
   }
