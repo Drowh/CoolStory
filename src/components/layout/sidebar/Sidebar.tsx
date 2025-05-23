@@ -11,6 +11,7 @@ import {
   MobileOverlay,
   MobileToggle,
 } from "./components";
+import "../../../styles/sidebar.css";
 
 const Sidebar: React.FC = () => {
   const isSidebarCollapsed = useUIStore((state) => state.isSidebarCollapsed);
@@ -58,21 +59,6 @@ const Sidebar: React.FC = () => {
     fetchGroupedChats();
   }, [groupChatsByDate, chatHistory, searchQuery]);
 
-  const sidebarBaseClasses = `
-    top-0 left-0 z-[51]
-    bg-white border-r border-zinc-300 text-zinc-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100
-    transition-all duration-300 flex flex-col
-    custom-scrollbar overflow-y-auto
-  `;
-
-  const sidebarVisibilityClasses = isMobile
-    ? isSidebarCollapsed
-      ? "fixed -translate-x-full"
-      : "fixed w-64 translate-x-0 h-screen"
-    : isSidebarCollapsed
-    ? "sticky w-16 translate-x-0 h-screen"
-    : "sticky w-64 translate-x-0 h-screen";
-
   const showOverlay = !isSidebarCollapsed && isMobile;
 
   return (
@@ -85,7 +71,19 @@ const Sidebar: React.FC = () => {
         <MobileToggle onClick={() => setIsSidebarCollapsed(false)} />
       )}
 
-      <aside className={`${sidebarBaseClasses} ${sidebarVisibilityClasses}`}>
+      <aside
+        className={`
+          sidebar
+          ${isMobile ? "mobile" : "desktop"}
+          ${isSidebarCollapsed ? "collapsed" : "expanded"}
+          top-0 left-0 z-[51] h-screen
+          bg-white border-r border-zinc-300 text-zinc-900 
+          dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100
+          flex flex-col custom-scrollbar overflow-y-auto
+        `}
+        role="navigation"
+        aria-label="Боковая панель навигации чатов"
+      >
         <SidebarHeader
           isSidebarCollapsed={isSidebarCollapsed}
           isMobile={isMobile}
@@ -99,21 +97,29 @@ const Sidebar: React.FC = () => {
                 <FontAwesomeIcon
                   icon="spinner"
                   className="text-pink-500 animate-spin text-xl"
+                  aria-label="Загрузка истории чатов"
                 />
               </div>
             )}
             <SidebarFolders isMobile={isMobile} />
-            <SidebarChats groupedChats={groupedChats} isLoading={isLoading} />
+            <SidebarChats
+              groupedChats={groupedChats}
+              isLoading={isLoading}
+              isMobile={isMobile}
+              setIsSidebarCollapsed={setIsSidebarCollapsed}
+            />
           </>
         )}
-        <Image
-          src="/assets/icons/logoDrow.png"
-          alt="Drow Logo"
-          className="opacity-10 w-[250px] h-auto absolute bottom-0 pointer-events-none"
-          width={250}
-          height={100}
-          priority
-        />
+        <div className="absolute bottom-0 left-0 w-[250px] h-[250px] pointer-events-none opacity-10">
+          <Image
+            src="/assets/icons/logoDrow.png"
+            alt="Логотип Drow"
+            fill
+            sizes="250px"
+            className="object-contain"
+            priority
+          />
+        </div>
       </aside>
     </>
   );

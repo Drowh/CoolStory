@@ -32,6 +32,7 @@ const Avatar: React.FC<AvatarProps> = ({
         src={`/assets/icons/avatars/${safeAvatarId}.png?v=${imageVersion}`}
         alt={`Аватарка ${safeAvatarId}`}
         fill
+        sizes="2.5rem"
         className="object-cover"
         priority
       />

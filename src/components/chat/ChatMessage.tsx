@@ -94,9 +94,14 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           ? "flex-col items-end md:flex-row"
           : "flex-col items-start md:flex-row"
       } my-2 w-full`}
+      role="article"
+      aria-label={`Сообщение от ${isUser ? "пользователя" : "ассистента"}`}
     >
       {isUser && (
-        <div className="flex-shrink-0 w-10 h-10 rounded-full mb-3 ml-2 md:mt-0 flex items-center justify-center shadow-md order-1 md:order-2">
+        <div
+          className="flex-shrink-0 w-10 h-10 rounded-full mb-3 ml-2 md:mt-0 flex items-center justify-center shadow-md order-1 md:order-2"
+          aria-hidden="true"
+        >
           <Avatar avatarId={avatarId} size="md" />
         </div>
       )}
@@ -112,7 +117,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         {message.imageUrl && (
           <Image
             src={message.imageUrl}
-            alt="Attached"
+            alt="Прикрепленное изображение"
             className="rounded-lg mb-2"
             width={200}
             height={200}
@@ -126,6 +131,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
               className="copy-btn-msg -mr-2 text-zinc-600 hover:text-zinc-900 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200"
               title="Скопировать сообщение"
               onClick={handleCopy}
+              aria-label={
+                copied ? "Сообщение скопировано" : "Скопировать сообщение"
+              }
             >
               {copied ? "✓" : "⧉"}
             </button>
@@ -135,11 +143,15 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             <div
               className="markdown-content prose dark:prose-invert max-w-none"
               dangerouslySetInnerHTML={{ __html: html }}
+              aria-label="Сообщение ассистента"
             />
             <button
               className="copy-btn-msg text-zinc-600 hover:text-zinc-900 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200"
               title="Скопировать сообщение"
               onClick={handleCopy}
+              aria-label={
+                copied ? "Сообщение скопировано" : "Скопировать сообщение"
+              }
             >
               {copied ? "✓" : "⧉"}
             </button>
@@ -148,10 +160,13 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       </div>
 
       {!isUser && (
-        <div className="flex-shrink-0 w-10 h-10 rounded-full md:mb-0 flex items-center justify-center shadow-md overflow-hidden">
+        <div
+          className="flex-shrink-0 w-10 h-10 rounded-full md:mb-0 flex items-center justify-center shadow-md overflow-hidden"
+          aria-hidden="true"
+        >
           <Image
             src="/assets/icons/cat.png"
-            alt="Assistant"
+            alt="Аватар ассистента"
             className="w-full h-full object-cover"
             width={40}
             height={40}

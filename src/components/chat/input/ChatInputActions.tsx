@@ -23,7 +23,11 @@ const ChatInputActions: React.FC<ChatInputActionsProps> = ({
   speechLevel = 0,
 }) => {
   return (
-    <div className="flex items-center">
+    <div
+      className="flex items-center"
+      role="group"
+      aria-label="Действия с сообщением"
+    >
       {showCharCounter && (
         <CharCounter
           count={charCount}
@@ -32,13 +36,29 @@ const ChatInputActions: React.FC<ChatInputActionsProps> = ({
         />
       )}
 
-      <div className="flex items-end sm:items-center gap-2">
+      <div
+        className="flex items-end sm:items-center gap-2"
+        role="group"
+        aria-label="Кнопки управления"
+      >
         <MicrophoneButton
           isListening={isListening}
           onClick={toggleListening}
           speechLevel={speechLevel}
+          aria-label={
+            isListening ? "Остановить запись голоса" : "Начать запись голоса"
+          }
+          aria-pressed={isListening}
         />
-        <SendButton canSend={canSend} isTyping={isTyping} onClick={onSend} />
+        <SendButton
+          canSend={canSend}
+          isTyping={isTyping}
+          onClick={onSend}
+          aria-label={
+            isTyping ? "Отправка сообщения..." : "Отправить сообщение"
+          }
+          aria-disabled={!canSend || isTyping}
+        />
       </div>
     </div>
   );

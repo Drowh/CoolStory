@@ -90,6 +90,8 @@ const ChatInput: React.FC = () => {
         className={`max-w-3xl mx-auto relative ${
           isFocused ? "scale-101" : "scale-100"
         } transition-transform duration-300`}
+        role="form"
+        aria-label="Форма отправки сообщения"
       >
         <div
           className={`w-full border border-zinc-300 dark:border-gray-500 rounded-lg bg-white dark:bg-gray-800 p-2 flex flex-col transition-colors duration-200 ${containerClass}`}
@@ -116,8 +118,17 @@ const ChatInput: React.FC = () => {
             rows={1}
             disabled={isTyping}
             maxLength={5000}
+            aria-label="Поле ввода сообщения"
+            aria-multiline="true"
+            aria-required="true"
+            aria-invalid={!canSend}
+            aria-describedby="char-counter message-help"
           />
-          <div className="flex items-center justify-between">
+          <div
+            className="flex items-center justify-between"
+            role="toolbar"
+            aria-label="Инструменты ввода"
+          >
             <ChatInputToolbar
               selectedModel={selectedModel}
               setSelectedModel={setSelectedModel}
@@ -139,7 +150,17 @@ const ChatInput: React.FC = () => {
             />
           </div>
         </div>
-        <div className="max-w-3xl mx-auto mt-2 text-sm text-zinc-600 dark:text-gray-500 text-center transition-opacity duration-200 hover:text-zinc-900 dark:hover:text-gray-400">
+        <div
+          id="char-counter"
+          className="max-w-3xl mx-auto mt-2 text-sm text-zinc-600 dark:text-gray-500 text-center transition-opacity duration-200 hover:text-zinc-900 dark:hover:text-gray-400"
+          aria-live="polite"
+        >
+          {showCharCounter && `${charCount} символов`}
+        </div>
+        <div
+          id="message-help"
+          className="max-w-3xl mx-auto mt-2 text-sm text-zinc-600 dark:text-gray-500 text-center transition-opacity duration-200 hover:text-zinc-900 dark:hover:text-gray-400"
+        >
           CoolStory может допускать ошибки. Проверьте важную информацию.
         </div>
       </div>

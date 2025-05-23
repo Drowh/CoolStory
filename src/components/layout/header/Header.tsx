@@ -48,7 +48,10 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-zinc-200 text-zinc-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 px-4 py-3 flex items-center justify-between">
+    <header
+      className="sticky top-0 z-50 bg-white border-b border-zinc-200 text-zinc-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 px-4 py-3 flex items-center justify-between"
+      role="banner"
+    >
       <Logo />
       <div className="flex items-center space-x-3 relative">
         <ActionButtons />

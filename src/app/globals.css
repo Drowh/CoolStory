@@ -4,3 +4,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+[class*="dark:"] {
+  @apply transition-colors duration-500;
+}

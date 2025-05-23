@@ -91,6 +91,8 @@ export async function POST(req: NextRequest) {
         { role: "user", content: userContent },
       ],
       stream: false,
+      max_tokens: 1000,
+      temperature: 0.7,
     };
 
     const response = await fetch(OPENROUTER_API_URL, {
@@ -119,10 +121,12 @@ export async function POST(req: NextRequest) {
       throw new Error(`Ошибка от OpenRouter: ${data.error.message}`);
     }
 
-    const assistantMessage = data.choices[0]?.message?.content;
+    const assistantMessage =
+      data.choices?.[0]?.message?.content || data.choices?.[0]?.text;
     if (!assistantMessage) {
       console.error(
-        "OpenRouter API response does not contain assistant message"
+        "OpenRouter API response does not contain assistant message",
+        data
       );
       throw new Error("Ответ модели пустой");
     }

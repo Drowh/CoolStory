@@ -45,7 +45,14 @@ const CustomDropup: React.FC<CustomDropupProps> = ({
   }, []);
 
   return (
-    <div ref={dropupRef} className={`relative ${className}`}>
+    <div
+      ref={dropupRef}
+      className={`relative ${className}`}
+      role="combobox"
+      aria-haspopup="listbox"
+      aria-expanded={isOpen}
+      aria-controls="model-listbox"
+    >
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -54,27 +61,41 @@ const CustomDropup: React.FC<CustomDropupProps> = ({
           `bg-zinc-100 text-zinc-900 border border-zinc-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 ` +
           `dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:focus:border-pink-500 dark:focus:ring-1 dark:focus:ring-pink-500`
         }
+        aria-label="Выбрать модель"
+        aria-labelledby="selected-model"
       >
-        <span className="hidden sm:inline truncate">{currentModel?.label}</span>
-        <FontAwesomeIcon icon={faCog} className="sm:hidden text-lg" />
+        <span id="selected-model" className="hidden sm:inline truncate">
+          {currentModel?.label}
+        </span>
+        <FontAwesomeIcon
+          icon={faCog}
+          className="sm:hidden text-lg"
+          aria-hidden="true"
+        />
         <FontAwesomeIcon
           icon={faChevronUp}
           className="ml-1 sm:ml-2 transition-transform text-sm sm:text-base"
           transform={isOpen ? { rotate: 180 } : undefined}
+          aria-hidden="true"
         />
       </button>
 
       {isOpen && (
         <div
+          id="model-listbox"
           className={
             `absolute bottom-full left-0 mb-1 w-full min-w-40 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto ` +
             `bg-white border border-zinc-200 ` +
             `dark:bg-gray-700 dark:border-gray-600`
           }
+          role="listbox"
+          aria-label="Список моделей"
         >
           {models.map((model) => (
             <div
               key={model.value}
+              role="option"
+              aria-selected={model.value === value}
               className={`px-2 py-1 text-sm cursor-pointer 
                 ${
                   model.value === value
@@ -85,6 +106,14 @@ const CustomDropup: React.FC<CustomDropupProps> = ({
                 onChange(model.value as ModelType);
                 setIsOpen(false);
               }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onChange(model.value as ModelType);
+                  setIsOpen(false);
+                }
+              }}
+              tabIndex={0}
             >
               {model.label}
             </div>

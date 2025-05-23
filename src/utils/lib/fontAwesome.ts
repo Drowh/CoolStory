@@ -39,7 +39,11 @@ import {
   faTimesCircle,
   faBrain,
   faSpinner,
-
+  faSun,
+  faMoon,
+  faLightbulb,
+  faCode,
+  faCopy,
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -82,6 +86,11 @@ library.add(
   faTimesCircle,
   faBrain,
   faSpinner,
+  faSun,
+  faMoon,
+  faLightbulb,
+  faCode,
+  faCopy
 );
 
 export default library;

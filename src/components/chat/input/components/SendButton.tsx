@@ -23,7 +23,7 @@ const SendButton: React.FC<SendButtonProps> = ({
     disabled={!canSend || isTyping}
     aria-label="Отправить сообщение"
   >
-    <FontAwesomeIcon icon="paper-plane" />
+    <FontAwesomeIcon icon="paper-plane" aria-hidden="true" />
   </Button>
 );
 
