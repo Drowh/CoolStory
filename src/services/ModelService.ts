@@ -10,7 +10,26 @@ interface ModelServiceResponse {
   error?: string;
 }
 
-const messageCache = new Map<number, Promise<Message[]>>();
+const messageCache = new Map<
+  number,
+  {
+    promise: Promise<Message[]>;
+    timestamp: number;
+  }
+>();
+
+const CACHE_TTL = 5 * 60 * 1000;
+
+const cleanupCache = () => {
+  const now = Date.now();
+  for (const [key, value] of messageCache.entries()) {
+    if (now - value.timestamp > CACHE_TTL) {
+      messageCache.delete(key);
+    }
+  }
+};
+
+setInterval(cleanupCache, CACHE_TTL);
 
 export const ModelService = {
   async sendMessage(
@@ -56,9 +75,9 @@ export const ModelService = {
   },
 
   async loadMessages(chatId: number): Promise<Message[]> {
-    const existingRequest = messageCache.get(chatId);
-    if (existingRequest) {
-      return existingRequest;
+    const cached = messageCache.get(chatId);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.promise;
     }
 
     const requestPromise = (async () => {
@@ -88,8 +107,6 @@ export const ModelService = {
           }
         }
 
-        setTimeout(() => messageCache.delete(chatId), 1000);
-
         return uniqueMessages;
       } catch (error) {
         console.error(
@@ -101,7 +118,11 @@ export const ModelService = {
       }
     })();
 
-    messageCache.set(chatId, requestPromise);
+    messageCache.set(chatId, {
+      promise: requestPromise,
+      timestamp: Date.now(),
+    });
+
     return requestPromise;
   },
 };
