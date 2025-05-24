@@ -14,12 +14,6 @@ interface ModelServiceResponse {
 
 type ModelType = "deepseek" | "maverick" | "claude" | "gpt4o";
 
-interface CacheEntry {
-  promise: Promise<Message[]>;
-  timestamp: number;
-  retryCount: number;
-}
-
 const messageCache = new Map<
   number,
   {
