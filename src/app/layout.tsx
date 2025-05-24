@@ -34,6 +34,9 @@ export const metadata: Metadata = {
   keywords: ["AI", "chat", "assistant", "coolstory", "искусственный интеллект"],
   authors: [{ name: "DrowDev" }],
   robots: "index, follow",
+  icons: {
+    icon: [{ url: "/favicon.ico" }, { url: "/icon.png", type: "image/png" }],
+  },
 };
 
 export const viewport = {
