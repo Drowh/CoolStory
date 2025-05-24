@@ -20,13 +20,31 @@ interface CacheEntry {
   retryCount: number;
 }
 
-const messageCache = new Map<number, CacheEntry>();
+const messageCache = new Map<
+  number,
+  {
+    promise: Promise<Message[]>;
+    timestamp: number;
+    retryCount: number;
+  }
+>();
+
 const CACHE_TTL = 5 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 10000;
 const MAX_CACHE_SIZE = 1000;
-const MAX_RETRY_COUNT = 3;
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
 const REQUEST_TIMEOUT = 30000;
 const MAX_CHAT_ID = 1000000;
+
+let currentActiveChatId: number | null = null;
+
+export const setCurrentActiveChatId = (chatId: number | null) => {
+  if (currentActiveChatId !== chatId) {
+    messageCache.clear();
+  }
+  currentActiveChatId = chatId;
+};
 
 const sanitizeMessage = (message: string): string => {
   return DOMPurify.sanitize(message.trim());
@@ -72,10 +90,7 @@ const cleanupCache = () => {
   }
 
   for (const [key, value] of entries) {
-    if (
-      now - value.timestamp > CACHE_TTL ||
-      value.retryCount >= MAX_RETRY_COUNT
-    ) {
+    if (now - value.timestamp > CACHE_TTL) {
       messageCache.delete(key);
     }
   }
@@ -150,8 +165,17 @@ export const ModelService = {
       return [];
     }
 
+    if (currentActiveChatId !== chatId) {
+      console.log("Активный чат изменился, отменяем загрузку");
+      return [];
+    }
+
     const cached = messageCache.get(chatId);
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    if (
+      cached &&
+      Date.now() - cached.timestamp < CACHE_TTL &&
+      cached.retryCount < MAX_RETRIES
+    ) {
       return cached.promise;
     }
 
@@ -174,6 +198,11 @@ export const ModelService = {
 
         if (error) {
           throw new Error(error);
+        }
+
+        if (currentActiveChatId !== chatId) {
+          console.log("Активный чат изменился во время загрузки");
+          return [];
         }
 
         const uniqueMessages: Message[] = [];
@@ -202,6 +231,27 @@ export const ModelService = {
           `Ошибка при загрузке сообщений для chatId=${chatId}:`,
           error
         );
+
+        if (currentActiveChatId !== chatId) {
+          console.log("Активный чат изменился во время ошибки");
+          return [];
+        }
+
+        const cached = messageCache.get(chatId);
+        if (
+          cached &&
+          cached.retryCount < MAX_RETRIES &&
+          currentActiveChatId === chatId
+        ) {
+          await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
+          messageCache.set(chatId, {
+            ...cached,
+            retryCount: cached.retryCount + 1,
+            timestamp: Date.now(),
+          });
+          return ModelService.loadMessages(chatId);
+        }
+
         messageCache.delete(chatId);
         return [];
       }

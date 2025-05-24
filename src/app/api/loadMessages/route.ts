@@ -6,36 +6,63 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY || ""
 );
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const chatId = searchParams.get("chatId");
+const MAX_CHAT_ID = 1000000;
+const MAX_MESSAGES = 1000;
 
+const validateChatId = (chatId: string | null): number => {
   if (!chatId) {
-    return NextResponse.json(
-      { error: "Missing chatId parameter" },
-      { status: 400 }
-    );
+    throw new Error("Missing chatId parameter");
   }
 
+  const id = parseInt(chatId);
+  if (isNaN(id) || id <= 0 || id > MAX_CHAT_ID) {
+    throw new Error("Invalid chatId parameter");
+  }
+
+  return id;
+};
+
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const chatId = validateChatId(searchParams.get("chatId"));
+
     const { data, error } = await supabase
       .from("chat_messages")
-      .select("role, content")
-      .eq("chat_id", parseInt(chatId))
-      .order("created_at", { ascending: true });
+      .select("id, role, content, created_at")
+      .eq("chat_id", chatId)
+      .order("created_at", { ascending: true })
+      .limit(MAX_MESSAGES);
 
     if (error) {
+      console.error("Supabase error:", error);
       throw new Error("Не удалось загрузить сообщения: " + error.message);
     }
 
-    return NextResponse.json({ success: true, data });
+    if (!data || !Array.isArray(data)) {
+      throw new Error("Некорректный формат данных");
+    }
+
+    const messages = data.map((msg) => ({
+      id: msg.id,
+      role: msg.role,
+      content: msg.content,
+      created_at: msg.created_at,
+    }));
+
+    return NextResponse.json({ success: true, data: messages });
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";
     console.error("Ошибка в /api/loadMessages:", errorMessage);
     return NextResponse.json(
       { success: false, error: errorMessage },
-      { status: 500 }
+      {
+        status:
+          error instanceof Error && error.message.includes("Missing")
+            ? 400
+            : 500,
+      }
     );
   }
 }
