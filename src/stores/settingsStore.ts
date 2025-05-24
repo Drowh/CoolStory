@@ -4,6 +4,8 @@ import { useCallback, useMemo } from "react";
 export interface SettingsState {
   autoCollapseFolders: boolean;
   setAutoCollapseFolders: (value: boolean) => void;
+  fluidCursorEnabled: boolean;
+  setFluidCursorEnabled: (value: boolean) => void;
   resetSettings: () => void;
 }
 
@@ -20,9 +22,18 @@ const createSettingsStore: StateCreator<SettingsState> = (set) => ({
     }
     set({ autoCollapseFolders: value });
   },
+  fluidCursorEnabled: true,
+  setFluidCursorEnabled: (value) => {
+    if (!validateBoolean(value)) {
+      console.error("Invalid fluid cursor value:", value);
+      return;
+    }
+    set({ fluidCursorEnabled: value });
+  },
   resetSettings: () =>
     set({
       autoCollapseFolders: false,
+      fluidCursorEnabled: true,
     }),
 });
 
@@ -38,6 +49,13 @@ export const useSettingsStoreOptimized = () => {
     [store]
   );
 
+  const setFluidCursorEnabled = useCallback(
+    (value: boolean) => {
+      store.setFluidCursorEnabled(value);
+    },
+    [store]
+  );
+
   const resetSettings = useCallback(() => {
     store.resetSettings();
   }, [store]);
@@ -47,9 +65,16 @@ export const useSettingsStoreOptimized = () => {
     [store.autoCollapseFolders]
   );
 
+  const fluidCursorEnabled = useMemo(
+    () => store.fluidCursorEnabled,
+    [store.fluidCursorEnabled]
+  );
+
   return {
     autoCollapseFolders,
     setAutoCollapseFolders,
+    fluidCursorEnabled,
+    setFluidCursorEnabled,
     resetSettings,
   };
 };
