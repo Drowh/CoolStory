@@ -120,7 +120,7 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
         return;
       }
 
-      const { lastSelectedChatId, messagesLoaded, loadingChatId } = getState();
+      const { lastSelectedChatId, loadingChatId } = getState();
 
       if (lastSelectedChatId === chatId || loadingChatId === chatId) {
         return;
@@ -151,7 +151,7 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
 
       useMessageStore.getState().setMessages([]);
 
-      set((state) => ({
+      set(() => ({
         messagesLoaded: {},
       }));
 
@@ -174,9 +174,8 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
           throw new Error("Не удалось загрузить сообщения");
         }
 
-        set((state) => ({
+        set(() => ({
           messagesLoaded: {
-            ...state.messagesLoaded,
             [chatId]: true,
           },
           loadingChatId: null,
@@ -195,9 +194,8 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
           `Ошибка при загрузке сообщений для чата ${chatId}:`,
           error
         );
-        set((state) => ({
+        set(() => ({
           messagesLoaded: {
-            ...state.messagesLoaded,
             [chatId]: false,
           },
           loadingChatId: null,
