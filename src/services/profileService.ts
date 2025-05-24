@@ -5,6 +5,7 @@ interface Profile {
   avatar_id: number;
   created_at?: string;
   updated_at?: string;
+  [key: string]: string | number | boolean | null | undefined;
 }
 
 const AVATAR_ID_MIN = 1;
