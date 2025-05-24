@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useMessageStore } from "../../../stores/messageStore";
 import { useChatHistoryStore } from "../../../stores/chatHistory";
 import { useModalStore } from "../../../stores/modalStore";
+import { supabase } from "../../../utils/supabase";
 import LoadingIndicator from "../LoadingIndicator";
 import useScrollManagement from "../../../hooks/chat-area/useScrollManagement";
 import {
   WelcomeScreen,
-  EmptyChat,
   TypingIndicator,
   ScrollToBottomButton,
   MessageList,
@@ -17,10 +17,19 @@ const ChatArea: React.FC = () => {
     useMessageStore();
   const { chatHistory, loadingChatId } = useChatHistoryStore();
   const { setModalType } = useModalStore();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const activeChat = chatHistory.find((chat) => chat.isActive);
   const isLoading =
     loadingChatId !== null && activeChat && activeChat.id === loadingChatId;
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getUser();
+      setIsAuthenticated(!!data.user);
+    };
+    checkAuth();
+  }, []);
 
   const {
     endOfMessagesRef,
@@ -44,49 +53,34 @@ const ChatArea: React.FC = () => {
   };
 
   if (!activeChat && chatHistory.length === 0) {
-    return <WelcomeScreen openAuthModal={openAuthModal} />;
+    return (
+      <WelcomeScreen
+        openAuthModal={openAuthModal}
+        isAuthenticated={isAuthenticated}
+      />
+    );
   }
 
   return (
     <div
-      className={`relative flex flex-col transition-all duration-500 ${
+      ref={chatContainerRef}
+      className={`flex-1 overflow-y-auto overflow-x-hidden transition-opacity duration-500 ${
         fadeIn ? "opacity-100" : "opacity-0"
       }`}
-      style={{
-        height: "calc(100vh - 200px)",
-        overflow: "hidden",
-      }}
+      role="log"
+      aria-label="История сообщений"
     >
-      <div
-        className="flex-1 overflow-y-auto p-3 md:p-4 scrollbar-thin scrollbar-thumb-pink-600 scrollbar-track-transparent scroll-fix"
-        ref={chatContainerRef}
-        id="chat-container"
-        style={{
-          scrollBehavior: "smooth",
-          height: "100%",
-        }}
-      >
-        <div className="max-w-5xl mx-auto w-full px-8">
-          {isLoading ? (
-            <LoadingIndicator />
-          ) : messages.length === 0 && activeChat ? (
-            <EmptyChat focusInputField={focusInputField} />
-          ) : (
-            <MessageList messages={messages} />
-          )}
-
+      {isLoading ? (
+        <LoadingIndicator />
+      ) : (
+        <>
+          <MessageList messages={messages} />
           {isTyping && <TypingIndicator />}
-
-          <div
-            ref={endOfMessagesRef}
-            className="h-2 scroll-fix"
-            id="end-of-messages"
-          />
-        </div>
-      </div>
-
-      {showScrollButton && (
-        <ScrollToBottomButton onClick={scrollToBottomManually} />
+          <div ref={endOfMessagesRef} />
+          {showScrollButton && (
+            <ScrollToBottomButton onClick={scrollToBottomManually} />
+          )}
+        </>
       )}
     </div>
   );
