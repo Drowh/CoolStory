@@ -1,11 +1,5 @@
 import { supabase } from "../utils/supabase";
-
-interface Profile {
-  id: string;
-  avatar_id: number;
-  created_at?: string;
-  updated_at?: string;
-}
+import { Profile } from "../types/profile";
 
 const AVATAR_ID_MIN = 1;
 const AVATAR_ID_MAX = 10;

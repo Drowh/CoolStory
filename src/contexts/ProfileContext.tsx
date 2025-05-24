@@ -12,13 +12,8 @@ import {
   createUserProfile,
   updateAvatar,
 } from "../services/profileService";
+import { Profile } from "../types/profile";
 import useToast from "../hooks/useToast";
-
-interface Profile {
-  id: string;
-  avatar_id: number;
-  [key: string]: string | number | boolean | null;
-}
 
 interface ProfileContextType {
   profile: Profile | null;
