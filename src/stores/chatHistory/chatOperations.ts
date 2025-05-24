@@ -1,6 +1,9 @@
 import { Chat } from "../../types";
 import { useMessageStore } from "../messageStore";
-import { ModelService } from "../../services/ModelService";
+import {
+  ModelService,
+  setCurrentActiveChatId,
+} from "../../services/ModelService";
 import { exportChat } from "./utils";
 import { useChatHistoryStore } from "./store";
 import { CachedMessage } from "./types";
@@ -123,10 +126,14 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
         return;
       }
 
+      useMessageStore.getState().clearCache();
+
       set({
         lastSelectedChatId: chatId,
         loadingChatId: chatId,
       });
+
+      setCurrentActiveChatId(chatId);
 
       try {
         localStorage.setItem("lastActiveChatId", String(chatId));
@@ -144,12 +151,13 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
 
       useMessageStore.getState().setMessages([]);
 
-      if (messagesLoaded[chatId]) {
-        return;
-      }
+      set((state) => ({
+        messagesLoaded: {},
+      }));
 
       if (getState().lastSelectedChatId !== chatId) {
         set({ loadingChatId: null });
+        setCurrentActiveChatId(null);
         return;
       }
 
@@ -158,7 +166,12 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
 
         if (getState().lastSelectedChatId !== chatId) {
           set({ loadingChatId: null });
+          setCurrentActiveChatId(null);
           return;
+        }
+
+        if (messages.length === 0) {
+          throw new Error("Не удалось загрузить сообщения");
         }
 
         set((state) => ({
@@ -176,12 +189,20 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
         }));
 
         useMessageStore.getState().setMessages(formattedMessages);
+        useMessageStore.getState().addToCache(chatId, formattedMessages);
       } catch (error) {
         console.error(
           `Ошибка при загрузке сообщений для чата ${chatId}:`,
           error
         );
-        set({ loadingChatId: null });
+        set((state) => ({
+          messagesLoaded: {
+            ...state.messagesLoaded,
+            [chatId]: false,
+          },
+          loadingChatId: null,
+        }));
+        setCurrentActiveChatId(null);
         throw error;
       }
     },
