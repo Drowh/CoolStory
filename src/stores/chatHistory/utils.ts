@@ -1,8 +1,23 @@
+const levenshteinCache = new Map<string, number>();
+
+const createCacheKey = (a: string, b: string): string => {
+  return a < b ? `${a}:${b}` : `${b}:${a}`;
+};
+
 /**
  * Вычисляет расстояние Левенштейна между двумя строками
  * (минимальное количество операций вставки, удаления или замены для преобразования одной строки в другую)
+ * @param a Первая строка
+ * @param b Вторая строка
+ * @returns Расстояние Левенштейна
  */
 export function levenshteinDistance(a: string, b: string): number {
+  if (a === b) return 0;
+
+  const cacheKey = createCacheKey(a, b);
+  const cachedResult = levenshteinCache.get(cacheKey);
+  if (cachedResult !== undefined) return cachedResult;
+
   const matrix: number[][] = Array(a.length + 1)
     .fill(null)
     .map(() => Array(b.length + 1).fill(0));
@@ -20,7 +35,14 @@ export function levenshteinDistance(a: string, b: string): number {
       );
     }
   }
-  return matrix[a.length][b.length];
+
+  const result = matrix[a.length][b.length];
+  levenshteinCache.set(cacheKey, result);
+  return result;
 }
+
+export const clearLevenshteinCache = (): void => {
+  levenshteinCache.clear();
+};
 
 export { exportChat } from "../../utils/exportUtils";

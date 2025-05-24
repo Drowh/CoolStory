@@ -1,98 +1,164 @@
 import { supabase } from "../utils/supabase";
 
-export const getUserProfile = async () => {
+interface Profile {
+  id: string;
+  avatar_id: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+const AVATAR_ID_MIN = 1;
+const AVATAR_ID_MAX = 10;
+
+const validateAvatarId = (avatarId: number): boolean => {
+  return (
+    Number.isInteger(avatarId) &&
+    avatarId >= AVATAR_ID_MIN &&
+    avatarId <= AVATAR_ID_MAX
+  );
+};
+
+const handleSupabaseError = (error: unknown): null => {
+  if (error instanceof Error) {
+    console.error("Ошибка Supabase:", error.message);
+  } else {
+    console.error("Неизвестная ошибка Supabase:", error);
+  }
+  return null;
+};
+
+export const getUserProfile = async (): Promise<Profile | null> => {
   try {
     const {
       data: { user },
+      error: userError,
     } = await supabase.auth.getUser();
 
-    if (!user) return null;
+    if (userError) {
+      throw userError;
+    }
 
-    const { data: profile, error } = await supabase
+    if (!user) {
+      return null;
+    }
+
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", user.id)
       .single();
 
-    if (error) {
-      console.error("Ошибка при запросе профиля:", error.message);
-      return null;
+    if (profileError) {
+      throw profileError;
     }
 
     return profile;
   } catch (error) {
-    console.error("Ошибка при получении пользователя:", error);
-    return null;
+    return handleSupabaseError(error);
   }
 };
 
-export const createUserProfile = async (avatarId = 1) => {
+export const createUserProfile = async (
+  avatarId = 1
+): Promise<Profile | null> => {
+  if (!validateAvatarId(avatarId)) {
+    console.error("Некорректный ID аватара:", avatarId);
+    return null;
+  }
+
   try {
     const {
       data: { user },
+      error: userError,
     } = await supabase.auth.getUser();
 
-    if (!user) return null;
+    if (userError) {
+      throw userError;
+    }
 
-    const { data: existingProfile } = await supabase
+    if (!user) {
+      return null;
+    }
+
+    const { data: existingProfile, error: checkError } = await supabase
       .from("profiles")
-      .select("id")
+      .select("id, avatar_id")
       .eq("id", user.id)
       .single();
 
-    if (existingProfile) return existingProfile;
+    if (checkError && checkError.code !== "PGRST116") {
+      throw checkError;
+    }
 
-    const { data: newProfile, error } = await supabase
+    if (existingProfile) {
+      return existingProfile as Profile;
+    }
+
+    const { data: newProfile, error: createError } = await supabase
       .from("profiles")
       .insert([{ id: user.id, avatar_id: avatarId }])
       .select()
       .single();
 
-    if (error) {
-      console.error("Ошибка при создании профиля:", error.message);
-      return null;
+    if (createError) {
+      throw createError;
     }
 
     return newProfile;
   } catch (error) {
-    console.error("Ошибка при создании профиля:", error);
-    return null;
+    return handleSupabaseError(error);
   }
 };
 
-export const updateAvatar = async (avatarId: number) => {
+export const updateAvatar = async (
+  avatarId: number
+): Promise<Profile | null> => {
+  if (!validateAvatarId(avatarId)) {
+    console.error("Некорректный ID аватара:", avatarId);
+    return null;
+  }
+
   try {
     const {
       data: { user },
+      error: userError,
     } = await supabase.auth.getUser();
 
-    if (!user) return null;
+    if (userError) {
+      throw userError;
+    }
 
-    const { data: existingProfile } = await supabase
+    if (!user) {
+      return null;
+    }
+
+    const { data: existingProfile, error: checkError } = await supabase
       .from("profiles")
-      .select("id")
+      .select("id, avatar_id")
       .eq("id", user.id)
       .single();
+
+    if (checkError && checkError.code !== "PGRST116") {
+      throw checkError;
+    }
 
     if (!existingProfile) {
       return await createUserProfile(avatarId);
     }
 
-    const { data: updatedProfile, error } = await supabase
+    const { data: updatedProfile, error: updateError } = await supabase
       .from("profiles")
       .update({ avatar_id: avatarId })
       .eq("id", user.id)
       .select()
       .single();
 
-    if (error) {
-      console.error("Ошибка при обновлении аватарки:", error.message);
-      return null;
+    if (updateError) {
+      throw updateError;
     }
 
     return updatedProfile;
   } catch (error) {
-    console.error("Ошибка при обновлении аватарки:", error);
-    return null;
+    return handleSupabaseError(error);
   }
 };

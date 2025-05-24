@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify";
 import { toast } from "sonner";
 
 type ToastOptions = Record<string, unknown>;
@@ -13,28 +14,19 @@ interface UseToastReturn {
 }
 
 export const useToast = (): UseToastReturn => {
-  const success = (message: string, options?: ToastOptions) => {
-    return toast.success(message, options);
-  };
+  const safe = (msg: string) =>
+    DOMPurify.sanitize(msg, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
 
-  const error = (message: string, options?: ToastOptions) => {
-    return toast.error(message, options);
-  };
-
-  const info = (message: string, options?: ToastOptions) => {
-    return toast(message, options);
-  };
-
-  const warning = (message: string, options?: ToastOptions) => {
-    return toast(message, {
-      ...options,
-      icon: "⚠️",
-    });
-  };
-
-  const loading = (message: string, options?: ToastOptions) => {
-    return toast.loading(message, options);
-  };
+  const success = (message: string, options?: ToastOptions) =>
+    toast.success(safe(message), options);
+  const error = (message: string, options?: ToastOptions) =>
+    toast.error(safe(message), options);
+  const info = (message: string, options?: ToastOptions) =>
+    toast(safe(message), options);
+  const warning = (message: string, options?: ToastOptions) =>
+    toast(safe(message), { ...options, icon: "⚠️" });
+  const loading = (message: string, options?: ToastOptions) =>
+    toast.loading(safe(message), options);
 
   return {
     success,

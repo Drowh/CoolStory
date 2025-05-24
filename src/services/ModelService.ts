@@ -1,3 +1,5 @@
+import DOMPurify from "dompurify";
+
 interface Message {
   role: "user" | "assistant" | "system";
   content: string;
@@ -10,17 +12,104 @@ interface ModelServiceResponse {
   error?: string;
 }
 
-const messageCache = new Map<number, Promise<Message[]>>();
+type ModelType = "deepseek" | "maverick" | "claude" | "gpt4o";
+
+interface CacheEntry {
+  promise: Promise<Message[]>;
+  timestamp: number;
+  retryCount: number;
+}
+
+const messageCache = new Map<number, CacheEntry>();
+const CACHE_TTL = 5 * 60 * 1000;
+const MAX_MESSAGE_LENGTH = 10000;
+const MAX_CACHE_SIZE = 1000;
+const MAX_RETRY_COUNT = 3;
+const REQUEST_TIMEOUT = 30000;
+const MAX_CHAT_ID = 1000000;
+
+const sanitizeMessage = (message: string): string => {
+  return DOMPurify.sanitize(message.trim());
+};
+
+const validateInput = (
+  chatId: number,
+  userMessage: string,
+  model: ModelType,
+  imageUrl?: string
+): string | null => {
+  if (!Number.isInteger(chatId) || chatId <= 0 || chatId > MAX_CHAT_ID) {
+    return "Некорректный ID чата";
+  }
+  if (!userMessage || typeof userMessage !== "string") {
+    return "Некорректное сообщение";
+  }
+  if (userMessage.length > MAX_MESSAGE_LENGTH) {
+    return `Сообщение слишком длинное. Максимальная длина: ${MAX_MESSAGE_LENGTH}`;
+  }
+  if (imageUrl && typeof imageUrl === "string") {
+    try {
+      const url = new URL(imageUrl);
+      if (!["http:", "https:", "data:"].includes(url.protocol)) {
+        return "Некорректный протокол URL изображения";
+      }
+    } catch {
+      return "Некорректный URL изображения";
+    }
+  }
+  return null;
+};
+
+const cleanupCache = () => {
+  const now = Date.now();
+  const entries = Array.from(messageCache.entries());
+
+  if (entries.length > MAX_CACHE_SIZE) {
+    entries
+      .sort((a, b) => a[1].timestamp - b[1].timestamp)
+      .slice(0, entries.length - MAX_CACHE_SIZE)
+      .forEach(([key]) => messageCache.delete(key));
+  }
+
+  for (const [key, value] of entries) {
+    if (
+      now - value.timestamp > CACHE_TTL ||
+      value.retryCount >= MAX_RETRY_COUNT
+    ) {
+      messageCache.delete(key);
+    }
+  }
+};
+
+setInterval(cleanupCache, CACHE_TTL);
+
+const handleRequestError = (error: unknown): ModelServiceResponse => {
+  if (error instanceof Error) {
+    if (error.name === "AbortError") {
+      return { success: false, error: "Превышено время ожидания" };
+    }
+    return { success: false, error: error.message };
+  }
+  return { success: false, error: "Неизвестная ошибка" };
+};
 
 export const ModelService = {
   async sendMessage(
     chatId: number,
     userMessage: string,
-    model: "deepseek" | "maverick" | "claude" | "gpt4o",
+    model: ModelType,
     imageUrl?: string,
     thinkMode?: boolean
   ): Promise<ModelServiceResponse> {
+    const validationError = validateInput(chatId, userMessage, model, imageUrl);
+    if (validationError) {
+      return { success: false, error: validationError };
+    }
+
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
       const response = await fetch("/api/sendMessage", {
         method: "POST",
         headers: {
@@ -28,12 +117,15 @@ export const ModelService = {
         },
         body: JSON.stringify({
           chatId,
-          message: userMessage,
+          message: sanitizeMessage(userMessage),
           model,
           imageUrl,
           thinkMode,
         }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`Ошибка сервера: ${response.statusText}`);
@@ -46,49 +138,63 @@ export const ModelService = {
 
       messageCache.delete(chatId);
 
-      return { success: true, message: data.message };
-    } catch (error: unknown) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      };
+      return { success: true, message: sanitizeMessage(data.message) };
+    } catch (error) {
+      return handleRequestError(error);
     }
   },
 
   async loadMessages(chatId: number): Promise<Message[]> {
-    const existingRequest = messageCache.get(chatId);
-    if (existingRequest) {
-      return existingRequest;
+    if (!Number.isInteger(chatId) || chatId <= 0 || chatId > MAX_CHAT_ID) {
+      console.error("Некорректный ID чата:", chatId);
+      return [];
+    }
+
+    const cached = messageCache.get(chatId);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.promise;
     }
 
     const requestPromise = (async () => {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
-        const response = await fetch(`/api/loadMessages?chatId=${chatId}`);
+        const response = await fetch(`/api/loadMessages?chatId=${chatId}`, {
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`Ошибка сервера: ${response.statusText}`);
+        }
+
         const { data, error } = await response.json();
 
         if (error) {
-          console.error("Ошибка загрузки сообщений:", error);
-          return [];
+          throw new Error(error);
         }
 
         const uniqueMessages: Message[] = [];
-        const messageSet = new Set();
+        const messageSet = new Set<string>();
 
         for (const msg of data) {
-          const key = `${msg.role}:${msg.content}`;
+          if (!msg || typeof msg !== "object") continue;
+
+          const role = msg.role as "user" | "assistant" | "system";
+          const content = sanitizeMessage(msg.content);
+          const key = `${role}:${content}`;
+
           if (!messageSet.has(key)) {
             messageSet.add(key);
             uniqueMessages.push({
-              role: msg.role as "user" | "assistant",
-              content: msg.content,
+              role,
+              content,
               id: msg.id || `${chatId}-${uniqueMessages.length}`,
             });
           }
         }
-
-        setTimeout(() => messageCache.delete(chatId), 1000);
 
         return uniqueMessages;
       } catch (error) {
@@ -101,7 +207,12 @@ export const ModelService = {
       }
     })();
 
-    messageCache.set(chatId, requestPromise);
+    messageCache.set(chatId, {
+      promise: requestPromise,
+      timestamp: Date.now(),
+      retryCount: 0,
+    });
+
     return requestPromise;
   },
 };

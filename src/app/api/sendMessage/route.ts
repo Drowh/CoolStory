@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
 const supabase = createClient(
   process.env.SUPABASE_URL || "",
@@ -7,32 +9,65 @@ const supabase = createClient(
 );
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
-const MAVERICK_API_KEY = process.env.MAVERICK_API_KEY;
-const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
-const GPT4O_API_KEY = process.env.GPT4O_API_KEY;
+
+const validateApiKeys = () => {
+  const requiredKeys = {
+    DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
+    MAVERICK_API_KEY: process.env.MAVERICK_API_KEY,
+    CLAUDE_API_KEY: process.env.CLAUDE_API_KEY,
+    GPT4O_API_KEY: process.env.GPT4O_API_KEY,
+  };
+
+  const missingKeys = Object.entries(requiredKeys)
+    .filter(([value]) => !value)
+    .map(([key]) => key);
+
+  if (missingKeys.length > 0) {
+    throw new Error(`Missing required API keys: ${missingKeys.join(", ")}`);
+  }
+
+  return requiredKeys;
+};
+
+const apiKeys = validateApiKeys();
+
+const validateInput = (chatId: unknown, message: unknown, model: unknown) => {
+  if (!chatId || typeof chatId !== "number" || chatId <= 0) {
+    throw new Error("Invalid chatId");
+  }
+
+  if (!message || typeof message !== "string") {
+    throw new Error("Invalid message format");
+  }
+
+  const validModels = ["deepseek", "maverick", "claude", "gpt4o"];
+  if (!model || typeof model !== "string" || !validModels.includes(model)) {
+    throw new Error("Invalid model selection");
+  }
+
+  if (message.length < 1 || message.length > 5000) {
+    throw new Error("Message length must be between 1 and 5000 characters");
+  }
+};
+
+const redis = Redis.fromEnv();
+const ratelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(10, "10 s"),
+  analytics: true,
+});
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
+  const { success } = await ratelimit.limit(ip);
+  if (!success) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   try {
     const { chatId, message, model, imageUrl, thinkMode } = await req.json();
 
-    if (!chatId || !message || !model) {
-      console.error("Missing required fields");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-    if (
-      typeof message !== "string" ||
-      message.length < 1 ||
-      message.length > 2000
-    ) {
-      return NextResponse.json(
-        { error: "Недопустимая длина сообщения" },
-        { status: 400 }
-      );
-    }
+    validateInput(chatId, message, model);
 
     const { error: userError } = await supabase.from("chat_messages").insert({
       chat_id: chatId,
@@ -48,10 +83,10 @@ export async function POST(req: NextRequest) {
     }
 
     const apiKeyMap = {
-      deepseek: DEEPSEEK_API_KEY,
-      maverick: MAVERICK_API_KEY,
-      claude: CLAUDE_API_KEY,
-      gpt4o: GPT4O_API_KEY,
+      deepseek: apiKeys.DEEPSEEK_API_KEY,
+      maverick: apiKeys.MAVERICK_API_KEY,
+      claude: apiKeys.CLAUDE_API_KEY,
+      gpt4o: apiKeys.GPT4O_API_KEY,
     };
     const apiKey = apiKeyMap[model as keyof typeof apiKeyMap];
     if (!apiKey) {

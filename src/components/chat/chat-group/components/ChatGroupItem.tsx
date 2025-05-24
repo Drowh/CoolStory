@@ -4,6 +4,7 @@ import { Chat } from "../../../../types";
 import { useChatHistoryStore } from "../../../../stores/chatHistory";
 import { useUIStore } from "../../../../stores/uiStore";
 import ChatItemMenu from "./ChatItemMenu";
+import DOMPurify from "dompurify";
 
 interface ChatGroupItemProps {
   chatInfo: { chat: Chat; matchedSnippet?: string };
@@ -23,6 +24,7 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
   const { chat, matchedSnippet } = chatInfo;
   const searchQuery = useChatHistoryStore((state) => state.searchQuery);
   const { openMenuId, setOpenMenuId } = useUIStore();
+  const menuKey = chat.id + ":main";
 
   const highlightMatch = (text: string, query: string) => {
     if (!query || !text) return text;
@@ -101,9 +103,7 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setOpenMenuId(
-                    openMenuId === String(chat.id) ? null : String(chat.id)
-                  );
+                  setOpenMenuId(openMenuId === menuKey ? null : menuKey);
                 }}
                 className={`text-zinc-500 dark:text-gray-400 hover:text-zinc-900 dark:hover:text-gray-200 ml-1 rounded-full hover:bg-zinc-100 dark:hover:bg-gray-700 transition-all duration-200 
                   ${
@@ -113,11 +113,11 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
                   }`}
                 aria-label="Открыть меню действий для чата"
                 aria-haspopup="true"
-                aria-expanded={openMenuId === String(chat.id)}
+                aria-expanded={openMenuId === menuKey}
               >
                 <FontAwesomeIcon icon="ellipsis-h" aria-hidden="true" />
               </button>
-              {openMenuId === String(chat.id) && (
+              {openMenuId === menuKey && (
                 <ChatItemMenu
                   chatId={chat.id}
                   menuRef={menuRef}
@@ -136,7 +136,7 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
           >
             <div
               dangerouslySetInnerHTML={{
-                __html: `...${matchedSnippet}...`,
+                __html: `...${DOMPurify.sanitize(matchedSnippet)}...`,
               }}
             />
           </div>
@@ -149,12 +149,6 @@ const ChatGroupItem: React.FC<ChatGroupItemProps> = ({
           </p>
         )}
       </div>
-      {chat.isActive && (
-        <div
-          className="absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-pink-500 to-purple-600"
-          aria-hidden="true"
-        ></div>
-      )}
     </li>
   );
 };

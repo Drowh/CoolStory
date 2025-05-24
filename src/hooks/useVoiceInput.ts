@@ -67,65 +67,71 @@ export const useVoiceInput = (): UseVoiceInputResult => {
 
   useEffect(() => {
     if (!isListening) {
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-        audioContextRef.current = null;
-      }
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
-        rafIdRef.current = null;
-      }
-      setSpeechLevel(0);
+      cleanupAudioResources();
       return;
     }
     let stream: MediaStream;
     let stopped = false;
-    navigator.mediaDevices.getUserMedia({ audio: true }).then((s) => {
-      if (stopped) return;
-      stream = s;
-      const audioContext = new window.AudioContext();
-      audioContextRef.current = audioContext;
-      const analyser = audioContext.createAnalyser();
-      analyser.fftSize = 256;
-      analyserRef.current = analyser;
-      const source = audioContext.createMediaStreamSource(stream);
-      sourceRef.current = source;
-      source.connect(analyser);
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-      dataArrayRef.current = dataArray;
-      const update = () => {
-        analyser.getByteTimeDomainData(dataArray);
-        let sum = 0;
-        for (let i = 0; i < dataArray.length; i++) {
-          const val = dataArray[i] - 128;
-          sum += val * val;
-        }
-        const rms = Math.sqrt(sum / dataArray.length) / 128;
-        setSpeechLevel(rms);
-        rafIdRef.current = requestAnimationFrame(update);
-      };
-      update();
-    });
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((s) => {
+        if (stopped) return;
+        stream = s;
+        setupAudioProcessing(stream);
+      })
+      .catch((err) => {
+        setError("Ошибка доступа к микрофону: " + err.message);
+        setIsListening(false);
+      });
     return () => {
       stopped = true;
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-        audioContextRef.current = null;
-      }
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
-        rafIdRef.current = null;
-      }
-      if (sourceRef.current) {
-        sourceRef.current.disconnect();
-        sourceRef.current = null;
-      }
-      setSpeechLevel(0);
+      cleanupAudioResources();
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
       }
     };
   }, [isListening]);
+
+  const cleanupAudioResources = () => {
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    if (rafIdRef.current) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
+    if (sourceRef.current) {
+      sourceRef.current.disconnect();
+      sourceRef.current = null;
+    }
+    setSpeechLevel(0);
+  };
+
+  const setupAudioProcessing = (stream: MediaStream) => {
+    const audioContext = new window.AudioContext();
+    audioContextRef.current = audioContext;
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+    analyserRef.current = analyser;
+    const source = audioContext.createMediaStreamSource(stream);
+    sourceRef.current = source;
+    source.connect(analyser);
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    dataArrayRef.current = dataArray;
+    const update = () => {
+      analyser.getByteTimeDomainData(dataArray);
+      let sum = 0;
+      for (let i = 0; i < dataArray.length; i++) {
+        const val = dataArray[i] - 128;
+        sum += val * val;
+      }
+      const rms = Math.sqrt(sum / dataArray.length) / 128;
+      setSpeechLevel(rms);
+      rafIdRef.current = requestAnimationFrame(update);
+    };
+    update();
+  };
 
   const toggleListening = useCallback(() => {
     if (!recognition) return;

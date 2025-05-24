@@ -1,154 +1,179 @@
 import { Chat } from "../../types";
 import { levenshteinDistance } from "./utils";
 import { ModelService } from "../../services/ModelService";
+import { CachedMessage } from "./types";
+
+interface SearchOperationsState {
+  chatHistory: Chat[];
+  searchQuery: string;
+  chatMessagesCache: Record<number, CachedMessage[]>;
+  setChatMessagesCache: (chatId: number, messages: CachedMessage[]) => void;
+}
+
+interface ChatMatch {
+  chat: Chat;
+  score: number;
+  matchedSnippet?: string;
+}
+
+interface ChatGroups {
+  today: { chat: Chat; matchedSnippet?: string }[];
+  older: { chat: Chat; matchedSnippet?: string }[];
+}
+
+const validateSearchQuery = (query: unknown): query is string => {
+  return typeof query === "string" && query.length >= 0;
+};
+
+const calculateMatchScore = (
+  text: string,
+  query: string,
+  isTitle: boolean = false
+): { score: number; matchedSnippet?: string } => {
+  const textLower = text.toLowerCase();
+  const queryLower = query.toLowerCase();
+  let score = 0;
+  let matchedSnippet: string | undefined;
+
+  if (textLower.includes(queryLower)) {
+    score += isTitle ? 100 : 50;
+    const queryIndex = textLower.indexOf(queryLower);
+    if (queryIndex < (isTitle ? 10 : 50)) score += 20;
+
+    const start = Math.max(0, queryIndex - (isTitle ? 20 : 30));
+    const end = Math.min(
+      text.length,
+      queryIndex + query.length + (isTitle ? 20 : 30)
+    );
+    matchedSnippet = text
+      .slice(start, end)
+      .replace(new RegExp(`(${query})`, "gi"), "<mark>$1</mark>");
+  } else {
+    const words = textLower.split(/\s+/);
+    for (const word of words) {
+      const distance = levenshteinDistance(queryLower, word);
+      if (distance <= 2 && word.length >= queryLower.length - 1) {
+        score += isTitle ? 50 : 30;
+        const wordIndex = textLower.indexOf(word);
+        const start = Math.max(0, wordIndex - 20);
+        const end = Math.min(text.length, wordIndex + word.length + 20);
+        matchedSnippet = text.slice(start, end);
+        break;
+      }
+    }
+  }
+
+  return { score, matchedSnippet };
+};
 
 export const createSearchOperations = (
-  getState: () => {
-    chatHistory: Chat[];
-    searchQuery: string;
-    chatMessagesCache: Record<
-      number,
-      { id: string; text: string; sender: string }[]
-    >;
-    setChatMessagesCache: (
-      chatId: number,
-      messages: { id: string; text: string; sender: string }[]
-    ) => void;
-  }
+  getState: () => SearchOperationsState
 ) => {
   return {
     groupChatsByDate: async () => {
-      const groups = {
-        today: [] as { chat: Chat; matchedSnippet?: string }[],
-        older: [] as { chat: Chat; matchedSnippet?: string }[],
-      };
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const {
-        chatHistory,
-        searchQuery,
-        chatMessagesCache,
-        setChatMessagesCache,
-      } = getState();
+      try {
+        const {
+          chatHistory,
+          searchQuery,
+          chatMessagesCache,
+          setChatMessagesCache,
+        } = getState();
 
-      const query = searchQuery.trim().toLowerCase();
-      let filteredChats: {
-        chat: Chat;
-        score: number;
-        matchedSnippet?: string;
-      }[] = chatHistory
-        .filter((chat) => !chat.hidden)
-        .map((chat) => ({ chat, score: 0, matchedSnippet: undefined }));
+        if (!validateSearchQuery(searchQuery)) {
+          console.error("Невалидный поисковый запрос:", searchQuery);
+          return { today: [], older: [] };
+        }
 
-      if (query) {
-        const titleMatches: {
-          chat: Chat;
-          score: number;
-          matchedSnippet?: string;
-        }[] = [];
-        const contentMatches: {
-          chat: Chat;
-          score: number;
-          matchedSnippet?: string;
-        }[] = [];
+        const groups: ChatGroups = {
+          today: [],
+          older: [],
+        };
 
-        for (const chatEntry of filteredChats) {
-          const chat = chatEntry.chat;
-          let score = 0;
-          let matchedSnippet: string | undefined = undefined;
+        const now = new Date();
+        const today = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate()
+        );
+        const query = searchQuery.trim().toLowerCase();
 
-          const titleMatch = chat.title.toLowerCase().includes(query);
-          if (titleMatch) {
-            score += 100;
-            const queryIndex = chat.title.toLowerCase().indexOf(query);
-            if (queryIndex < 10) score += 20;
-            titleMatches.push({ chat, score, matchedSnippet });
-            continue;
-          }
+        let filteredChats: ChatMatch[] = chatHistory
+          .filter((chat) => !chat.hidden)
+          .map((chat) => ({ chat, score: 0 }));
 
-          if (!chatMessagesCache[chat.id]) {
-            try {
-              const messages = await ModelService.loadMessages(chat.id);
-              const formattedMessages = messages.map((msg, index) => ({
-                id: `${chat.id}-${msg.id || index}`,
-                text: msg.content || "",
-                sender: msg.role as "user" | "assistant",
-              }));
-              setChatMessagesCache(chat.id, formattedMessages);
-            } catch (error) {
-              console.error(
-                `Error loading messages for chat ${chat.id}:`,
-                error
-              );
+        if (query) {
+          const titleMatches: ChatMatch[] = [];
+          const contentMatches: ChatMatch[] = [];
+
+          for (const chatEntry of filteredChats) {
+            const chat = chatEntry.chat;
+
+            const titleResult = calculateMatchScore(chat.title, query, true);
+            if (titleResult.score > 0) {
+              titleMatches.push({
+                chat,
+                score: titleResult.score,
+                matchedSnippet: titleResult.matchedSnippet,
+              });
               continue;
             }
-          }
 
-          const messages = chatMessagesCache[chat.id] || [];
-          if (messages.length > 0) {
-            for (const msg of messages) {
-              const text = msg.text.toLowerCase();
-              if (text.includes(query)) {
-                score += 50;
-                const queryIndex = text.indexOf(query);
-                if (queryIndex < 50) score += 20;
-                const start = Math.max(0, queryIndex - 30);
-                const end = Math.min(
-                  text.length,
-                  queryIndex + query.length + 30
+            if (!chatMessagesCache[chat.id]) {
+              try {
+                const messages = await ModelService.loadMessages(chat.id);
+                const formattedMessages = messages.map((msg, index) => ({
+                  id: `${chat.id}-${msg.id || index}`,
+                  text: msg.content || "",
+                  sender: msg.role as "user" | "assistant",
+                }));
+                setChatMessagesCache(chat.id, formattedMessages);
+              } catch (error) {
+                console.error(
+                  `Ошибка загрузки сообщений для чата ${chat.id}:`,
+                  error
                 );
-                matchedSnippet = text
-                  .slice(start, end)
-                  .replace(new RegExp(`(${query})`, "gi"), `<mark>$1</mark>`);
-                contentMatches.push({ chat, score, matchedSnippet });
-                break;
-              } else {
-                const words = text.split(/\s+/);
-                for (const word of words) {
-                  const distance = levenshteinDistance(query, word);
-                  if (distance <= 2 && word.length >= query.length - 1) {
-                    score += 30;
-                    const start = Math.max(0, text.indexOf(word) - 20);
-                    const end = Math.min(
-                      text.length,
-                      text.indexOf(word) + word.length + 20
-                    );
-                    matchedSnippet = `${text.slice(
-                      start,
-                      text.indexOf(word)
-                    )}${word}${text.slice(
-                      text.indexOf(word) + word.length,
-                      end
-                    )}`;
-
-                    break;
-                  }
-                }
-                if (matchedSnippet) break;
+                continue;
               }
             }
-            if (score > 0) {
-              contentMatches.push({ chat, score, matchedSnippet });
+
+            const messages = chatMessagesCache[chat.id] || [];
+            if (messages.length > 0) {
+              for (const msg of messages) {
+                const contentResult = calculateMatchScore(msg.text, query);
+                if (contentResult.score > 0) {
+                  contentMatches.push({
+                    chat,
+                    score: contentResult.score,
+                    matchedSnippet: contentResult.matchedSnippet,
+                  });
+                  break;
+                }
+              }
             }
           }
+
+          titleMatches.sort((a, b) => b.score - a.score);
+          contentMatches.sort((a, b) => b.score - a.score);
+
+          filteredChats = [...titleMatches, ...contentMatches];
         }
 
-        titleMatches.sort((a, b) => b.score - a.score);
-        contentMatches.sort((a, b) => b.score - a.score);
+        filteredChats.forEach(({ chat, matchedSnippet }) => {
+          const chatDate = chat.createdAt
+            ? new Date(chat.createdAt)
+            : new Date();
+          if (chatDate >= today) {
+            groups.today.push({ chat, matchedSnippet });
+          } else {
+            groups.older.push({ chat, matchedSnippet });
+          }
+        });
 
-        filteredChats = [...titleMatches, ...contentMatches];
+        return groups;
+      } catch (error) {
+        console.error("Ошибка при группировке чатов:", error);
+        return { today: [], older: [] };
       }
-
-      filteredChats.forEach(({ chat, matchedSnippet }) => {
-        const chatDate = chat.createdAt ? new Date(chat.createdAt) : new Date();
-        if (chatDate >= today) {
-          groups.today.push({ chat, matchedSnippet });
-        } else {
-          groups.older.push({ chat, matchedSnippet });
-        }
-      });
-
-      return groups;
     },
   };
 };
