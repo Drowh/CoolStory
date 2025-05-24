@@ -13,6 +13,7 @@ import { useProfile } from "../../contexts/ProfileContext";
 import Avatar from "../ui/Avatar";
 import "../../styles/markdown.css";
 import "../../styles/chat.css";
+import DOMPurify from "dompurify";
 
 interface Message {
   id: string;
@@ -47,9 +48,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     if (!isUser) {
       try {
         const processedHtml = renderMarkdownSafe(message.text);
-        setHtml(processedHtml);
+        setHtml(DOMPurify.sanitize(processedHtml));
 
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
           document.querySelectorAll("pre code").forEach((block) => {
             const htmlBlock = block as HTMLElement;
             if (!htmlBlock.dataset.highlighted) {
@@ -57,9 +58,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             }
           });
         }, 100);
+
+        return () => clearTimeout(timeoutId);
       } catch (error) {
         console.error("Markdown parsing error:", error);
-        setHtml(`<p>${message.text}</p>`);
+        setHtml(`<p>${DOMPurify.sanitize(message.text)}</p>`);
       }
     }
   }, [message.text, isUser]);
@@ -69,22 +72,32 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       const target = e.target as HTMLElement;
       if (target.classList.contains("copy-btn")) {
         const code = decodeURIComponent(target.getAttribute("data-code") || "");
-        navigator.clipboard.writeText(code);
+        navigator.clipboard.writeText(code).catch(console.error);
         target.textContent = "✓";
-        setTimeout(() => (target.textContent = "⧉"), 1200);
+        const timeoutId = setTimeout(() => (target.textContent = "⧉"), 1200);
+        return () => clearTimeout(timeoutId);
       }
     };
 
     if (!isUser) {
       document.addEventListener("click", handler);
-      return () => document.removeEventListener("click", handler);
+      return () => {
+        document.removeEventListener("click", handler);
+      };
     }
-  }, [html, isUser]);
+  }, [isUser]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(message.text);
+    navigator.clipboard.writeText(message.text).catch(console.error);
     setCopied(true);
-    setTimeout(() => setCopied(false), 1200);
+    const timeoutId = setTimeout(() => setCopied(false), 1200);
+    return () => clearTimeout(timeoutId);
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.target as HTMLImageElement;
+    target.style.display = "none";
+    console.error("Ошибка загрузки изображения:", message.imageUrl);
   };
 
   return (
@@ -115,14 +128,18 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           }`}
       >
         {message.imageUrl && (
-          <Image
-            src={message.imageUrl}
-            alt="Прикрепленное изображение"
-            className="rounded-lg mb-2"
-            width={200}
-            height={200}
-            style={{ maxWidth: "200px", height: "auto" }}
-          />
+          <div className="relative w-[200px] h-[200px] mb-2">
+            <Image
+              src={message.imageUrl}
+              alt="Прикрепленное изображение"
+              className="rounded-lg object-contain"
+              fill
+              sizes="200px"
+              priority
+              loading="eager"
+              onError={handleImageError}
+            />
+          </div>
         )}
         {isUser ? (
           <div className="flex items-center justify-between">
@@ -170,6 +187,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             className="w-full h-full object-cover"
             width={40}
             height={40}
+            priority
           />
         </div>
       )}

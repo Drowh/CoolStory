@@ -13,6 +13,8 @@ const firaCode = Fira_Code({
   subsets: ["latin", "cyrillic"],
   weight: ["400", "700"],
   display: "swap",
+  preload: true,
+  fallback: ["system-ui", "monospace"],
 });
 
 const comicRelief = localFont({
@@ -22,6 +24,8 @@ const comicRelief = localFont({
   ],
   variable: "--font-comic-relief",
   display: "swap",
+  preload: true,
+  fallback: ["system-ui", "sans-serif"],
 });
 
 export const metadata: Metadata = {
