@@ -1,36 +1,141 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CoolStory
 
-## Getting Started
+💫 [Live Demo](https://cool-story-six.vercel.app/)
 
-First, run the development server:
+## 📝 Описание
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+CoolStory - это современное веб-приложение для общения с AI, построенное на Next.js. Проект предоставляет удобный интерфейс для взаимодействия с GPT-4o-mini и другими моделями, позволяя пользователям вести диалоги, сохранять историю чатов и управлять своими беседами и добавлять их в избранные.
+
+## 🚀 Технологии
+
+- **Frontend:**
+
+  - Next.js 15
+  - React 19
+  - TypeScript
+  - Tailwind CSS
+  - Framer Motion
+  - Zustand (управление состоянием)
+  - React Window (виртуализация списков)
+  - React Markdown (рендеринг markdown)
+  - FontAwesome (иконки)
+
+- **Backend:**
+
+  - Supabase (аутентификация и база данных)
+  - Upstash Redis (rate limiting)
+  - Next.js API Routes
+
+- **Тестирование:**
+  - Jest
+  - React Testing Library
+
+## 🛠 Установка и запуск
+
+1. Клонируйте репозиторий:
+
+   ```bash
+   git clone https://github.com/Drowh/CoolStory.git
+   cd CoolStory
+   ```
+
+2. Установите зависимости:
+
+   ```bash
+   npm install
+   # или
+   yarn install
+   ```
+
+3. Создайте файл `.env.local` и добавьте необходимые переменные окружения:
+
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   UPSTASH_REDIS_REST_URL=your_redis_url
+   UPSTASH_REDIS_REST_TOKEN=your_redis_token
+   ```
+
+4. Запустите проект в режиме разработки:
+   ```bash
+   npm run dev
+   # или
+   yarn dev
+   ```
+
+## 📁 Структура проекта
+
+```
+src/
+├── app/              # Next.js app router
+├── components/       # React компоненты
+│   ├── auth/        # Компоненты аутентификации
+│   ├── chat/        # Компоненты чата
+│   ├── dialogs/     # Диалоговые окна
+│   ├── layout/      # Компоненты layout
+│   ├── modals/      # Модальные окна
+│   └── ui/          # UI компоненты
+├── contexts/        # React контексты
+├── hooks/           # Кастомные хуки
+├── services/        # Сервисы для работы с API
+├── stores/          # Zustand сторы
+├── styles/          # Стили
+├── types/           # TypeScript типы
+└── utils/           # Утилиты и хелперы
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Возможности
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- 🔐 Аутентификация через Supabase
+- 💬 Чат с GPT-4o-mini, Claude 3.7 Sonnet, Marevick, DeepSeek V3
+- 📝 Поддержка Markdown в сообщениях
+- 🎨 Подсветка синтаксиса кода
+- 📱 Адаптивный дизайн
+- 🔍 Поиск по истории чатов
+- 📂 Организация чатов в папки
+- 🎤 Голосовой ввод
+- 🎨 Обработка изображения
+- 🌙 Темная/светлая тема
+- ⚡ Виртуализация длинных списков
+- 🔄 Rate limiting для API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🤝 Примеры использования
 
-## Learn More
+1. **Создание нового чата:**
 
-To learn more about Next.js, take a look at the following resources:
+   - Нажмите кнопку "Новый чат" в боковой панели
+   - Введите сообщение и отправьте
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Управление чатами:**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   - Создавайте папки(темки) для организации чатов
+   - Перетаскивайте чаты между папками
+   - Используйте поиск для быстрого доступа
 
-## Deploy on Vercel
+3. **Настройки:**
+   - Переключение темы
+   - Выбор аватарки
+   - Автоматическое скрытие папок
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ❓ FAQ
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Q: Как работает аутентификация?**  
+A: Проект использует Supabase для аутентификации. Пользователи могут войти через email/password.
+
+**Q: Как сохраняются чаты?**  
+A: Все чаты сохраняются в базе данных Supabase и синхронизируются между устройствами.
+
+**Q: Есть ли ограничения на использование API?**  
+A: Да, реализован rate limiting через Upstash Redis для защиты от злоупотреблений.
+
+## 📄 License
+
+This project is licensed under the [MIT License](./LICENSE).
+
+## 👨‍💻 Автор
+
+- **DrowDev** - [GitHub](https://github.com/Drowh)
+
+---
+
+⭐ Star this repository if you find it useful!
