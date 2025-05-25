@@ -7,7 +7,7 @@ const supabase = createClient(
 );
 
 const MAX_CHAT_ID = 1000000;
-const MAX_MESSAGES = 1000;
+const MAX_MESSAGES = 100000;
 
 const validateChatId = (chatId: string | null): number => {
   if (!chatId) {

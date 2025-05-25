@@ -1,5 +1,3 @@
-import DOMPurify from "dompurify";
-
 interface Message {
   role: "user" | "assistant" | "system";
   content: string;
@@ -38,10 +36,6 @@ export const setCurrentActiveChatId = (chatId: number | null) => {
     messageCache.clear();
   }
   currentActiveChatId = chatId;
-};
-
-const sanitizeMessage = (message: string): string => {
-  return DOMPurify.sanitize(message.trim());
 };
 
 const validateInput = (
@@ -126,7 +120,7 @@ export const ModelService = {
         },
         body: JSON.stringify({
           chatId,
-          message: sanitizeMessage(userMessage),
+          message: userMessage,
           model,
           imageUrl,
           thinkMode,
@@ -147,7 +141,7 @@ export const ModelService = {
 
       messageCache.delete(chatId);
 
-      return { success: true, message: sanitizeMessage(data.message) };
+      return { success: true, message: data.message };
     } catch (error) {
       return handleRequestError(error);
     }
@@ -206,7 +200,7 @@ export const ModelService = {
           if (!msg || typeof msg !== "object") continue;
 
           const role = msg.role as "user" | "assistant" | "system";
-          const content = sanitizeMessage(msg.content);
+          const content = msg.content;
           const key = `${role}:${content}`;
 
           if (!messageSet.has(key)) {

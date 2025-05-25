@@ -4,6 +4,7 @@ import Button from "../ui/Button";
 import SettingsTabContent from "./settings/SettingsTabContent";
 import HelpTabContent from "./settings/HelpTabContent";
 import TermsTabContent from "./settings/TermsTabContent";
+import TabButton from "../ui/TabButton";
 
 interface SettingsModalProps {
   initialTab: "settings" | "help" | "terms";
@@ -110,51 +111,33 @@ const TabbedModal: React.FC<SettingsModalProps> = ({ initialTab }) => {
         </div>
 
         <div className="flex space-x-4 mb-6" role="tablist">
-          <button
+          <TabButton
             ref={settingsTabRef}
+            label="Настройки"
+            isActive={activeTab === "settings"}
             onClick={() => handleTabChange("settings")}
-            role="tab"
+            id="settings-tab"
             aria-selected={activeTab === "settings"}
             aria-controls="settings-panel"
-            id="settings-tab"
-            className={`px-4 py-2 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
-              activeTab === "settings"
-                ? "bg-pink-500 text-white scale-105 shadow-lg"
-                : "bg-zinc-100 dark:bg-gray-700 text-zinc-900 dark:text-gray-200 hover:bg-zinc-200 dark:hover:bg-gray-600 hover:scale-105"
-            }`}
-          >
-            Настройки
-          </button>
-          <button
+          />
+          <TabButton
             ref={helpTabRef}
+            label="Помощь"
+            isActive={activeTab === "help"}
             onClick={() => handleTabChange("help")}
-            role="tab"
+            id="help-tab"
             aria-selected={activeTab === "help"}
             aria-controls="help-panel"
-            id="help-tab"
-            className={`px-4 py-2 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
-              activeTab === "help"
-                ? "bg-pink-500 text-white scale-105 shadow-lg"
-                : "bg-zinc-100 dark:bg-gray-700 text-zinc-900 dark:text-gray-200 hover:bg-zinc-200 dark:hover:bg-gray-600 hover:scale-105"
-            }`}
-          >
-            Помощь
-          </button>
-          <button
+          />
+          <TabButton
             ref={termsTabRef}
+            label="Условия"
+            isActive={activeTab === "terms"}
             onClick={() => handleTabChange("terms")}
-            role="tab"
+            id="terms-tab"
             aria-selected={activeTab === "terms"}
             aria-controls="terms-panel"
-            id="terms-tab"
-            className={`px-4 py-2 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
-              activeTab === "terms"
-                ? "bg-pink-500 text-white scale-105 shadow-lg"
-                : "bg-zinc-100 dark:bg-gray-700 text-zinc-900 dark:text-gray-200 hover:bg-zinc-200 dark:hover:bg-gray-600 hover:scale-105"
-            }`}
-          >
-            Условия
-          </button>
+          />
         </div>
 
         <div
