@@ -5,8 +5,8 @@ import {
   setCurrentActiveChatId,
 } from "../../services/ModelService";
 import { exportChat } from "./utils";
-import { useChatHistoryStore } from "./store";
 import { CachedMessage } from "./types";
+import { applyHighlightToExistingCodeBlocks } from "../../utils/markdown";
 
 interface ChatOperationsState {
   chatHistory: Chat[];
@@ -29,34 +29,14 @@ const validateTitle = (title: unknown): title is string => {
   return typeof title === "string" && title.length > 0 && title.length <= 100;
 };
 
-export const createChatOperations = (getState: () => ChatOperationsState) => {
-  const set = (
+export const createChatOperations = (
+  set: (
     newState:
-      | Partial<{
-          lastSelectedChatId: number | null;
-          loadingChatId: number | null;
-          messagesLoaded: Record<number, boolean>;
-          chatHistory: Chat[];
-        }>
-      | ((state: {
-          lastSelectedChatId: number | null;
-          loadingChatId: number | null;
-          messagesLoaded: Record<number, boolean>;
-        }) => Partial<{
-          lastSelectedChatId: number | null;
-          loadingChatId: number | null;
-          messagesLoaded: Record<number, boolean>;
-          chatHistory: Chat[];
-        }>)
-  ) => {
-    const state = useChatHistoryStore.getState();
-    useChatHistoryStore.setState(
-      typeof newState === "function"
-        ? newState(state)
-        : { ...state, ...newState }
-    );
-  };
-
+      | Partial<ChatOperationsState>
+      | ((state: ChatOperationsState) => Partial<ChatOperationsState>)
+  ) => void,
+  get: () => ChatOperationsState
+) => {
   const operations = {
     createNewChat: async () => {
       try {
@@ -94,7 +74,7 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
           throw error;
         }
 
-        const { setChatHistory } = getState();
+        const { setChatHistory } = get();
         setChatHistory((prevChats) => [
           {
             ...data,
@@ -120,7 +100,7 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
         return;
       }
 
-      const { lastSelectedChatId, loadingChatId } = getState();
+      const { lastSelectedChatId, loadingChatId } = get();
 
       if (lastSelectedChatId === chatId || loadingChatId === chatId) {
         return;
@@ -131,6 +111,7 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
       set({
         lastSelectedChatId: chatId,
         loadingChatId: chatId,
+        messagesLoaded: {},
       });
 
       setCurrentActiveChatId(chatId);
@@ -141,7 +122,7 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
         console.error("Ошибка сохранения ID активного чата:", error);
       }
 
-      const { chatHistory, setChatHistory } = getState();
+      const { chatHistory, setChatHistory } = get();
       setChatHistory(
         chatHistory.map((chat) => ({
           ...chat,
@@ -151,11 +132,7 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
 
       useMessageStore.getState().setMessages([]);
 
-      set(() => ({
-        messagesLoaded: {},
-      }));
-
-      if (getState().lastSelectedChatId !== chatId) {
+      if (get().lastSelectedChatId !== chatId) {
         set({ loadingChatId: null });
         setCurrentActiveChatId(null);
         return;
@@ -164,18 +141,15 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
       try {
         const messages = await ModelService.loadMessages(chatId);
 
-        if (getState().lastSelectedChatId !== chatId) {
+        if (get().lastSelectedChatId !== chatId) {
           set({ loadingChatId: null });
           setCurrentActiveChatId(null);
           return;
         }
 
-        if (messages.length === 0) {
-          throw new Error("Не удалось загрузить сообщения");
-        }
-
-        set(() => ({
+        set((state) => ({
           messagesLoaded: {
+            ...state.messagesLoaded,
             [chatId]: true,
           },
           loadingChatId: null,
@@ -189,19 +163,22 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
 
         useMessageStore.getState().setMessages(formattedMessages);
         useMessageStore.getState().addToCache(chatId, formattedMessages);
+
+        applyHighlightToExistingCodeBlocks();
       } catch (error) {
         console.error(
           `Ошибка при загрузке сообщений для чата ${chatId}:`,
           error
         );
-        set(() => ({
+        set((state) => ({
           messagesLoaded: {
+            ...state.messagesLoaded,
             [chatId]: false,
           },
           loadingChatId: null,
         }));
         setCurrentActiveChatId(null);
-        throw error;
+        // Do not re-throw here, error is already logged
       }
     },
 
@@ -217,7 +194,7 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
       }
 
       try {
-        const { setChatHistory } = getState();
+        const { setChatHistory } = get();
         setChatHistory((prevChats) =>
           prevChats.map((chat) =>
             chat.id === chatId
@@ -245,7 +222,7 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
 
     exportChat: () => {
       try {
-        const { chatHistory } = getState();
+        const { chatHistory } = get();
         const messages = useMessageStore.getState().messages;
         const activeChat = chatHistory.find((chat) => chat.isActive);
 
@@ -335,7 +312,7 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
       }
 
       try {
-        const { setChatHistory } = getState();
+        const { setChatHistory } = get();
         setChatHistory((prevChats) => {
           const updated = prevChats.map((chat) =>
             chat.id === chatId ? { ...chat, title: newTitle } : chat
@@ -353,7 +330,7 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
         }
       } catch (error) {
         console.error("Ошибка переименования чата:", error);
-        const { setChatHistory } = getState();
+        const { setChatHistory } = get();
         setChatHistory((prevChats) =>
           prevChats.map((chat) =>
             chat.id === chatId ? { ...chat, title: "Новый чат" } : chat
@@ -370,7 +347,7 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
       }
 
       try {
-        const { setChatHistory } = getState();
+        const { setChatHistory } = get();
         setChatHistory((prevChats) =>
           prevChats.filter((chat) => chat.id !== chatId)
         );
@@ -383,8 +360,98 @@ export const createChatOperations = (getState: () => ChatOperationsState) => {
         if (error) {
           throw error;
         }
+
+        const { chatHistory } = get();
+        const visibleChats = chatHistory.filter(
+          (c) => !c.hidden && c.id !== chatId
+        );
+
+        if (visibleChats.length > 0) {
+          await operations.selectChat(visibleChats[0].id);
+        } else {
+          useMessageStore.getState().setMessages([]);
+          set({ lastSelectedChatId: null, chatHistory: [] });
+          setCurrentActiveChatId(null);
+          localStorage.removeItem("lastActiveChatId");
+        }
       } catch (error) {
         console.error("Ошибка удаления чата:", error);
+        throw error;
+      }
+    },
+
+    archiveChat: async (chatId: number) => {
+      if (!validateChatId(chatId)) {
+        console.error("Невалидный ID чата:", chatId);
+        return;
+      }
+
+      try {
+        const { error } = await (await import("../../utils/supabase")).supabase
+          .from("chats")
+          .update({ hidden: true })
+          .eq("id", chatId);
+
+        if (error) {
+          throw error;
+        }
+
+        const { setChatHistory } = get();
+        setChatHistory((prevChats) =>
+          prevChats.map((chat) =>
+            chat.id === chatId ? { ...chat, hidden: true } : chat
+          )
+        );
+
+        const updatedChatHistory = get().chatHistory;
+        const mostRecentVisibleChat = updatedChatHistory.find(
+          (chat) => !chat.hidden && chat.id !== chatId
+        );
+
+        if (mostRecentVisibleChat) {
+          await operations.selectChat(mostRecentVisibleChat.id);
+        } else if (updatedChatHistory.filter((c) => !c.hidden).length > 0) {
+          await operations.selectChat(
+            updatedChatHistory.find((c) => !c.hidden)!.id
+          );
+        } else {
+          useMessageStore.getState().setMessages([]);
+          set({ lastSelectedChatId: null });
+          setCurrentActiveChatId(null);
+          localStorage.removeItem("lastActiveChatId");
+        }
+      } catch (error) {
+        console.error("Ошибка архивации чата:", error);
+        throw error;
+      }
+    },
+
+    unarchiveChat: async (chatId: number) => {
+      if (!validateChatId(chatId)) {
+        console.error("Невалидный ID чата:", chatId);
+        return;
+      }
+
+      try {
+        const { error } = await (await import("../../utils/supabase")).supabase
+          .from("chats")
+          .update({ hidden: false })
+          .eq("id", chatId);
+
+        if (error) {
+          throw error;
+        }
+
+        const { setChatHistory } = get();
+        setChatHistory((prevChats) =>
+          prevChats.map((chat) =>
+            chat.id === chatId ? { ...chat, hidden: false } : chat
+          )
+        );
+
+        await operations.selectChat(chatId);
+      } catch (error) {
+        console.error("Ошибка разархивации чата:", error);
         throw error;
       }
     },

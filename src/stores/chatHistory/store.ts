@@ -122,14 +122,7 @@ const createChatHistoryStore: StateCreator<ChatHistoryState> = (set, get) => {
     messagesLoaded: {} as Record<number, boolean>,
   };
 
-  const chatOperations = createChatOperations(() => ({
-    chatHistory: get().chatHistory,
-    setChatHistory: get().setChatHistory,
-    lastSelectedChatId: get().lastSelectedChatId,
-    loadingChatId: get().loadingChatId,
-    messagesLoaded: get().messagesLoaded,
-    setChatMessagesCache: get().setChatMessagesCache,
-  }));
+  const chatOperations = createChatOperations(set, get);
 
   const folderOperations = createFolderOperations(() => ({
     setChatHistory: get().setChatHistory,
