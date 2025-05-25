@@ -1,9 +1,6 @@
 import { create, StateCreator } from "zustand";
 import { Message } from "../types";
-import DOMPurify from "dompurify";
 import { useCallback, useMemo } from "react";
-
-type MessageSender = "user" | "assistant";
 
 interface MessageState {
   messages: Message[];
@@ -34,23 +31,6 @@ const SCROLL_OPTIONS: ScrollIntoViewOptions = {
   block: "end",
 };
 
-const sanitizeMessage = (message: Message): Message => {
-  if (!message || typeof message !== "object") {
-    throw new Error("Invalid message format");
-  }
-
-  const sanitizedText = DOMPurify.sanitize(message.text.trim(), {
-    ALLOWED_TAGS: ["b", "i", "em", "strong", "a", "code", "pre"],
-    ALLOWED_ATTR: ["href", "target"],
-  });
-
-  return {
-    ...message,
-    text: sanitizedText,
-    sender: message.sender as MessageSender,
-  };
-};
-
 const validateMessage = (message: Message): boolean => {
   if (!message || typeof message !== "object") return false;
   if (!message.id || typeof message.id !== "string") return false;
@@ -75,16 +55,15 @@ const createMessageStore: StateCreator<MessageState> = (set, get) => ({
         if (!validateMessage(msg)) continue;
 
         try {
-          const sanitizedMsg = sanitizeMessage(msg);
-          const contentKey = `${sanitizedMsg.sender}:${sanitizedMsg.text}`;
+          const contentKey = `${msg.sender}:${msg.text}`;
 
-          if (!seenIds.has(sanitizedMsg.id) && !seenContent.has(contentKey)) {
-            seenIds.add(sanitizedMsg.id);
+          if (!seenIds.has(msg.id) && !seenContent.has(contentKey)) {
+            seenIds.add(msg.id);
             seenContent.set(contentKey, true);
-            uniqueMessages.push(sanitizedMsg);
+            uniqueMessages.push(msg);
           }
         } catch (error) {
-          console.error("Error sanitizing message:", error);
+          console.error("Error processing message:", error);
           continue;
         }
       }
@@ -94,13 +73,8 @@ const createMessageStore: StateCreator<MessageState> = (set, get) => ({
   inputMessage: "",
   setInputMessage: (value) =>
     set((state) => ({
-      inputMessage: DOMPurify.sanitize(
+      inputMessage:
         typeof value === "function" ? value(state.inputMessage) : value,
-        {
-          ALLOWED_TAGS: [],
-          ALLOWED_ATTR: [],
-        }
-      ),
     })),
   isTyping: false,
   setIsTyping: (value) =>
@@ -141,7 +115,7 @@ const createMessageStore: StateCreator<MessageState> = (set, get) => ({
         }
       }
 
-      newCache.set(chatId, messages.map(sanitizeMessage));
+      newCache.set(chatId, messages);
       return { messageCache: newCache };
     }),
   getFromCache: (chatId) => {

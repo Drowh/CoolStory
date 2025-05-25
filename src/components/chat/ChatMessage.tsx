@@ -47,19 +47,28 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   useEffect(() => {
     if (!isUser) {
       try {
-        const processedHtml = renderMarkdownSafe(message.text);
-        setHtml(DOMPurify.sanitize(processedHtml));
+        const isHtmlCode =
+          message.text.trim().startsWith("<") &&
+          message.text.trim().endsWith(">");
 
-        const timeoutId = setTimeout(() => {
-          document.querySelectorAll("pre code").forEach((block) => {
-            const htmlBlock = block as HTMLElement;
-            if (!htmlBlock.dataset.highlighted) {
-              hljs.highlightElement(htmlBlock);
-            }
-          });
-        }, 100);
+        let processedHtml;
+        if (isHtmlCode) {
+          processedHtml = `
+            <pre class="code-block-container language-html">
+              <button class="copy-btn" data-code="${encodeURIComponent(
+                message.text
+              )}" title="Скопировать код">⧉</button>
+              <span class="code-lang-label">HTML</span>
+              <code class="hljs language-html">
+                ${DOMPurify.sanitize(message.text)}
+              </code>
+            </pre>
+          `;
+        } else {
+          processedHtml = renderMarkdownSafe(message.text);
+        }
 
-        return () => clearTimeout(timeoutId);
+        setHtml(processedHtml);
       } catch (error) {
         console.error("Markdown parsing error:", error);
         setHtml(`<p>${DOMPurify.sanitize(message.text)}</p>`);
@@ -158,7 +167,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         ) : (
           <>
             <div
-              className="markdown-content prose dark:prose-invert max-w-none"
+              className="markdown-content max-w-none"
               dangerouslySetInnerHTML={{ __html: html }}
               aria-label="Сообщение ассистента"
             />

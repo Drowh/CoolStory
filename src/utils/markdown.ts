@@ -16,8 +16,6 @@ declare module "marked" {
 
 const MAX_INPUT_LENGTH = 100000;
 const MAX_CODE_BLOCK_LENGTH = 10000;
-const BATCH_SIZE = 10;
-const DEBOUNCE_DELAY = 100;
 
 const SUPPORTED_LANGUAGES = new Set([
   "javascript",
@@ -57,7 +55,7 @@ const validateLanguage = (lang: string): string => {
   return SUPPORTED_LANGUAGES.has(normalizedLang) ? normalizedLang : "plaintext";
 };
 
-const processCodeBlock = (
+export const processCodeBlock = (
   htmlBlock: HTMLElement,
   preBlock: HTMLElement
 ): void => {
@@ -246,65 +244,13 @@ export const getLanguageDisplay = (lang: string): string => {
   return languageMap[lang.toLowerCase()] || lang.toUpperCase();
 };
 
-const processingQueue: HTMLElement[] = [];
-let isProcessing = false;
-let debounceTimer: number | null = null;
-
-const processQueue = (): void => {
-  if (isProcessing || !processingQueue.length) return;
-
-  isProcessing = true;
-  const batch = processingQueue.splice(0, BATCH_SIZE);
-
-  batch.forEach((container) => {
-    container.querySelectorAll("pre code").forEach((block) => {
-      const htmlBlock = block as HTMLElement;
-      const preBlock = htmlBlock.parentElement;
-      if (preBlock) {
-        processCodeBlock(htmlBlock, preBlock);
-      }
-    });
-  });
-
-  isProcessing = false;
-
-  if (processingQueue.length) {
-    requestAnimationFrame(processQueue);
-  }
-};
-
-const debouncedProcessQueue = (): void => {
-  if (debounceTimer) {
-    window.clearTimeout(debounceTimer);
-  }
-  debounceTimer = window.setTimeout(processQueue, DEBOUNCE_DELAY);
-};
-
 export const applyHighlightToExistingCodeBlocks = (): void => {
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.type === "childList") {
-        mutation.addedNodes.forEach((node) => {
-          if (node instanceof HTMLElement) {
-            processingQueue.push(node);
-            debouncedProcessQueue();
-          }
-        });
+  document
+    .querySelectorAll(".markdown-content pre code.hljs")
+    .forEach((codeBlock) => {
+      const preBlock = codeBlock.closest("pre");
+      if (preBlock) {
+        processCodeBlock(codeBlock as HTMLElement, preBlock as HTMLElement);
       }
     });
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
-
-  const initialBlocks = document.querySelectorAll("pre code");
-  initialBlocks.forEach((block) => {
-    const htmlBlock = block as HTMLElement;
-    const preBlock = htmlBlock.parentElement;
-    if (preBlock) {
-      processCodeBlock(htmlBlock, preBlock);
-    }
-  });
 };
