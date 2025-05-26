@@ -50,11 +50,13 @@ describe("searchOperations", () => {
         },
       ];
 
-      act(() => {
+      await act(async () => {
         result.current.setChatHistory(mockChats);
       });
 
-      const groups = await result.current.groupChatsByDate();
+      const groups = await act(async () => {
+        return await result.current.groupChatsByDate();
+      });
 
       expect(groups.today.length).toBe(1);
       expect(groups.older.length).toBe(1);
@@ -83,12 +85,14 @@ describe("searchOperations", () => {
         },
       ];
 
-      act(() => {
+      await act(async () => {
         result.current.setChatHistory(mockChats);
         result.current.setSearchQuery("Тест");
       });
 
-      const groups = await result.current.groupChatsByDate();
+      const groups = await act(async () => {
+        return await result.current.groupChatsByDate();
+      });
 
       expect(groups.today.length).toBe(1);
       expect(groups.older.length).toBe(0);
@@ -116,13 +120,15 @@ describe("searchOperations", () => {
         },
       ];
 
-      act(() => {
+      await act(async () => {
         result.current.setChatHistory(mockChats);
         result.current.setSearchQuery("тестовым");
         result.current.setChatMessagesCache(1, mockMessages);
       });
 
-      const groups = await result.current.groupChatsByDate();
+      const groups = await act(async () => {
+        return await result.current.groupChatsByDate();
+      });
 
       expect(groups.today.length).toBe(1);
       expect(groups.older.length).toBe(0);
@@ -142,15 +148,17 @@ describe("searchOperations", () => {
         },
       ];
 
-      act(() => {
+      await act(async () => {
         result.current.setChatHistory(mockChats);
         result.current.setSearchQuery("Скрытый");
       });
 
-      const groups = await result.current.groupChatsByDate();
+      const groups = await act(async () => {
+        return await result.current.groupChatsByDate();
+      });
 
       expect(groups.today.length).toBe(0);
       expect(groups.older.length).toBe(0);
     });
   });
-}); 
+});
