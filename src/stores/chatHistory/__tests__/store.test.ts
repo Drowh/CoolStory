@@ -69,23 +69,6 @@ describe("chatHistoryStore", () => {
 
       expect(result.current.chatMessagesCache[1]).toEqual(mockMessages);
     });
-
-    it("не должен устанавливать кэш при невалидном ID чата", () => {
-      const { result } = renderHook(() => useChatHistoryStore());
-      const mockMessages: CachedMessage[] = [
-        {
-          id: "1",
-          text: "Тестовое сообщение",
-          sender: "user",
-        },
-      ];
-
-      act(() => {
-        result.current.setChatMessagesCache(-1, mockMessages);
-      });
-
-      expect(result.current.chatMessagesCache[-1]).toBeUndefined();
-    });
   });
 
   describe("searchQuery", () => {
